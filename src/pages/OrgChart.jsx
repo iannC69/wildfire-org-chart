@@ -668,8 +668,10 @@ function Legend() {
         const active = activeMembers.length
         const slotsText = r.maxSlots ? `${active} / ${r.maxSlots}` : active
         return (
-          <div key={r.id} className={styles.legendItem}>
-            <div className={styles.legendDot} style={{ background: r.color, boxShadow: `0 0 6px ${r.glow}` }} />
+          <div key={r.id} className={styles.legendItem} style={{ '--role-color': r.color }}>
+            <div className={styles.legendDot}>
+              <Shield size={12} />
+            </div>
             <span className={styles.legendLabel}>{r.title}</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginLeft: 'auto', paddingLeft: 16 }}>{slotsText}</span>
           </div>
