@@ -293,26 +293,33 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
       </text>
 
       {/* Role badge (foreignObject for flexbox auto-sizing & icons) */}
-      <foreignObject x={0} y={76} width={NODE_W} height={24} pointerEvents="none">
+      <foreignObject x={0} y={75} width={NODE_W} height={24} pointerEvents="none">
         <div style={{
           display: 'flex', width: '100%', height: '100%',
           alignItems: 'center', justifyContent: 'center'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '5px',
+            background: `color-mix(in srgb, ${nodeColor} 8%, transparent)`,
+            border: `1px solid color-mix(in srgb, ${nodeColor} 25%, transparent)`,
+            borderRadius: '12px',
+            padding: '2px 8px 2px 2px',
+          }}>
             <div style={{
-              width: '18px', height: '18px', borderRadius: '50%',
-              background: `color-mix(in srgb, ${nodeColor} 10%, transparent)`,
-              border: `1px solid color-mix(in srgb, ${nodeColor} 30%, transparent)`,
+              width: '16px', height: '16px', borderRadius: '50%',
+              background: `color-mix(in srgb, ${nodeColor} 20%, transparent)`,
+              border: `1px solid color-mix(in srgb, ${nodeColor} 50%, transparent)`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: nodeColor
             }}>
-              <Shield size={10} />
+              <Shield size={9} strokeWidth={2.5} />
             </div>
             <span style={{
               color: nodeColor,
-              fontSize: '9px',
+              fontSize: '7.5px',
               fontWeight: 800,
-              letterSpacing: '0.8px'
+              letterSpacing: '0.8px',
+              transform: 'translateY(0.5px)'
             }}>
               {role?.title?.toUpperCase().replace('_', ' ') || 'STAFF'}
             </span>
