@@ -1115,7 +1115,11 @@ export default function OrgChart() {
 
 
   // Auto-fit on first load or restore from URL
+  const initialFitDone = useRef(false)
   useEffect(() => {
+    if (initialFitDone.current) return
+    initialFitDone.current = true
+
     const params = new URLSearchParams(window.location.search)
     const z = params.get('zoom')
     const px = params.get('x')

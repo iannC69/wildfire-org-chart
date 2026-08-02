@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import { ORG_TREE, INITIAL_ROLES_DATA, ROLES as INITIAL_ROLES } from '../data/staffData'
 import INITIAL_ROLE_DETAILS from '../data/roleDetails.json'
 
@@ -81,9 +80,7 @@ function updateNodeField(node, id, field, value) {
   return { ...node, children: node.children.map(c => updateNodeField(c, id, field, value)) };
 }
 
-export const useStore = create(
-  persist(
-    (set, get) => {
+export const useStore = create((set, get) => {
       const pushHistory = (state) => {
         let newStack = (state.historyStack || []).slice(0, state.historyIndex + 1);
         newStack.push({ tree: state.tree, roles: state.roles, roleDetails: state.roleDetails });
@@ -344,16 +341,7 @@ export const useStore = create(
           return { tree: newTree, ...historyUpdate };
         })
       };
-    },
-    {
-      name: 'org-chart-storage',
-      partialize: (state) => ({ 
-        tree: state.tree, 
-        roles: state.roles, 
-        roleDetails: state.roleDetails
-      })
     }
-  )
 );
 
 let saveTimeout = null;

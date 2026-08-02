@@ -412,7 +412,7 @@ export const ORG_TREE = {
                 "Sprijin Community Manager"
               ],
               "joinDate": "2023-01-15",
-              "status": "online"
+              "status": "offline"
             },
             {
               "id": "booyeto",
@@ -457,7 +457,7 @@ export const ORG_TREE = {
             "Moderarea anunțurilor oficiale"
           ],
           "joinDate": "2023-01-15",
-          "status": "online",
+          "status": "offline",
           "history": [
             {
               "date": "2024-11-22T12:00:00Z",
@@ -535,7 +535,7 @@ export const ORG_TREE = {
                         "Sprijin moderatori"
                       ],
                       "joinDate": "2023-01-15",
-                      "status": "offline",
+                      "status": "online",
                       "history": [
                         {
                           "date": "2026-06-28T12:00:00Z",
@@ -558,7 +558,7 @@ export const ORG_TREE = {
                         "Suport în reguli de bază"
                       ],
                       "joinDate": "2023-01-15",
-                      "status": "offline",
+                      "status": "online",
                       "history": [
                         {
                           "date": "2026-07-06T16:46:00Z",
@@ -611,7 +611,7 @@ export const ORG_TREE = {
                         "Completarea Raportului"
                       ],
                       "joinDate": "2023-01-15",
-                      "status": "offline",
+                      "status": "online",
                       "history": [
                         {
                           "date": "2026-07-31T12:00:00Z",
@@ -659,7 +659,7 @@ export const ORG_TREE = {
                     "Completarea raportului"
                   ],
                   "joinDate": "2023-01-15",
-                  "status": "online",
+                  "status": "offline",
                   "history": [
                     {
                       "date": "2026-05-26T12:00:00Z",
@@ -715,7 +715,7 @@ export const ORG_TREE = {
                     "Raport de activitate"
                   ],
                   "joinDate": "2023-01-15",
-                  "status": "online",
+                  "status": "offline",
                   "history": [
                     {
                       "date": "2026-06-30T12:00:00Z",
@@ -743,7 +743,7 @@ export const ORG_TREE = {
             "Formare continuă a administratorilor"
           ],
           "joinDate": "2023-01-15",
-          "status": "offline",
+          "status": "online",
           "history": [
             {
               "date": "2024-09-14T12:00:00Z",
@@ -786,7 +786,7 @@ export const ORG_TREE = {
             "Feedback și audit intern"
           ],
           "joinDate": "2023-01-15",
-          "status": "offline"
+          "status": "online"
         }
       ],
       "avatarUrl": "https://avatars.fastly.steamstatic.com/a340dc57c25c5776e6adb9373e2e8ab5d5821d72_full.jpg",
