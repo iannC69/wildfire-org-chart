@@ -730,11 +730,17 @@
   justify-content: center;
   gap: 16px;
   position: relative;
-  padding: 0 0 0 16px;
+  padding: 16px 0 16px 24px;
 }
 
 .attrChartRespList::before {
-  display: none;
+  content: '';
+  position: absolute;
+  top: 48px;
+  bottom: 48px;
+  left: 0;
+  width: 2px;
+  background: color-mix(in srgb, var(--role-color) 40%, rgba(255, 255, 255, 0.1));
 }
 
 .attrChartRespItem {
@@ -749,7 +755,19 @@
 }
 
 .attrChartRespItem::before {
-  display: none;
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  width: 24px;
+  height: 2px;
+  background: color-mix(in srgb, var(--role-color) 40%, rgba(255, 255, 255, 0.1));
+  transform: translateY(-50%);
+  transition: background 0.2s;
+}
+
+.attrChartRespItem:hover::before {
+  background: var(--role-color);
 }
 
 .attrChartRespInteractive {
