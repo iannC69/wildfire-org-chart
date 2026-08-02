@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+/* ─── RESET & BASE ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #050505;
+  --bg-card: #0a0a0a;
+  --bg-card-hover: #111111;
+  --border: rgba(255,255,255,0.04);
+  --border-hover: rgba(255,255,255,0.08);
+  --text: #ffffff;
+  --text-muted: rgba(255,255,255,0.5);
+  --text-dim: rgba(255,255,255,0.25);
+  --accent: #ff6a00;
+  --accent-gold: #FFD700;
+  --font: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-pill: 50px;
+  --transition: 0.22s cubic-bezier(.34,1.56,.64,1);
+  --shadow-glow: 0 0 30px rgba(255,106,0,0.15);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.app-root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── SCROLLBAR ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+::-webkit-scrollbar-thumb { background: rgba(255,62,29,0.35); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,62,29,0.65); }
+
+/* ─── KEYFRAMES ─────────────────────────────────────────────────────────────── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.65; }
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes logoPulse {
+  0%, 100% { text-shadow: 0 0 12px rgba(255,62,29,0.7), 0 0 40px rgba(255,62,29,0.3); }
+  50%       { text-shadow: 0 0 24px rgba(255,215,0,0.9), 0 0 60px rgba(255,62,29,0.5); }
+}
+@keyframes iconGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,62,29,0.4); }
+  50%       { box-shadow: 0 0 26px rgba(255,62,29,0.85); }
+}
+@keyframes borderPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes drawLine {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes nodeIn {
+  from { opacity: 0; transform: scale(0.8) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ─── UTILITY ─────────────────────────────────────────────────────────────── */
+.animate-up   { animation: slideUp 0.45s ease both; }
+.animate-fade { animation: fadeIn 0.35s ease both; }
+.animate-scale{ animation: scaleIn 0.35s ease both; }
+
+input, button { font-family: var(--font); }
+input::placeholder { color: var(--text-dim); }
+input:focus { outline: none; }
+button { cursor: pointer; }
+a { text-decoration: none; color: inherit; }
+
+/* ─── GRID BACKGROUND ────────────────────────────────────────────────────────*/
+.grid-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ─── PAGE WRAPPER ───────────────────────────────────────────────────────────*/
+.page-wrapper {
+  position: relative; z-index: 1;
+  flex: 1; display: flex; flex-direction: column;
+}
