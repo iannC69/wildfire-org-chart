@@ -293,10 +293,16 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
       </text>
 
       {/* Role badge background */}
-      <rect
-        x={NODE_W / 2 - 73} y={79}
-        width={146} height={18}
-        rx={6}
+      <path
+        d={`
+          M ${NODE_W / 2 - 64} 79
+          L ${NODE_W / 2 + 64} 79
+          L ${NODE_W / 2 + 70} 88
+          L ${NODE_W / 2 + 64} 97
+          L ${NODE_W / 2 - 64} 97
+          L ${NODE_W / 2 - 70} 88
+          Z
+        `}
         fill={`color-mix(in srgb, ${nodeColor} 10%, transparent)`}
         stroke={`color-mix(in srgb, ${nodeColor} 30%, transparent)`}
         strokeWidth={1}
@@ -304,12 +310,12 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
       />
       {/* Role badge text */}
       <text
-        x={NODE_W / 2} y={91.5}
+        x={NODE_W / 2} y={91}
         textAnchor="middle"
         fill={nodeColor}
-        fontSize={8.5}
+        fontSize={8}
         fontWeight={800}
-        letterSpacing={0.8}
+        letterSpacing={1.2}
         fontFamily="inherit"
         pointerEvents="none"
       >
