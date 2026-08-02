@@ -292,35 +292,28 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
         {isVacant ? 'Poziție Liberă' : node.name}
       </text>
 
-      {/* Role badge background */}
-      <path
-        d={`
-          M ${NODE_W / 2 - 64} 79
-          L ${NODE_W / 2 + 64} 79
-          L ${NODE_W / 2 + 70} 88
-          L ${NODE_W / 2 + 64} 97
-          L ${NODE_W / 2 - 64} 97
-          L ${NODE_W / 2 - 70} 88
-          Z
-        `}
-        fill={`color-mix(in srgb, ${nodeColor} 10%, transparent)`}
-        stroke={`color-mix(in srgb, ${nodeColor} 30%, transparent)`}
-        strokeWidth={1}
-        pointerEvents="none"
-      />
-      {/* Role badge text */}
-      <text
-        x={NODE_W / 2} y={91}
-        textAnchor="middle"
-        fill={nodeColor}
-        fontSize={8}
-        fontWeight={800}
-        letterSpacing={1.2}
-        fontFamily="inherit"
-        pointerEvents="none"
-      >
-        {role?.title?.toUpperCase().replace('_', ' ') || 'STAFF'}
-      </text>
+      {/* Role badge (foreignObject for flexbox auto-sizing & icons) */}
+      <foreignObject x={0} y={76} width={NODE_W} height={24} pointerEvents="none">
+        <div style={{
+          display: 'flex', width: '100%', height: '100%',
+          alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '5px',
+            padding: '4px 10px',
+            background: `color-mix(in srgb, ${nodeColor} 15%, transparent)`,
+            border: `1px solid color-mix(in srgb, ${nodeColor} 40%, transparent)`,
+            borderRadius: '50px',
+            color: nodeColor,
+            fontSize: '9px',
+            fontWeight: 800,
+            letterSpacing: '0.5px'
+          }}>
+            <Shield size={10} />
+            {role?.title?.toUpperCase().replace('_', ' ') || 'STAFF'}
+          </div>
+        </div>
+      </foreignObject>
 
       {/* Responsibilities count pill (attached to top-right of Avatar) */}
       {!isVacant && roleDetails?.responsibilities?.length > 0 && (
