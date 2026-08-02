@@ -188,12 +188,19 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
 
     let draggedNodeId = node.id;
 
+    let currentX = 0;
+    let currentY = 0;
+
     const dragHandler = drag()
       .on('start', function (event) {
         d3.select(this).raise();
+        currentX = node.x;
+        currentY = node.y;
       })
       .on('drag', function (event) {
-        d3.select(this).attr('transform', `translate(${node.x + event.x}, ${node.y + event.y})`);
+        currentX += event.dx;
+        currentY += event.dy;
+        d3.select(this).attr('transform', `translate(${currentX}, ${currentY})`);
       })
       .on('end', function (event) {
         d3.select(this).attr('transform', `translate(${node.x}, ${node.y})`);
