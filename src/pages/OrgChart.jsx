@@ -670,10 +670,10 @@ function Legend() {
         return (
           <div key={r.id} className={styles.legendItem} style={{ '--role-color': r.color }}>
             <div className={styles.legendDot}>
-              <Shield size={12} />
+              <Shield size={10} />
             </div>
             <span className={styles.legendLabel}>{r.title}</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginLeft: 'auto', paddingLeft: 16 }}>{slotsText}</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginLeft: 'auto', paddingLeft: 12 }}>{slotsText}</span>
           </div>
         )
       })}

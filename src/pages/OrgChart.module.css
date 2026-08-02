@@ -374,10 +374,10 @@
   background: #09090b;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
-  padding: 16px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   z-index: 50;
   animation: scaleIn 0.22s ease;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
@@ -398,12 +398,12 @@
 .legendItem {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
 }
 
 .legendDot {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--role-color) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--role-color) 30%, transparent);
@@ -415,7 +415,7 @@
 }
 
 .legendLabel {
-  font-size: 13px;
+  font-size: 12px;
   color: #fff;
   white-space: nowrap;
   font-weight: 600;
