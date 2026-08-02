@@ -85,9 +85,15 @@ export const useStore = create(
   persist(
     (set, get) => {
       const pushHistory = (state) => {
-        const newStack = (state.historyStack || []).slice(0, state.historyIndex + 1);
+        let newStack = (state.historyStack || []).slice(0, state.historyIndex + 1);
         newStack.push({ tree: state.tree, roles: state.roles, roleDetails: state.roleDetails });
-        return { historyStack: newStack, historyIndex: newStack.length };
+        
+        // Limit history to 30 items
+        if (newStack.length > 30) {
+          newStack = newStack.slice(newStack.length - 30);
+        }
+        
+        return { historyStack: newStack, historyIndex: newStack.length - 1 };
       };
 
       return {
@@ -344,9 +350,7 @@ export const useStore = create(
       partialize: (state) => ({ 
         tree: state.tree, 
         roles: state.roles, 
-        roleDetails: state.roleDetails,
-        historyStack: state.historyStack,
-        historyIndex: state.historyIndex
+        roleDetails: state.roleDetails
       })
     }
   )
