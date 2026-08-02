@@ -331,8 +331,11 @@ export const useStore = create((set, get) => {
             // Find node loosely by matching name prefix or exact to handle cases like "Spark (Ultra)"
             const node = allNodes.find(n => n.name.includes(name));
             if (node) {
-              newTree = updateNodeField(newTree, node.id, 'history', histories[name]);
-              migrated = true;
+              // Only update if the history is actually different/missing
+              if (JSON.stringify(node.history) !== JSON.stringify(histories[name])) {
+                newTree = updateNodeField(newTree, node.id, 'history', histories[name]);
+                migrated = true;
+              }
             }
           });
           
