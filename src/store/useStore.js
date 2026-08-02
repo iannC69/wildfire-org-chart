@@ -344,8 +344,33 @@ export const useStore = create(
       partialize: (state) => ({ 
         tree: state.tree, 
         roles: state.roles, 
-        roleDetails: state.roleDetails 
+        roleDetails: state.roleDetails,
+        historyStack: state.historyStack,
+        historyIndex: state.historyIndex
       })
     }
   )
 );
+
+let saveTimeout = null;
+useStore.subscribe((state, prevState) => {
+  if (
+    state.tree !== prevState.tree ||
+    state.roles !== prevState.roles ||
+    state.roleDetails !== prevState.roleDetails
+  ) {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      fetch('/api/save-disk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tree: state.tree,
+          roles: state.roles,
+          rolesData: state.rolesData,
+          roleDetails: state.roleDetails
+        })
+      }).catch(err => console.error('Failed to sync to disk', err));
+    }, 1500); // 1.5s debounce
+  }
+});

@@ -293,10 +293,10 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
       </text>
 
       {/* Role badge (foreignObject for flexbox auto-sizing & icons) */}
-      <foreignObject x={0} y={75} width={NODE_W} height={24} pointerEvents="none">
+      <foreignObject x={0} y={80} width={NODE_W} height={24} pointerEvents="none">
         <div style={{
           display: 'flex', width: '100%', height: '100%',
-          alignItems: 'center', justifyContent: 'center'
+          alignItems: 'flex-start', justifyContent: 'center'
         }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: '5px',
