@@ -287,15 +287,15 @@
 
 .nodeRect {
   fill: #09090b;
-  stroke: rgba(255, 255, 255, 0.05);
+  stroke: color-mix(in srgb, var(--node-color) 30%, transparent);
   stroke-width: 1;
   transition: stroke 0.2s, stroke-width 0.2s, filter 0.2s, fill 0.2s;
 }
 
 .nodeGroup:hover .nodeRect {
-  fill: #111114;
-  stroke: rgba(255, 255, 255, 0.1);
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
+  fill: #09090b;
+  stroke: color-mix(in srgb, var(--node-color) 50%, transparent);
+  filter: drop-shadow(0 8px 24px color-mix(in srgb, var(--node-color) 20%, transparent));
 }
 
 .nodeRectSelected {
@@ -919,7 +919,7 @@
 
 .collapsePillBg {
   fill: #09090b;
-  stroke: rgba(255, 255, 255, 0.05);
+  stroke: color-mix(in srgb, var(--node-color) 30%, transparent);
   stroke-width: 1;
   transition: fill 0.2s, opacity 0.2s, stroke-width 0.2s, stroke 0.2s;
 }

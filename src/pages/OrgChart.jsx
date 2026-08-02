@@ -286,7 +286,7 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
       <rect
         x={NODE_W / 2 - 73} y={79}
         width={146} height={18}
-        rx={9}
+        rx={6}
         fill={`color-mix(in srgb, ${nodeColor} 10%, transparent)`}
         stroke={`color-mix(in srgb, ${nodeColor} 30%, transparent)`}
         strokeWidth={1}
