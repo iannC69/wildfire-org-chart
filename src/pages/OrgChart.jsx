@@ -1316,7 +1316,7 @@ export default function OrgChart() {
       </div>
 
       {/* ─── CONTENT ─── */}
-      <div key={view} className={styles.viewWrapper}>
+      <div key={view} className={`${styles.viewWrapper} ${view === 'chart' ? styles.slideFromLeft : styles.slideFromRight}`}>
         {view === 'chart' ? (
           <>
             {/* ─── CANVAS ─── */}

@@ -14,20 +14,39 @@
   flex-direction: column;
   min-height: 0;
   position: relative;
-  animation: viewEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: center top;
+  /* Animation applied dynamically via classes below */
 }
 
-@keyframes viewEnter {
+.slideFromLeft {
+  animation: slideFromLeft 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.slideFromRight {
+  animation: slideFromRight 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+@keyframes slideFromLeft {
   0% {
     opacity: 0;
-    transform: translateY(15px) scale(0.98);
+    transform: translateX(-40px);
     filter: blur(4px);
   }
-
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes slideFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(40px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
     filter: blur(0);
   }
 }
