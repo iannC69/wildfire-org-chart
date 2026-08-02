@@ -144,15 +144,25 @@ function NodeShape({ node, isMatch, isVacant, nodeColor }) {
   }
 
   const rx = shape === 'SHARP' ? 0 : 12
+  const c = 20 // corner length
 
   return (
-    <rect
-      className={isMatch ? styles.nodeRectMatch : (node.selected ? styles.nodeRectSelected : styles.nodeRect)}
-      x={0} y={0}
-      width={NODE_W} height={NODE_H}
-      rx={rx} ry={rx}
-      style={{ '--node-color': nodeColor, '--node-glow': nodeColor }}
-    />
+    <g style={{ '--node-color': nodeColor, '--node-glow': nodeColor }}>
+      <rect
+        className={isMatch ? styles.nodeRectMatch : (node.selected ? styles.nodeRectSelected : styles.nodeRect)}
+        x={0} y={0}
+        width={NODE_W} height={NODE_H}
+        rx={rx} ry={rx}
+      />
+      {/* Top Left */}
+      <path className={styles.nodeCorner} d={`M 0 ${c} L 0 ${rx} Q 0 0 ${rx} 0 L ${c} 0`} fill="none" />
+      {/* Top Right */}
+      <path className={styles.nodeCorner} d={`M ${NODE_W - c} 0 L ${NODE_W - rx} 0 Q ${NODE_W} 0 ${NODE_W} ${rx} L ${NODE_W} ${c}`} fill="none" />
+      {/* Bottom Right */}
+      <path className={styles.nodeCorner} d={`M ${NODE_W} ${NODE_H - c} L ${NODE_W} ${NODE_H - rx} Q ${NODE_W} ${NODE_H} ${NODE_W - rx} ${NODE_H} L ${NODE_W - c} ${NODE_H}`} fill="none" />
+      {/* Bottom Left */}
+      <path className={styles.nodeCorner} d={`M ${c} ${NODE_H} L ${rx} ${NODE_H} Q 0 ${NODE_H} 0 ${NODE_H - rx} L 0 ${NODE_H - c}`} fill="none" />
+    </g>
   )
 }
 
