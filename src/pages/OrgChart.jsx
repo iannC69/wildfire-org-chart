@@ -298,19 +298,24 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
           display: 'flex', width: '100%', height: '100%',
           alignItems: 'center', justifyContent: 'center'
         }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '5px',
-            padding: '4px 10px',
-            background: `color-mix(in srgb, ${nodeColor} 15%, transparent)`,
-            border: `1px solid color-mix(in srgb, ${nodeColor} 40%, transparent)`,
-            borderRadius: '50px',
-            color: nodeColor,
-            fontSize: '9px',
-            fontWeight: 800,
-            letterSpacing: '0.5px'
-          }}>
-            <Shield size={10} />
-            {role?.title?.toUpperCase().replace('_', ' ') || 'STAFF'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{
+              width: '18px', height: '18px', borderRadius: '50%',
+              background: `color-mix(in srgb, ${nodeColor} 10%, transparent)`,
+              border: `1px solid color-mix(in srgb, ${nodeColor} 30%, transparent)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: nodeColor
+            }}>
+              <Shield size={10} />
+            </div>
+            <span style={{
+              color: nodeColor,
+              fontSize: '9px',
+              fontWeight: 800,
+              letterSpacing: '0.8px'
+            }}>
+              {role?.title?.toUpperCase().replace('_', ' ') || 'STAFF'}
+            </span>
           </div>
         </div>
       </foreignObject>
