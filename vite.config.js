@@ -56,6 +56,12 @@ function autoSavePlugin() {
         }
         next()
       })
+    },
+    handleHotUpdate({ file }) {
+      // Ignore HMR for these files so the app doesn't reload and lose Edit Mode
+      if (file.endsWith('staffData.js') || file.endsWith('roleDetails.json')) {
+        return []
+      }
     }
   }
 }
