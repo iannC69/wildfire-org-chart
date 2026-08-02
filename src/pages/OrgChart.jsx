@@ -131,45 +131,27 @@ function getBounds(nodes) {
 // overlaid on top. All coordinates are in local node space (0,0 = top-left of card).
 function NodeShape({ node, isMatch, isVacant, nodeColor }) {
   const shape = getShapeForNode(node)
-  const strokeColor = isMatch ? '#fff' : nodeColor
-  const strokeW = isMatch ? 3 : 2
 
   if (isVacant) {
     return (
       <rect
+        className={styles.nodeRectVacant}
         x={0} y={0}
         width={NODE_W} height={NODE_H}
-        rx={10} ry={10}
-        fill="#0a0a18"
-        stroke={strokeColor}
-        strokeWidth={1.5}
-        strokeDasharray="6,6"
+        rx={12} ry={12}
       />
     )
   }
 
-  if (shape === 'SHARP') {
-    return (
-      <rect
-        x={0} y={0}
-        width={NODE_W} height={NODE_H}
-        rx={0} ry={0}
-        fill="#0f1117"
-        stroke={strokeColor}
-        strokeWidth={strokeW}
-      />
-    )
-  }
+  const rx = shape === 'SHARP' ? 0 : 12
 
-  // ROUNDED (default)
   return (
     <rect
+      className={isMatch ? styles.nodeRectMatch : (node.selected ? styles.nodeRectSelected : styles.nodeRect)}
       x={0} y={0}
       width={NODE_W} height={NODE_H}
-      rx={10} ry={10}
-      fill="#0f1117"
-      stroke={strokeColor}
-      strokeWidth={strokeW}
+      rx={rx} ry={rx}
+      style={{ '--node-color': nodeColor, '--node-glow': nodeColor }}
     />
   )
 }
@@ -305,9 +287,9 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
         x={NODE_W / 2 - 73} y={79}
         width={146} height={18}
         rx={9}
-        fill="#1a1c23"
-        stroke={nodeColor}
-        strokeWidth={1.5}
+        fill={`color-mix(in srgb, ${nodeColor} 10%, transparent)`}
+        stroke={`color-mix(in srgb, ${nodeColor} 30%, transparent)`}
+        strokeWidth={1}
         pointerEvents="none"
       />
       {/* Role badge text */}
@@ -345,7 +327,6 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
             <rect
               className={styles.collapsePillBg}
               x={-20} y={-10} width={40} height={20} rx={10}
-              fill="#1a1a24" stroke={nodeColor} strokeWidth={1.5}
               style={{ '--node-color': nodeColor }}
             />
 

@@ -286,29 +286,29 @@
 }
 
 .nodeRect {
-  fill: rgba(12, 12, 24, 0.96);
-  stroke: var(--node-color);
-  stroke-width: 1.5;
-  stroke-opacity: 0.55;
-  transition: stroke-opacity 0.18s, stroke-width 0.18s, filter 0.18s;
+  fill: #09090b;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 1;
+  transition: stroke 0.2s, stroke-width 0.2s, filter 0.2s, fill 0.2s;
 }
 
 .nodeGroup:hover .nodeRect {
-  stroke-opacity: 0.95;
-  stroke-width: 2;
-  filter: drop-shadow(0 4px 16px var(--node-glow));
+  fill: #111114;
+  stroke: rgba(255, 255, 255, 0.1);
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
 }
 
 .nodeRectSelected {
-  stroke-opacity: 1 !important;
-  stroke-width: 2 !important;
-  filter: drop-shadow(0 0 18px var(--node-glow)) !important;
+  fill: #111114 !important;
+  stroke: var(--node-color) !important;
+  stroke-width: 1.5 !important;
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--node-color) 40%, transparent)) !important;
 }
 
 .nodeRectMatch {
-  stroke-opacity: 1 !important;
-  stroke-width: 3 !important;
-  filter: drop-shadow(0 0 20px var(--node-color)) !important;
+  stroke: var(--node-color) !important;
+  stroke-width: 2 !important;
+  filter: drop-shadow(0 0 20px color-mix(in srgb, var(--node-color) 50%, transparent)) !important;
 }
 
 .nodeRectVacant {
@@ -316,7 +316,6 @@
   stroke: rgba(255, 255, 255, 0.12) !important;
   stroke-width: 1 !important;
   stroke-dasharray: 5 3;
-  stroke-opacity: 1 !important;
   animation: vacantPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -919,7 +918,10 @@
 }
 
 .collapsePillBg {
-  transition: fill 0.2s, opacity 0.2s, stroke-width 0.2s;
+  fill: #09090b;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 1;
+  transition: fill 0.2s, opacity 0.2s, stroke-width 0.2s, stroke 0.2s;
 }
 
 .collapsePillText {
@@ -927,9 +929,10 @@
 }
 
 .collapseBtnInner:hover .collapsePillBg {
-  fill: var(--node-color);
-  opacity: 0.3;
-  stroke-width: 2;
+  fill: color-mix(in srgb, var(--node-color) 20%, transparent);
+  stroke: color-mix(in srgb, var(--node-color) 50%, transparent);
+  opacity: 1;
+  stroke-width: 1.5;
 }
 
 .collapseBtnInner:hover .collapsePillText {
