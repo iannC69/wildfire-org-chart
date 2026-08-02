@@ -776,8 +776,14 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
     <div className={styles.attrPage}>
       <div className={styles.attrChartContainer}>
         {mergedRoles.map((role, i) => {
-          const respsCount = role.responsibilities.length
           const membersWithRole = allMembers.filter(m => m.roleId === role.id && !m.vacant)
+          const combinedResps = [
+            ...(role.responsibilities || []).map((r, i) => ({ type: 'role', originalIndex: i, data: r })),
+            ...membersWithRole.flatMap(member => 
+              (member.responsibilities || []).map(r => ({ type: 'member', member, data: r }))
+            )
+          ];
+          const respsCount = combinedResps.length;
 
           const handleUpdateStr = (field, val) => {
             if (!updateRoleDetails) return
@@ -903,31 +909,50 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
               {/* Right: Responsibilities Tree */}
               {(respsCount > 0 || isEditMode) && (
                 <div className={styles.attrChartRespList} style={{ '--role-color': role.color }}>
-                  {role.responsibilities.map((resp, idx) => {
-                    const respKey = `${role.id}-${idx}`;
+                  {combinedResps.map((respItem, displayIdx) => {
+                    const resp = respItem.data;
+                    const respKey = respItem.type === 'role' ? `${role.id}-role-${respItem.originalIndex}` : `${role.id}-member-${respItem.member.id}-${displayIdx}`;
                     const isExpanded = !!expandedResps[respKey];
 
                     return (
                       <div
-                        key={idx}
+                        key={respKey}
                         className={`${styles.attrChartRespItem} ${styles.attrChartRespInteractive}`}
                       >
                         <div className={styles.attrChartRespHeader} onClick={() => !isEditMode && toggleResp(respKey)}>
                           <div className={styles.attrChartDot} />
-                          {isEditMode ? (
+
+                          {isEditMode && respItem.type === 'role' ? (
                             <input 
                               className={styles.attrChartTextEdit} 
                               value={resp.title || resp} 
-                              onChange={e => handleUpdateResp(idx, 'title', e.target.value)}
+                              onChange={e => handleUpdateResp(respItem.originalIndex, 'title', e.target.value)}
                             />
                           ) : (
-                            <span className={styles.attrChartText}>{resp.title || resp}</span>
+                            <span className={styles.attrChartText}>
+                              {resp.title || resp}
+                            </span>
                           )}
                           <div className={styles.attrChartRespIcon}>
-                            {isEditMode ? (
-                              <button className={styles.deleteRespBtn} onClick={() => handleDeleteResp(idx)}>
+                            {respItem.type === 'member' && (
+                              <div className={styles.attrChartMemberBadge} title={`Atribuție specifică pentru ${respItem.member.name}`} style={{ '--role-color': role.color }}>
+                                {respItem.member.avatarUrl ? (
+                                  <img src={respItem.member.avatarUrl} alt={respItem.member.name} className={styles.attrChartMemberBadgeImg} />
+                                ) : (
+                                  <div className={styles.attrChartMemberBadgeInitials} style={{ color: role.color }}>
+                                    {getInitials(respItem.member.name)}
+                                  </div>
+                                )}
+                                <span className={styles.attrChartMemberBadgeName}>{respItem.member.name}</span>
+                              </div>
+                            )}
+
+                            {isEditMode && respItem.type === 'role' ? (
+                              <button className={styles.deleteRespBtn} onClick={() => handleDeleteResp(respItem.originalIndex)}>
                                 <Trash2 size={14} color="#f87171" />
                               </button>
+                            ) : isEditMode && respItem.type === 'member' ? (
+                              <Lock size={14} color="#6b7280" title="Atribuție specifică membrului. Editează din profilul membrului." />
                             ) : isExpanded ? (
                               <X size={14} />
                             ) : (
@@ -936,13 +961,13 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
                           </div>
                         </div>
 
-                        {(isExpanded || isEditMode) && (
+                        {(isExpanded || (isEditMode && respItem.type === 'role')) && (
                           <div className={styles.attrChartRespDetails}>
-                            {isEditMode ? (
+                            {isEditMode && respItem.type === 'role' ? (
                               <textarea
                                 className={styles.attrChartDetailEdit}
                                 value={resp.detail || ''}
-                                onChange={e => handleUpdateResp(idx, 'detail', e.target.value)}
+                                onChange={e => handleUpdateResp(respItem.originalIndex, 'detail', e.target.value)}
                                 placeholder="Detalii..."
                               />
                             ) : (

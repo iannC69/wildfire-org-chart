@@ -827,12 +827,49 @@
   background: var(--role-color);
 }
 
+.attrChartMemberDot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--role-color) 40%, transparent);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--role-color) 20%, transparent);
+}
+
+.attrChartMemberDot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.attrChartMemberInitials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
 .attrChartText {
   font-size: 14px;
   color: #fff;
   font-weight: 700;
   line-height: 1.4;
   letter-spacing: 0.2px;
+}
+
+.attrChartMemberNameTag {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
 }
 
 /* ─── RESPONSIVE ── */
