@@ -9,7 +9,7 @@ import MemberEditSidebar from '../components/MemberEditSidebar'
 import { useStore } from '../store/useStore'
 import styles from './OrgChart.module.css'
 // ROLE_DETAILS is now from store
-import { Gamepad2, Pencil, Trash2, PlusCircle, Search, X, ArrowUp, ArrowDown, ZoomIn, ZoomOut, Maximize, Share2, Download, Upload, Lock, Unlock, Edit3, List, Network, ClipboardList, History, Settings, User, Copy, Shield } from 'lucide-react'
+import { Gamepad2, Pencil, Trash2, PlusCircle, Search, X, ArrowUp, ArrowDown, ZoomIn, ZoomOut, Maximize, Share2, Download, Upload, Lock, Unlock, Edit3, List, Network, ClipboardList, History, Settings, User, Copy, Shield, Undo2, Redo2, RotateCcw } from 'lucide-react'
 import { userHistories } from '../utils/patchHistory'
 
 // ─── NODE DIMENSIONS ─────────────────────────────────────────────────────────
@@ -1001,7 +1001,7 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
 
 // ─── MAIN ORG CHART PAGE ──────────────────────────────────────────────────────
 export default function OrgChart() {
-  const { tree, roles, roleDetails, isEditMode, toggleEditMode, moveNode, toggleCollapse, promoteNode, demoteNode, kickNode, updateRoleDetails, patchHistories } = useStore()
+  const { tree, roles, roleDetails, isEditMode, toggleEditMode, moveNode, toggleCollapse, promoteNode, demoteNode, kickNode, updateRoleDetails, patchHistories, undo, redo, reset, historyStack, historyIndex } = useStore()
   const [view, setView] = useState('chart') // 'chart' | 'attributions' | 'changelog'
 
   useEffect(() => {
@@ -1252,6 +1252,32 @@ export default function OrgChart() {
               </button>
               {isEditMode && (
                 <>
+                  <div className={styles.navDivider}></div>
+                  <button 
+                    className={styles.navBtn} 
+                    onClick={undo} 
+                    disabled={historyIndex <= 0}
+                    style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}
+                  >
+                    <Undo2 size={15} />
+                  </button>
+                  <button 
+                    className={styles.navBtn} 
+                    onClick={redo} 
+                    disabled={historyIndex >= (historyStack || []).length - 1}
+                    style={{ opacity: historyIndex >= (historyStack || []).length - 1 ? 0.5 : 1 }}
+                  >
+                    <Redo2 size={15} />
+                  </button>
+                  <button className={styles.navBtn} onClick={() => {
+                    if (confirm('Are you sure you want to reset the organization chart to defaults?')) {
+                      reset();
+                    }
+                  }}>
+                    <RotateCcw size={15} />
+                  </button>
+                  <div className={styles.navDivider}></div>
+
                   <button className={styles.navBtn} onClick={() => setShowSettings(true)}>
                     <Settings size={15} /> Setări Roluri
                   </button>

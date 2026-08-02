@@ -83,66 +83,110 @@ function updateNodeField(node, id, field, value) {
 
 export const useStore = create(
   persist(
-    (set, get) => ({
-  tree: enrichTreeWithData(ORG_TREE, INITIAL_ROLES_DATA),
-  rolesData: INITIAL_ROLES_DATA,
-  roles: INITIAL_ROLES,
-  roleDetails: INITIAL_ROLE_DETAILS,
-  isEditMode: false,
+    (set, get) => {
+      const pushHistory = (state) => {
+        const newStack = (state.historyStack || []).slice(0, state.historyIndex + 1);
+        newStack.push({ tree: state.tree, roles: state.roles, roleDetails: state.roleDetails });
+        return { historyStack: newStack, historyIndex: newStack.length };
+      };
 
-  toggleEditMode: () => set(state => ({ isEditMode: !state.isEditMode })),
+      return {
+        tree: enrichTreeWithData(ORG_TREE, INITIAL_ROLES_DATA),
+        rolesData: INITIAL_ROLES_DATA,
+        roles: INITIAL_ROLES,
+        roleDetails: INITIAL_ROLE_DETAILS,
+        isEditMode: false,
+        historyStack: [],
+        historyIndex: -1,
 
-  updateRoleDetails: (roleId, updates) => set(state => ({
-    roleDetails: state.roleDetails.map(r => r.id === roleId ? { ...r, ...updates } : r)
-  })),
+        undo: () => set(state => {
+          if (state.historyIndex <= 0) return state;
+          const newIndex = state.historyIndex - 1;
+          const restoredState = state.historyStack[newIndex];
+          return { ...restoredState, historyIndex: newIndex };
+        }),
 
-  updateRole: (roleId, updates) => set(state => ({
-    roles: state.roles.map(r => r.id === roleId ? { ...r, ...updates } : r)
-  })),
-  
-  toggleCollapse: (id) => set(state => ({
-    tree: collapseNodeRec(state.tree, id)
-  })),
+        redo: () => set(state => {
+          if (state.historyIndex >= (state.historyStack || []).length - 1) return state;
+          const newIndex = state.historyIndex + 1;
+          const restoredState = state.historyStack[newIndex];
+          return { ...restoredState, historyIndex: newIndex };
+        }),
 
-  moveNode: (draggedId, newParentId) => set(state => {
-    if (draggedId === newParentId) return state; // can't drop on self
-    const node = findNode(state.tree, draggedId);
-    if (!node) return state;
-    
-    // Prevent dropping node into its own children (cycle)
-    const isDescendant = findNode(node, newParentId);
-    if (isDescendant) return state;
+        reset: () => set(state => {
+          const historyUpdate = pushHistory(state);
+          return {
+            tree: enrichTreeWithData(ORG_TREE, INITIAL_ROLES_DATA),
+            roles: INITIAL_ROLES,
+            roleDetails: INITIAL_ROLE_DETAILS,
+            ...historyUpdate
+          };
+        }),
 
-    let newTree = removeNode(state.tree, draggedId);
-    newTree = insertNode(newTree, newParentId, node);
-    return { tree: newTree };
-  }),
+        toggleEditMode: () => set(state => ({ isEditMode: !state.isEditMode })),
 
-  importTree: (newTree) => set(() => ({
-    tree: newTree
-  })),
+        updateRoleDetails: (roleId, updates) => set(state => {
+          const historyUpdate = pushHistory(state);
+          return {
+            roleDetails: state.roleDetails.map(r => r.id === roleId ? { ...r, ...updates } : r),
+            ...historyUpdate
+          };
+        }),
 
-  promoteNode: (nodeId) => set(state => {
-    const node = findNode(state.tree, nodeId);
-    if (!node) return state;
-    const currentRole = state.roles.find(r => r.id === node.roleId);
-    if (!currentRole) return state;
-    
-    const higherRankRoles = state.roles.filter(r => r.rank < currentRole.rank);
-    if (higherRankRoles.length === 0) return state; // already top
-    higherRankRoles.sort((a,b) => b.rank - a.rank);
-    const newRole = higherRankRoles[0];
+        updateRole: (roleId, updates) => set(state => {
+          const historyUpdate = pushHistory(state);
+          return {
+            roles: state.roles.map(r => r.id === roleId ? { ...r, ...updates } : r),
+            ...historyUpdate
+          };
+        }),
+        
+        toggleCollapse: (id) => set(state => ({
+          tree: collapseNodeRec(state.tree, id)
+        })),
 
-    let newTree = updateNodeRole(state.tree, nodeId, newRole);
-    
-    // Add history
-    const historyEntry = {
-      date: new Date().toISOString(),
-      action: 'Promoted',
-      fromRole: currentRole.title,
-      toRole: newRole.title
-    };
-    newTree = updateNodeField(newTree, nodeId, 'history', [...(node.history || []), historyEntry]);
+        moveNode: (draggedId, newParentId) => set(state => {
+          if (draggedId === newParentId) return state; // can't drop on self
+          const node = findNode(state.tree, draggedId);
+          if (!node) return state;
+          
+          // Prevent dropping node into its own children (cycle)
+          const isDescendant = findNode(node, newParentId);
+          if (isDescendant) return state;
+
+          const historyUpdate = pushHistory(state);
+          let newTree = removeNode(state.tree, draggedId);
+          newTree = insertNode(newTree, newParentId, node);
+          return { tree: newTree, ...historyUpdate };
+        }),
+
+        importTree: (newTree) => set(state => {
+          const historyUpdate = pushHistory(state);
+          return { tree: newTree, ...historyUpdate };
+        }),
+
+        promoteNode: (nodeId) => set(state => {
+          const node = findNode(state.tree, nodeId);
+          if (!node) return state;
+          const currentRole = state.roles.find(r => r.id === node.roleId);
+          if (!currentRole) return state;
+          
+          const higherRankRoles = state.roles.filter(r => r.rank < currentRole.rank);
+          if (higherRankRoles.length === 0) return state; // already top
+          higherRankRoles.sort((a,b) => b.rank - a.rank);
+          const newRole = higherRankRoles[0];
+
+          const historyUpdate = pushHistory(state);
+          let newTree = updateNodeRole(state.tree, nodeId, newRole);
+          
+          // Add history
+          const historyEntry = {
+            date: new Date().toISOString(),
+            action: 'Promoted',
+            fromRole: currentRole.title,
+            toRole: newRole.title
+          };
+          newTree = updateNodeField(newTree, nodeId, 'history', [...(node.history || []), historyEntry]);
     
     // Auto-reparent to a node with rank < newRole.rank
     let bestParent = null;
@@ -178,110 +222,123 @@ export const useStore = create(
     lowerRankRoles.sort((a,b) => a.rank - b.rank);
     const newRole = lowerRankRoles[0];
 
-    let newTree = updateNodeRole(state.tree, nodeId, newRole);
-    
-    // Add history
-    const historyEntry = {
-      date: new Date().toISOString(),
-      action: 'Demoted',
-      fromRole: currentRole.title,
-      toRole: newRole.title
-    };
-    newTree = updateNodeField(newTree, nodeId, 'history', [...(node.history || []), historyEntry]);
-    
-    // Auto-reparent to a node with rank < newRole.rank
-    let bestParent = null;
-    function searchParent(n) {
-      if (n.id === nodeId) return; // skip self and children
-      const role = state.roles.find(r => r.id === n.roleId);
-      if (role && role.rank < newRole.rank) {
-        if (!bestParent || role.rank > state.roles.find(r => r.id === bestParent.roleId).rank) {
-          bestParent = n;
-        }
-      }
-      for (const child of n.children || []) searchParent(child);
-    }
-    searchParent(newTree);
+          const historyUpdate = pushHistory(state);
+          let newTree = updateNodeRole(state.tree, nodeId, newRole);
+          
+          // Add history
+          const historyEntry = {
+            date: new Date().toISOString(),
+            action: 'Demoted',
+            fromRole: currentRole.title,
+            toRole: newRole.title
+          };
+          newTree = updateNodeField(newTree, nodeId, 'history', [...(node.history || []), historyEntry]);
+          
+          // Auto-reparent to a node with rank < newRole.rank
+          let bestParent = null;
+          function searchParent(n) {
+            if (n.id === nodeId) return; // skip self and children
+            const role = state.roles.find(r => r.id === n.roleId);
+            if (role && role.rank < newRole.rank) {
+              if (!bestParent || role.rank > state.roles.find(r => r.id === bestParent.roleId).rank) {
+                bestParent = n;
+              }
+            }
+            for (const child of n.children || []) searchParent(child);
+          }
+          searchParent(newTree);
 
-    if (bestParent) {
-      const updatedNode = findNode(newTree, nodeId);
-      newTree = removeNode(newTree, nodeId);
-      newTree = insertNode(newTree, bestParent.id, updatedNode);
-    }
+          if (bestParent) {
+            const updatedNode = findNode(newTree, nodeId);
+            newTree = removeNode(newTree, nodeId);
+            newTree = insertNode(newTree, bestParent.id, updatedNode);
+          }
 
-    return { tree: newTree };
-  }),
+          return { tree: newTree, ...historyUpdate };
+        }),
 
-  kickNode: (nodeId) => set(state => {
-    const node = findNode(state.tree, nodeId);
-    if (!node) return state;
-    const role = state.roles.find(r => r.id === node.roleId);
-    
-    let newTree = state.tree;
-    
-    if (role && role.maxSlots !== null) {
-      const replaceWithVacant = (t) => {
-        if (t.id === nodeId) {
-          return { ...t, name: 'Vacant', vacant: true, id: `vacant-${Date.now()}`, children: t.children || [] };
-        }
-        if (!t.children) return t;
-        return { ...t, children: t.children.map(c => replaceWithVacant(c)) };
-      }
-      newTree = replaceWithVacant(state.tree);
-    } else {
-      newTree = removeNode(state.tree, nodeId);
-    }
-    
-    return { tree: newTree };
-  }),
+        kickNode: (nodeId) => set(state => {
+          const node = findNode(state.tree, nodeId);
+          if (!node) return state;
+          const role = state.roles.find(r => r.id === node.roleId);
+          
+          const historyUpdate = pushHistory(state);
+          let newTree = state.tree;
+          
+          if (role && role.maxSlots !== null) {
+            const replaceWithVacant = (t) => {
+              if (t.id === nodeId) {
+                return { ...t, name: 'Vacant', vacant: true, id: `vacant-${Date.now()}`, children: t.children || [] };
+              }
+              if (!t.children) return t;
+              return { ...t, children: t.children.map(c => replaceWithVacant(c)) };
+            }
+            newTree = replaceWithVacant(state.tree);
+          } else {
+            newTree = removeNode(state.tree, nodeId);
+          }
+          
+          return { tree: newTree, ...historyUpdate };
+        }),
 
-  updateNodeAvatarUrl: (id, url) => set(state => ({
-    tree: updateNodeField(state.tree, id, 'avatarUrl', url)
-  })),
+        updateNodeAvatarUrl: (id, url) => set(state => {
+          const historyUpdate = pushHistory(state);
+          return {
+            tree: updateNodeField(state.tree, id, 'avatarUrl', url),
+            ...historyUpdate
+          };
+        }),
 
-  updateNodeSteam: (id, url, link) => set(state => {
-    let newTree = updateNodeField(state.tree, id, 'avatarUrl', url);
-    newTree = updateNodeField(newTree, id, 'steamLink', link);
-    return { tree: newTree };
-  }),
+        updateNodeSteam: (id, url, link) => set(state => {
+          const historyUpdate = pushHistory(state);
+          let newTree = updateNodeField(state.tree, id, 'avatarUrl', url);
+          newTree = updateNodeField(newTree, id, 'steamLink', link);
+          return { tree: newTree, ...historyUpdate };
+        }),
 
-  setNodeRole: (nodeId, roleId) => set(state => {
-    const role = state.roles.find(r => r.id === roleId);
-    if (!role) return state;
-    return { tree: updateNodeRole(state.tree, nodeId, role) };
-  }),
+        setNodeRole: (nodeId, roleId) => set(state => {
+          const role = state.roles.find(r => r.id === roleId);
+          if (!role) return state;
+          const historyUpdate = pushHistory(state);
+          return { tree: updateNodeRole(state.tree, nodeId, role), ...historyUpdate };
+        }),
 
-  updateNodeDetails: (id, updates) => set(state => {
-    let newTree = state.tree;
-    for (const [key, value] of Object.entries(updates)) {
-      newTree = updateNodeField(newTree, id, key, value);
-    }
-    return { tree: newTree };
-  }),
+        updateNodeDetails: (id, updates) => set(state => {
+          const historyUpdate = pushHistory(state);
+          let newTree = state.tree;
+          for (const [key, value] of Object.entries(updates)) {
+            newTree = updateNodeField(newTree, id, key, value);
+          }
+          return { tree: newTree, ...historyUpdate };
+        }),
 
-  addNode: (parentId, newNode) => set(state => {
-    return { tree: insertNode(state.tree, parentId, newNode) };
-  }),
+        addNode: (parentId, newNode) => set(state => {
+          const historyUpdate = pushHistory(state);
+          return { tree: insertNode(state.tree, parentId, newNode), ...historyUpdate };
+        }),
 
-  patchHistories: (histories) => set(state => {
-    let newTree = state.tree;
-    let migrated = false;
-    
-    // flatten to find by name easily
-    const allNodes = flattenNodes(newTree);
-    
-    Object.keys(histories).forEach(name => {
-      // Find node loosely by matching name prefix or exact to handle cases like "Spark (Ultra)"
-      const node = allNodes.find(n => n.name.includes(name));
-      if (node) {
-        newTree = updateNodeField(newTree, node.id, 'history', histories[name]);
-        migrated = true;
-      }
-    });
-    
-    return migrated ? { tree: newTree } : state;
-  })
-    }),
+        patchHistories: (histories) => set(state => {
+          let newTree = state.tree;
+          let migrated = false;
+          
+          // flatten to find by name easily
+          const allNodes = flattenNodes(newTree);
+          
+          Object.keys(histories).forEach(name => {
+            // Find node loosely by matching name prefix or exact to handle cases like "Spark (Ultra)"
+            const node = allNodes.find(n => n.name.includes(name));
+            if (node) {
+              newTree = updateNodeField(newTree, node.id, 'history', histories[name]);
+              migrated = true;
+            }
+          });
+          
+          if (!migrated) return state;
+          const historyUpdate = pushHistory(state);
+          return { tree: newTree, ...historyUpdate };
+        })
+      };
+    },
     {
       name: 'org-chart-storage',
       partialize: (state) => ({ 
