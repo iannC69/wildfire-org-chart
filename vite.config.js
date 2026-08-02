@@ -27,7 +27,19 @@ function autoSavePlugin() {
                   `// ─── INITIAL STAFF DATA ───────────────────────────────────────────────────────\n` +
                   `export const INITIAL_ROLES_DATA = ${JSON.stringify(data.rolesData, null, 2)}\n\n` +
                   `// ─── FULL ORGANIZATION TREE ───────────────────────────────────────────────────\n` +
-                  `export const ORG_TREE = ${JSON.stringify(data.tree, null, 2)}\n`
+                  `export const ORG_TREE = ${JSON.stringify(data.tree, null, 2)}\n\n` +
+                  `// ─── HELPERS ─────────────────────────────────────────────────────────────────\n` +
+                  `export function getRoleById(id) {\n` +
+                  `  return ROLES.find(r => r.id === id)\n` +
+                  `}\n\n` +
+                  `export function getInitials(name) {\n` +
+                  `  if (!name) return ''\n` +
+                  `  return name.split(/[\\s()]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')\n` +
+                  `}\n\n` +
+                  `let _nextId = Date.now()\n` +
+                  `export function genId() {\n` +
+                  `  return \`m\${_nextId++}\`\n` +
+                  `}\n`
                 
                 fs.writeFileSync(staffDataPath, staffDataContent)
               }
