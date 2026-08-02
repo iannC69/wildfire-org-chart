@@ -293,22 +293,19 @@
 }
 
 .nodeGroup:hover .nodeRect {
-  fill: #09090b;
-  stroke: color-mix(in srgb, var(--node-color) 50%, transparent);
-  filter: drop-shadow(0 8px 24px color-mix(in srgb, var(--node-color) 20%, transparent));
+  fill: #111114;
+  stroke: color-mix(in srgb, var(--node-color) 60%, transparent);
 }
 
 .nodeRectSelected {
   fill: #111114 !important;
   stroke: var(--node-color) !important;
   stroke-width: 1.5 !important;
-  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--node-color) 40%, transparent)) !important;
 }
 
 .nodeRectMatch {
   stroke: var(--node-color) !important;
   stroke-width: 2 !important;
-  filter: drop-shadow(0 0 20px color-mix(in srgb, var(--node-color) 50%, transparent)) !important;
 }
 
 .nodeRectVacant {
