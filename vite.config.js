@@ -8,6 +8,39 @@ function autoSavePlugin() {
     name: 'auto-save',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
+        if (req.url.startsWith('/api/steam-avatar') && req.method === 'GET') {
+          const urlObj = new URL(req.url, `http://${req.headers.host}`)
+          const steamUrl = urlObj.searchParams.get('url')
+          
+          if (!steamUrl) {
+            res.statusCode = 400
+            return res.end(JSON.stringify({ error: 'Missing url parameter' }))
+          }
+
+          // Ensure trailing slash before ?xml=1
+          const xmlUrl = (steamUrl.endsWith('/') ? steamUrl : steamUrl + '/') + '?xml=1'
+          
+          fetch(xmlUrl)
+            .then(r => r.text())
+            .then(xml => {
+              const match = xml.match(/<avatarFull><!\[CDATA\[(.*?)\]\]><\/avatarFull>/)
+              if (match && match[1]) {
+                res.statusCode = 200
+                res.setHeader('Content-Type', 'application/json')
+                res.end(JSON.stringify({ avatarUrl: match[1] }))
+              } else {
+                res.statusCode = 404
+                res.end(JSON.stringify({ error: 'Avatar not found in XML' }))
+              }
+            })
+            .catch(err => {
+              console.error('Steam fetch error:', err)
+              res.statusCode = 500
+              res.end(JSON.stringify({ error: 'Failed to fetch steam profile' }))
+            })
+          return
+        }
+
         if (req.url === '/api/save-disk' && req.method === 'POST') {
           let body = ''
           req.on('data', chunk => body += chunk)

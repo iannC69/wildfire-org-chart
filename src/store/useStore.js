@@ -413,7 +413,40 @@ export const useStore = create((set, get) => {
           if (!migrated) return state;
           const historyUpdate = pushHistory(state);
           return { tree: newTree, ...historyUpdate };
-        })
+        }),
+
+        syncAvatars: async () => {
+          const state = get();
+          const allNodes = flattenNodes(state.tree);
+          
+          const promises = allNodes.map(async (node) => {
+            if (!node.steamLink || node.vacant || node.id === 'vacant') return null;
+            try {
+              const res = await fetch(`/api/steam-avatar?url=${encodeURIComponent(node.steamLink)}`);
+              if (!res.ok) return null;
+              const data = await res.json();
+              if (data.avatarUrl && data.avatarUrl !== node.avatarUrl) {
+                return { id: node.id, avatarUrl: data.avatarUrl };
+              }
+            } catch (err) {
+              console.error('Failed to sync avatar for', node.name, err);
+            }
+            return null;
+          });
+          
+          const results = await Promise.all(promises);
+          const updates = results.filter(Boolean);
+          
+          if (updates.length > 0) {
+            set(state => {
+              let newTree = state.tree;
+              for (const update of updates) {
+                newTree = updateNodeField(newTree, update.id, 'avatarUrl', update.avatarUrl);
+              }
+              return { tree: newTree }; // triggers auto-save to disk via subscribe
+            });
+          }
+        }
       };
     }
 );

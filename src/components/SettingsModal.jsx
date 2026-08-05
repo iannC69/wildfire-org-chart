@@ -31,8 +31,14 @@ export default function SettingsModal({ onClose }) {
   const [newHistAction, setNewHistAction] = useState('Promoted')
   const [newHistRole, setNewHistRole] = useState('')
   const [newHistDate, setNewHistDate] = useState(() => new Date().toISOString().split('T')[0])
-  const [newHistBy, setNewHistBy] = useState('Console')
+  const adminName = useStore(s => s.adminName)
+  const [newHistBy, setNewHistBy] = useState(adminName || 'Console')
   const [newHistReason, setNewHistReason] = useState('')
+
+  // Keep newHistBy synced if adminName changes globally while modal is open
+  useEffect(() => {
+    setNewHistBy(adminName || 'Console')
+  }, [adminName])
 
   // New Group state
   const [newRoleTitle, setNewRoleTitle] = useState('New Group')

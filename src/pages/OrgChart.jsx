@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { INITIAL_ROLES_DATA, getInitials } from '../data/staffData'
 import { toPng } from 'html-to-image'
 import * as d3 from 'd3-selection'
@@ -182,28 +182,71 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
   const nodeColor = role?.color || '#666'
 
   const gRef = useRef(null)
+  const [isDropTarget, setIsDropTarget] = useState(false)
+  const [isDraggingMe, setIsDraggingMe] = useState(false)
+
+  // Listen for drop-target highlight events broadcast from other dragging nodes
+  useEffect(() => {
+    const onDragOver = (e) => {
+      setIsDropTarget(e.detail.hoverId === node.id && e.detail.dragId !== node.id)
+    }
+    const onDragEnd = () => { setIsDropTarget(false) }
+    window.addEventListener('orgchart-drag-hover', onDragOver)
+    window.addEventListener('orgchart-drag-end', onDragEnd)
+    return () => {
+      window.removeEventListener('orgchart-drag-hover', onDragOver)
+      window.removeEventListener('orgchart-drag-end', onDragEnd)
+    }
+  }, [node.id])
 
   useEffect(() => {
     if (!isEditMode || isVacant || !gRef.current) return;
 
-    let draggedNodeId = node.id;
-
     let currentX = 0;
     let currentY = 0;
+    let lastHoverId = null;
+    let lastHoverTime = 0;
 
     const dragHandler = drag()
       .on('start', function (event) {
         d3.select(this).raise();
         currentX = node.x;
         currentY = node.y;
+        setIsDraggingMe(true)
+        document.body.style.cursor = 'grabbing'
+        lastHoverId = null;
       })
       .on('drag', function (event) {
         currentX += event.dx;
         currentY += event.dy;
         d3.select(this).attr('transform', `translate(${currentX}, ${currentY})`);
+
+        // Throttle drop-zone detection to avoid layout thrashing (50ms)
+        const now = performance.now();
+        if (now - lastHoverTime > 50) {
+          lastHoverTime = now;
+          this.style.pointerEvents = 'none'
+          const target = document.elementFromPoint(event.sourceEvent.clientX, event.sourceEvent.clientY)
+          const targetNodeGroup = target ? target.closest('[data-node-id]') : null
+          this.style.pointerEvents = 'auto'
+          
+          const hoverId = targetNodeGroup ? targetNodeGroup.getAttribute('data-node-id') : null
+          
+          // Only dispatch if the hovered node changed
+          if (hoverId !== lastHoverId) {
+            lastHoverId = hoverId;
+            window.dispatchEvent(new CustomEvent('orgchart-drag-hover', { detail: { dragId: node.id, hoverId } }))
+          }
+        }
       })
       .on('end', function (event) {
         d3.select(this).attr('transform', `translate(${node.x}, ${node.y})`);
+        setIsDraggingMe(false)
+        document.body.style.cursor = ''
+        
+        if (lastHoverId) {
+          window.dispatchEvent(new CustomEvent('orgchart-drag-end'))
+        }
 
         this.style.pointerEvents = 'none'
         const target = document.elementFromPoint(event.sourceEvent.clientX, event.sourceEvent.clientY)
@@ -229,11 +272,29 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
     <g
       ref={gRef}
       className={styles.nodeGroup}
-      style={{ opacity: isDimmed ? 0.2 : 1 }}
+      style={{
+        opacity: isDimmed ? 0.2 : isDraggingMe ? 0.55 : 1,
+        cursor: isEditMode && !isVacant ? (isDraggingMe ? 'grabbing' : 'grab') : 'pointer',
+      }}
       transform={`translate(${node.x}, ${node.y})`}
       data-node-id={node.id}
       onClick={() => isVacant ? (onVacantClick && onVacantClick(node)) : onSelect(node)}
     >
+      {/* Drop-zone highlight ring — shown when another node is dragged over this one */}
+      {isDropTarget && (
+        <rect
+          x={-6} y={-6}
+          width={NODE_W + 12} height={NODE_H + 12}
+          rx={16} ry={16}
+          fill="rgba(34,197,94,0.07)"
+          stroke="#22C55E"
+          strokeWidth={2}
+          strokeDasharray="6 3"
+          style={{ animation: 'dropZonePulse 0.9s ease-in-out infinite' }}
+          pointerEvents="none"
+        />
+      )}
+
       {/* Outer shape (role-dependent outline) */}
       <NodeShape node={node} isMatch={isMatch} isVacant={isVacant} nodeColor={nodeColor} />
 
@@ -824,21 +885,34 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
 
 // ─── MAIN ORG CHART PAGE ──────────────────────────────────────────────────────
 export default function OrgChart() {
-  const { tree, roles, roleDetails, isEditMode, toggleEditMode, moveNode, toggleCollapse, promoteNode, demoteNode, kickNode, updateRoleDetails, patchHistories, undo, redo, reset, historyStack, historyIndex } = useStore()
+  const { tree, roles, roleDetails, isEditMode, toggleEditMode, moveNode, toggleCollapse, promoteNode, demoteNode, kickNode, updateRoleDetails, patchHistories, syncAvatars, undo, redo, reset, historyStack, historyIndex } = useStore()
   const [view, setView] = useState('chart') // 'chart' | 'attributions' | 'changelog'
 
   useEffect(() => {
     patchHistories(userHistories)
-  }, [patchHistories])
+    syncAvatars()
+  }, [patchHistories, syncAvatars])
 
   const [selected, setSelected] = useState(null)
   const [profileNode, setProfileNode] = useState(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showLegend, setShowLegend] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [zoomDisplay, setZoomDisplay] = useState(100) // % shown in navbar
+  const [zoomDisplay, setZoomDisplay] = useState(100)
   const [dragging, setDragging] = useState(false)
   const [toasts, setToasts] = useState([])
+  const [navHidden, setNavHidden] = useState(false)
+
+  // Keyboard shortcut: backtick ` toggles cinematic mode
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === '`' && !e.target.matches('input, textarea, select')) {
+        setNavHidden(v => !v)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const addToast = useCallback((message, type = 'info') => {
     const id = Date.now()
@@ -1031,148 +1105,80 @@ export default function OrgChart() {
   }
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${navHidden ? styles.pageNavHidden : ''}`}>
       <div className={styles.chartBackground} />
 
-      {/* ─── TOP NAVBAR ─── */}
-      <Navbar onOpenSettings={() => setShowSettings(true)} />
+      {/* ─── UNIFIED TOP NAVBAR (brand + all tools) ─── */}
+      <Navbar
+        onOpenSettings={() => setShowSettings(true)}
+        view={view}
+        setView={setView}
+        zoomDisplay={zoomDisplay}
+        onZoomIn={() => handleZoomBtn(1.25)}
+        onZoomOut={() => handleZoomBtn(1 / 1.25)}
+        onFit={fitToScreen}
+        onExportPng={handleExport}
+        onExportJson={() => {
+          const data = JSON.stringify(tree, null, 2)
+          const blob = new Blob([data], { type: 'application/json' })
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'org-tree-export.json'
+          a.click()
+          addToast('JSON exported', 'success')
+        }}
+        onImportJson={(e) => {
+          const file = e.target.files[0]
+          if (!file) return
+          const reader = new FileReader()
+          reader.onload = (ev) => {
+            try {
+              const newTree = JSON.parse(ev.target.result)
+              if (newTree && newTree.id) {
+                useStore.getState().importTree(newTree)
+                addToast('Chart imported successfully', 'success')
+              } else {
+                addToast('Invalid OrgChart JSON structure', 'error')
+              }
+            } catch (err) {
+              addToast('Failed to parse JSON', 'error')
+              console.error('Failed to parse JSON', err)
+            }
+          }
+          reader.readAsText(file)
+          e.target.value = ''
+        }}
+        onToggleEditMode={toggleEditMode}
+        onUndo={undo}
+        onRedo={redo}
+        onReset={() => {
+          if (confirm('Reset the organization chart to defaults?')) {
+            reset()
+            addToast('Chart reset to defaults', 'info')
+          }
+        }}
+        historyIndex={historyIndex}
+        historyStack={historyStack}
+        showLegend={showLegend}
+        onToggleLegend={() => setShowLegend(v => !v)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        isHidden={navHidden}
+        onToggleNav={() => setNavHidden(v => !v)}
+      />
 
-      {/* ─── FLOATING CHART TOOLBAR ─── */}
-      <div className={styles.navbar}>
-        {/* Center: Tabs */}
-        <div className={styles.navCenter}>
-          <button
-            className={`${styles.navTab} ${view === 'chart' ? styles.navTabActive : ''}`}
-            onClick={() => setView('chart')}
-          >
-            <Network size={16} /> Org Chart
-          </button>
-          <button
-            className={`${styles.navTab} ${view === 'attributions' ? styles.navTabActive : ''}`}
-            onClick={() => setView('attributions')}
-          >
-            <ClipboardList size={16} /> Atributii
-          </button>
-        </div>
-
-        {/* Right: Tools */}
-        <div className={styles.navRight}>
-          {view === 'chart' && (
-            <>
-              <div className={styles.zoomControls}>
-                <button className={styles.zoomBtn} onClick={() => handleZoomBtn(1 / 1.25)}><ZoomOut size={16} /></button>
-                <div className={styles.zoomValue}>{zoomDisplay}%</div>
-                <button className={styles.zoomBtn} onClick={() => handleZoomBtn(1.25)}><ZoomIn size={16} /></button>
-              </div>
-              <div className={styles.navDivider} />
-
-              <button className={styles.navBtn} onClick={fitToScreen}><Maximize size={15} /> Fit</button>
-              <button className={styles.navBtn} onClick={handleExport}><Download size={15} /> Export PNG</button>
-
-              <div className={styles.navDivider} />
-
-              <button
-                className={`${styles.navBtn} ${isEditMode ? styles.navBtnActive : ''}`}
-                onClick={toggleEditMode}
-              >
-                {isEditMode ? <><Lock size={15} /> Lock</> : <><Edit3 size={15} /> Edit</>}
-              </button>
-              {isEditMode && (
-                <>
-                  <div className={styles.navDivider} />
-                  <button
-                    className={styles.navBtn}
-                    onClick={undo}
-                    disabled={historyIndex <= 0}
-                    style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}
-                  >
-                    <Undo2 size={15} />
-                  </button>
-                  <button
-                    className={styles.navBtn}
-                    onClick={redo}
-                    disabled={historyIndex >= (historyStack || []).length - 1}
-                    style={{ opacity: historyIndex >= (historyStack || []).length - 1 ? 0.5 : 1 }}
-                  >
-                    <Redo2 size={15} />
-                  </button>
-                  <button className={styles.navBtn} onClick={() => {
-                    if (confirm('Reset the organization chart to defaults?')) {
-                      reset()
-                      addToast('Chart reset to defaults', 'info')
-                    }
-                  }}>
-                    <RotateCcw size={15} />
-                  </button>
-                  <div className={styles.navDivider} />
-
-                  <button className={styles.navBtn} onClick={() => {
-                    const data = JSON.stringify(tree, null, 2)
-                    const blob = new Blob([data], { type: 'application/json' })
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
-                    a.href = url
-                    a.download = 'org-tree-export.json'
-                    a.click()
-                    addToast('JSON exported', 'success')
-                  }}><Download size={15} /> JSON</button>
-                  <label className={styles.navBtn} style={{ cursor: 'pointer' }}>
-                    <Upload size={15} /> Import
-                    <input
-                      type="file"
-                      accept=".json"
-                      style={{ display: 'none' }}
-                      onChange={(e) => {
-                        const file = e.target.files[0]
-                        if (!file) return
-                        const reader = new FileReader()
-                        reader.onload = (ev) => {
-                          try {
-                            const newTree = JSON.parse(ev.target.result)
-                            if (newTree && newTree.id) {
-                              useStore.getState().importTree(newTree)
-                              addToast('Chart imported successfully', 'success')
-                            } else {
-                              addToast('Invalid OrgChart JSON structure', 'error')
-                            }
-                          } catch (err) {
-                            addToast('Failed to parse JSON', 'error')
-                            console.error('Failed to parse JSON', err)
-                          }
-                        }
-                        reader.readAsText(file)
-                        e.target.value = ''
-                      }}
-                    />
-                  </label>
-                </>
-              )}
-              <button
-                className={`${styles.navBtn} ${showLegend ? styles.navBtnActive : ''}`}
-                onClick={() => setShowLegend(v => !v)}
-              >
-                <List size={15} /> Legend
-              </button>
-
-              <div className={styles.navDivider} />
-
-              <input
-                type="text"
-                placeholder="Search member..."
-                className={styles.navSearch}
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-            </>
-          )}
-
-          {/* Settings — always visible */}
-          <div className={styles.navDivider} />
-          <button className={styles.navBtn} onClick={() => setShowSettings(true)}>
-            <Settings size={15} /> Settings
-          </button>
-        </div>
-      </div>
+      {/* ─── CINEMATIC REVEAL TAB ─── */}
+      <button
+        className={`${styles.revealTab} ${navHidden ? styles.revealTabVisible : ''}`}
+        onClick={() => setNavHidden(false)}
+        title="Show navigation (`)"
+        aria-label="Show navigation bar"
+      >
+        <svg width="16" height="9" viewBox="0 0 16 9" fill="none">
+          <path d="M2 2L8 7L14 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
 
       {/* ─── CONTENT ─── */}
       <div key={view} className={`${styles.viewWrapper} ${view === 'chart' ? styles.slideFromLeft : styles.slideFromRight}`}>

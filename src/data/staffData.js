@@ -280,101 +280,6 @@ export const ORG_TREE = {
       "roleId": "community-manager",
       "children": [
         {
-          "id": "spark",
-          "name": "Spark (Ultra)",
-          "role": "Community Manager",
-          "roleId": "community-manager",
-          "children": [
-            {
-              "id": "zlk",
-              "name": "ZLK",
-              "role": "Community Advisor",
-              "roleId": "community-advisor",
-              "children": [],
-              "avatarUrl": "https://avatars.fastly.steamstatic.com/40bf29a0a7d3e4a36e64456677985317e46ff3de_full.jpg",
-              "steamLink": "https://steamcommunity.com/profiles/76561199006087203",
-              "joinDate": "2023-01-15",
-              "status": "online",
-              "history": [
-                {
-                  "date": "2026-03-14T12:00:00Z",
-                  "action": "Promoted",
-                  "toRole": "Server Manager"
-                },
-                {
-                  "date": "2026-06-14T12:00:00Z",
-                  "action": "Promoted",
-                  "toRole": "Community Advisor"
-                }
-              ],
-              "responsibilities": []
-            },
-            {
-              "id": "rloner",
-              "name": "rLoner",
-              "role": "Community Advisor",
-              "roleId": "community-advisor",
-              "children": [],
-              "avatarUrl": "https://avatars.fastly.steamstatic.com/523bed88e7ebbe542a5e007f74e5a865a0dc756c_full.jpg",
-              "steamLink": "https://steamcommunity.com/profiles/76561199202045077",
-              "joinDate": "2023-01-15",
-              "status": "offline",
-              "responsibilities": []
-            },
-            {
-              "id": "booyeto",
-              "name": "Booyeto",
-              "role": "Community Advisor",
-              "roleId": "community-advisor",
-              "children": [],
-              "avatarUrl": "https://avatars.fastly.steamstatic.com/7645c030071b46e0a5e7cac29a9f9f9f035c927e_full.jpg",
-              "steamLink": "https://steamcommunity.com/profiles/76561198368502127",
-              "joinDate": "2023-01-15",
-              "status": "offline",
-              "history": [
-                {
-                  "date": "2026-03-14T12:00:00Z",
-                  "action": "Promoted",
-                  "toRole": "Administrator"
-                },
-                {
-                  "date": "2026-06-01T12:00:00Z",
-                  "action": "Promoted",
-                  "toRole": "Server Manager"
-                },
-                {
-                  "date": "2026-07-19T12:00:00Z",
-                  "action": "Promoted",
-                  "toRole": "Community Advisor"
-                }
-              ],
-              "responsibilities": []
-            }
-          ],
-          "avatarUrl": "https://avatars.fastly.steamstatic.com/c38e612b9cb04ca3c75618b7bd2b9a636a732c26_full.jpg",
-          "steamLink": "https://steamcommunity.com/profiles/76561197965422061",
-          "joinDate": "2023-01-15",
-          "status": "offline",
-          "history": [
-            {
-              "date": "2024-11-22T12:00:00Z",
-              "action": "Promoted",
-              "toRole": "Moderator"
-            },
-            {
-              "date": "2025-02-08T12:00:00Z",
-              "action": "Promoted",
-              "toRole": "Administrator"
-            },
-            {
-              "date": "2026-01-01T12:00:00Z",
-              "action": "Promoted",
-              "toRole": "Community Manager"
-            }
-          ],
-          "responsibilities": []
-        },
-        {
           "id": "umpy",
           "name": "Umpy",
           "role": "Server Manager",
@@ -463,7 +368,7 @@ export const ORG_TREE = {
                           "responsibilities": []
                         }
                       ],
-                      "avatarUrl": "https://avatars.fastly.steamstatic.com/1358a6f462ce93511842f9c3d067ec0e7662aab7_full.jpg",
+                      "avatarUrl": "https://avatars.fastly.steamstatic.com/79a8119bd2a027755f93872d0d09b959909a0405_full.jpg",
                       "steamLink": "https://steamcommunity.com/profiles/76561199439185612",
                       "joinDate": "2023-01-15",
                       "status": "offline",
@@ -493,7 +398,7 @@ export const ORG_TREE = {
                           "role": "Helper",
                           "roleId": "helper",
                           "children": [],
-                          "avatarUrl": "https://avatars.fastly.steamstatic.com/59e75dc27ff9c6a73ef242ac14dc4c3fc7001827_full.jpg",
+                          "avatarUrl": "https://avatars.fastly.steamstatic.com/4d199d4a935f8921a93abe8d443b48bc653fc82d_full.jpg",
                           "steamLink": "https://steamcommunity.com/profiles/76561199070188905",
                           "joinDate": "2023-01-15",
                           "status": "online",
@@ -611,9 +516,104 @@ export const ORG_TREE = {
           "joinDate": "2023-01-15",
           "status": "online",
           "responsibilities": []
+        },
+        {
+          "id": "spark",
+          "name": "Spark (Ultra)",
+          "role": "Community Manager",
+          "roleId": "community-manager",
+          "children": [
+            {
+              "id": "zlk",
+              "name": "ZLK",
+              "role": "Community Advisor",
+              "roleId": "community-advisor",
+              "children": [],
+              "avatarUrl": "https://avatars.fastly.steamstatic.com/40bf29a0a7d3e4a36e64456677985317e46ff3de_full.jpg",
+              "steamLink": "https://steamcommunity.com/profiles/76561199006087203",
+              "joinDate": "2023-01-15",
+              "status": "online",
+              "history": [
+                {
+                  "date": "2026-03-14T12:00:00Z",
+                  "action": "Promoted",
+                  "toRole": "Server Manager"
+                },
+                {
+                  "date": "2026-06-14T12:00:00Z",
+                  "action": "Promoted",
+                  "toRole": "Community Advisor"
+                }
+              ],
+              "responsibilities": []
+            },
+            {
+              "id": "rloner",
+              "name": "rLoner",
+              "role": "Community Advisor",
+              "roleId": "community-advisor",
+              "children": [],
+              "avatarUrl": "https://avatars.fastly.steamstatic.com/523bed88e7ebbe542a5e007f74e5a865a0dc756c_full.jpg",
+              "steamLink": "https://steamcommunity.com/profiles/76561199202045077",
+              "joinDate": "2023-01-15",
+              "status": "offline",
+              "responsibilities": []
+            },
+            {
+              "id": "booyeto",
+              "name": "Booyeto",
+              "role": "Community Advisor",
+              "roleId": "community-advisor",
+              "children": [],
+              "avatarUrl": "https://avatars.fastly.steamstatic.com/7645c030071b46e0a5e7cac29a9f9f9f035c927e_full.jpg",
+              "steamLink": "https://steamcommunity.com/profiles/76561198368502127",
+              "joinDate": "2023-01-15",
+              "status": "offline",
+              "responsibilities": [],
+              "history": [
+                {
+                  "date": "2026-03-14T12:00:00Z",
+                  "action": "Promoted",
+                  "toRole": "Administrator"
+                },
+                {
+                  "date": "2026-06-01T12:00:00Z",
+                  "action": "Promoted",
+                  "toRole": "Server Manager"
+                },
+                {
+                  "date": "2026-07-19T12:00:00Z",
+                  "action": "Promoted",
+                  "toRole": "Community Advisor"
+                }
+              ]
+            }
+          ],
+          "avatarUrl": "https://avatars.fastly.steamstatic.com/c41386971a8f05a08d9c5ada6a4cdc28766af535_full.jpg",
+          "steamLink": "https://steamcommunity.com/profiles/76561197965422061",
+          "joinDate": "2023-01-15",
+          "status": "offline",
+          "history": [
+            {
+              "date": "2024-11-22T12:00:00Z",
+              "action": "Promoted",
+              "toRole": "Moderator"
+            },
+            {
+              "date": "2025-02-08T12:00:00Z",
+              "action": "Promoted",
+              "toRole": "Administrator"
+            },
+            {
+              "date": "2026-01-01T12:00:00Z",
+              "action": "Promoted",
+              "toRole": "Community Manager"
+            }
+          ],
+          "responsibilities": []
         }
       ],
-      "avatarUrl": "https://avatars.fastly.steamstatic.com/a340dc57c25c5776e6adb9373e2e8ab5d5821d72_full.jpg",
+      "avatarUrl": "https://avatars.fastly.steamstatic.com/5aae7060c5118b7da78bd6498e3e4bed4afa1fa2_full.jpg",
       "steamLink": "https://steamcommunity.com/profiles/76561198863614059",
       "joinDate": "2023-01-15",
       "status": "offline",
@@ -625,21 +625,7 @@ export const ORG_TREE = {
           "toRole": "Community Manager"
         }
       ],
-      "responsibilities": [
-        "În lipsa Owner-ului/Developer-ului, acesta poate lua decizii în locul lor pentru tot ce ține de STAFF și COMUNITATE",
-        "Organizarea și coordonarea evenimentelor comunității",
-        "Moderarea discuțiilor din comunitate (Discord, etc.)",
-        "La cerere primește acces la docs.wildfire.ro",
-        "În lipsa Owner-ului, poate anunța și susține întâlniri",
-        "Promovarea comunității pe rețelele sociale",
-        "Menținerea unei atmosfere prietenoase și primitoare",
-        "Participarea activă în consiliul de administrare",
-        "Crearea de sondaje și colectarea feedback-ului de la jucători",
-        "Face parte din consiliul de administrație al comunității",
-        "Urmărește evoluția constantă a comunității și colaborează împreună cu Server Manager-ul ori de câte ori este nevoie",
-        "Primește accese mari pe Discord și este responsabil de orice cameră și permisiune făcută",
-        "Verifică aptitudinile fiecărui admin și ajută la formarea acestora"
-      ]
+      "responsibilities": []
     }
   ],
   "avatarUrl": "https://avatars.fastly.steamstatic.com/e0bc71c8cc0a992273ab3428e40778fe55800218_full.jpg",

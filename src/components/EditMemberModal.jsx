@@ -1,8 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { X, PlusCircle, Trash2, Download, Shield, Save, AlertTriangle } from 'lucide-react'
+import { X, PlusCircle, Trash2, Download, Shield, Save, AlertTriangle, ArrowRight } from 'lucide-react'
 import { useStore, flattenNodes } from '../store/useStore'
 import { getInitials } from '../data/staffData'
 import styles from './EditMemberModal.module.css'
+
+// Helper to find parent of a node in tree
+function findParent(tree, targetId, parent = null) {
+  if (tree.id === targetId) return parent
+  for (const child of tree.children || []) {
+    const found = findParent(child, targetId, tree)
+    if (found !== undefined) return found
+  }
+  return undefined
+}
 
 export default function EditMemberModal({ node, onClose }) {
   const { tree, roles, updateNodeDetails, setNodeRole, moveNode, addNode, kickNode } = useStore()
@@ -18,6 +28,22 @@ export default function EditMemberModal({ node, onClose }) {
   const [resps, setResps] = useState((activeNode.responsibilities || []).join('\n'))
   const [confirmRemove, setConfirmRemove] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [moveToast, setMoveToast] = useState('')
+
+  // Find current parent
+  const currentParent = useMemo(() => {
+    const parent = findParent(tree, activeNode.id)
+    if (parent) return allNodes.find(n => n.id === parent.id) || parent
+    return null
+  }, [tree, activeNode.id, allNodes])
+
+  // Controlled move-to select value — shows current parent by default
+  const [moveToId, setMoveToId] = useState('__keep__')
+
+  // Sync move-to when parent changes after move
+  useEffect(() => {
+    setMoveToId('__keep__')
+  }, [currentParent?.id])
 
   useEffect(() => {
     setName(activeNode.name || '')
@@ -56,9 +82,20 @@ export default function EditMemberModal({ node, onClose }) {
     if (newRoleId !== activeNode.roleId) setNodeRole(activeNode.id, newRoleId)
   }
 
-  const handleMoveChange = (e) => {
-    const newParentId = e.target.value
-    if (newParentId) moveNode(activeNode.id, newParentId)
+  const handleMoveApply = () => {
+    if (!moveToId || moveToId === '__keep__') return
+    if (moveToId === activeNode.id) return
+
+    // Find if target is a descendant (would create cycle)
+    const targetNode = allNodes.find(n => n.id === moveToId)
+    if (!targetNode) return
+
+    moveNode(activeNode.id, moveToId)
+
+    const targetName = targetNode.name || 'selected manager'
+    setMoveToast(`Moved under ${targetName}`)
+    setTimeout(() => setMoveToast(''), 2500)
+    setMoveToId('__keep__')
   }
 
   const handleAddSubordinate = () => {
@@ -79,6 +116,15 @@ export default function EditMemberModal({ node, onClose }) {
   if (!role) return null
 
   const roleColor = role.color || '#a855f7'
+
+  // Nodes eligible to be a new manager: not self, not vacant, not own descendants
+  const eligibleManagers = allNodes.filter(n => {
+    if (n.id === activeNode.id) return false
+    if (n.vacant) return false
+    // exclude own children/descendants
+    const found = flattenNodes(activeNode).find(d => d.id === n.id)
+    return !found
+  })
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -137,13 +183,13 @@ export default function EditMemberModal({ node, onClose }) {
                 />
               </div>
               <div className={styles.field}>
-                <label className={styles.label}>Avatar URL or Steam ID</label>
+                <label className={styles.label}>Avatar URL</label>
                 <input
                   type="text"
                   className={styles.input}
                   value={avatarUrl}
                   onChange={e => setAvatarUrl(e.target.value)}
-                  placeholder="https://... or 76561XXXXXXXXXX"
+                  placeholder="https://..."
                 />
               </div>
               <div className={styles.field}>
@@ -182,19 +228,44 @@ export default function EditMemberModal({ node, onClose }) {
                   ))}
                 </select>
               </div>
+
               <div className={styles.field}>
-                <label className={styles.label}>Move to Manager</label>
-                <select className={styles.select} value="" onChange={handleMoveChange}>
-                  <option value="" disabled>Select new manager…</option>
-                  {allNodes
-                    .filter(n => n.id !== activeNode.id && !n.vacant)
-                    .map(n => (
+                <label className={styles.label}>
+                  Move To Manager
+                  {currentParent && (
+                    <span className={styles.currentParentHint}>
+                      {' '}· Current: <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{currentParent.name}</strong>
+                    </span>
+                  )}
+                </label>
+                <div className={styles.moveRow}>
+                  <select
+                    className={styles.select}
+                    value={moveToId}
+                    onChange={e => setMoveToId(e.target.value)}
+                    style={{ flex: 1 }}
+                  >
+                    <option value="__keep__">-- Keep Current Manager --</option>
+                    {eligibleManagers.map(n => (
                       <option key={n.id} value={n.id}>
                         {n.name} ({roles.find(r => r.id === n.roleId)?.title || '?'})
                       </option>
-                    ))
-                  }
-                </select>
+                    ))}
+                  </select>
+                  <button
+                    className={styles.moveApplyBtn}
+                    onClick={handleMoveApply}
+                    disabled={!moveToId || moveToId === '__keep__'}
+                    title="Apply move"
+                  >
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+                {moveToast && (
+                  <div className={styles.moveToast}>
+                    ✓ {moveToast}
+                  </div>
+                )}
               </div>
 
               <button className={styles.addSubBtn} onClick={handleAddSubordinate}>
