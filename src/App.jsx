@@ -1,7 +1,11 @@
 import React from 'react'
 import OrgChart from './pages/OrgChart'
+import PromptModal from './components/PromptModal'
+import { useStore } from './store/useStore'
 
 export default function App() {
+  const promptConfig = useStore(s => s.promptConfig)
+
   return (
     <>
       {/* Liquid background effect */}
@@ -17,6 +21,16 @@ export default function App() {
       <div className="page-wrapper">
         <OrgChart />
       </div>
+
+      {promptConfig && (
+        <PromptModal
+          title={promptConfig.title}
+          description={promptConfig.description}
+          placeholder={promptConfig.placeholder}
+          onConfirm={promptConfig.onConfirm}
+          onCancel={promptConfig.onCancel}
+        />
+      )}
     </>
   )
 }

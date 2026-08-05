@@ -459,10 +459,119 @@ export const ORG_TREE = {
                           "toRole": "Moderator"
                         }
                       ],
+                      "children": [],
+                      "collapsed": false
+                    },
+                    {
+                      "id": "node-1785953969682",
+                      "name": "TEST2",
+                      "roleId": "moderator",
+                      "role": "Moderator",
+                      "avatarUrl": "https://static.vecteezy.com/system/resources/thumbnails/057/068/323/small/single-fresh-red-strawberry-on-table-green-background-food-fruit-sweet-macro-juicy-plant-image-photo.jpg",
+                      "vacant": false,
+                      "responsibilities": [
+                        "Pe lângă sarcinile de la gradul precedent, acesta primește următoarele atribuții",
+                        "Menținerea ordinii și disciplinei pe server",
+                        "Aplicarea sancțiunilor conform regulamentului",
+                        "Observă comportamentul helperilor și intervine atunci când este cazul",
+                        "Citește integral și detaliat o cerere de Helper și răspunde cât mai bine",
+                        "Acces la comanda de ban și panel-ul wildfire.ro",
+                        "Trimite mesajul de bun venit atunci când un membru staff intră în echipă",
+                        "Ține legătura în permanență cu gradele inferioare și le ajută atunci când este cazul",
+                        "Colaborează cu gradul de Administrator și comunică permanent problemele sau neclaritățile întâmpinate",
+                        "Amintește adminilor să răspundă la aplicațiile staff",
+                        "Intervenția atunci când un Helper greșește",
+                        "Rol de mentor pentru gradele inferioare",
+                        "Raportarea activității Helperilor către Administrator",
+                        "Respectă aceleași responsabilități de la gradul anterior"
+                      ],
+                      "history": [
+                        {
+                          "action": "Promoted",
+                          "fromRole": "Unknown",
+                          "toRole": "Helper",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Iannc",
+                          "reason": "PROMOVAT"
+                        },
+                        {
+                          "action": "Promoted",
+                          "fromRole": "Unknown",
+                          "toRole": "Moderator",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Iannc",
+                          "reason": "PROMOVAT"
+                        },
+                        {
+                          "action": "Promoted",
+                          "fromRole": "Unknown",
+                          "toRole": "Administrator",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Iannc",
+                          "reason": "PROMOVAT"
+                        },
+                        {
+                          "action": "Demoted",
+                          "fromRole": "Unknown",
+                          "toRole": "Moderator",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Console",
+                          "reason": "DA"
+                        },
+                        {
+                          "action": "Demoted",
+                          "fromRole": "Moderator",
+                          "toRole": "Moderator",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Spark (Ultra)",
+                          "reason": "DESTEPT CA YAKUZA"
+                        },
+                        {
+                          "action": "Demoted",
+                          "fromRole": "Moderator",
+                          "toRole": "Moderator",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Console",
+                          "reason": "test"
+                        },
+                        {
+                          "action": "Demoted",
+                          "fromRole": "Moderator",
+                          "toRole": "Helper",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Iannc",
+                          "reason": "TEST"
+                        },
+                        {
+                          "action": "Promoted",
+                          "fromRole": "Helper",
+                          "toRole": "Moderator",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Console",
+                          "reason": ""
+                        },
+                        {
+                          "action": "Demoted",
+                          "fromRole": "Moderator",
+                          "toRole": "Helper",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Console",
+                          "reason": ""
+                        },
+                        {
+                          "action": "Promoted",
+                          "fromRole": "Helper",
+                          "toRole": "Moderator",
+                          "date": "2026-08-05T00:00:00.000Z",
+                          "by": "Iannc",
+                          "reason": "TEST"
+                        }
+                      ],
                       "children": []
                     }
                   ],
-                  "responsibilities": []
+                  "responsibilities": [],
+                  "collapsed": false
                 }
               ],
               "avatarUrl": "https://avatars.fastly.steamstatic.com/e2847cb722e1ec8bf9df607659f7f5e3804a0182_full.jpg",

@@ -3,7 +3,7 @@ import {
   Bell, ChevronDown, Flame, Shield,
   Network, ClipboardList,
   ZoomOut, ZoomIn, Maximize, Download, Edit3, Lock,
-  Undo2, Redo2, RotateCcw, Upload, List, Search, Settings, EyeOff, Maximize2
+  Undo2, Redo2, RotateCcw, Upload, List, Search, Settings, EyeOff, Maximize2, LayoutGrid
 } from 'lucide-react'
 import styles from './Navbar.module.css'
 import { useStore } from '../store/useStore'
@@ -113,17 +113,6 @@ export default function Navbar({
             <button className={styles.toolBtn} onClick={onExportPng} title="Export PNG">
               <Download size={14} />
               <span>Export PNG</span>
-            </button>
-
-            <div className={styles.vDivider} />
-
-            {/* Edit / Lock */}
-            <button
-              className={`${styles.toolBtn} ${isEditMode ? styles.toolBtnEdit : ''}`}
-              onClick={onToggleEditMode}
-              title={isEditMode ? 'Lock editing' : 'Enable editing'}
-            >
-              {isEditMode ? <><Lock size={14} /><span>Lock</span></> : <><Edit3 size={14} /><span>Edit</span></>}
             </button>
 
             {/* Undo / Redo / Reset — only in edit mode */}
@@ -288,15 +277,26 @@ export default function Navbar({
           )}
         </div>
 
-        {/* Settings */}
-        <button
-          className={`${styles.settingsBtn} ${isEditMode ? styles.settingsBtnActive : ''}`}
-          onClick={onOpenSettings}
-          title="Settings"
-          aria-label="Open settings"
-        >
-          <Settings size={15} />
-        </button>
+        {/* Edit & Settings Group */}
+        <div className={styles.editSettingsGroup}>
+          <button
+            className={`${styles.groupEditBtn} ${isEditMode ? styles.groupEditBtnActive : ''}`}
+            onClick={onToggleEditMode}
+            title={isEditMode ? 'Lock editing' : 'Enable editing'}
+          >
+            {isEditMode ? <Lock size={14} /> : <Edit3 size={14} />}
+            <span>{isEditMode ? 'Lock' : 'Edit'}</span>
+          </button>
+          <div className={styles.groupDivider} />
+          <button
+            className={`${styles.groupSettingsBtn} ${isEditMode ? styles.groupSettingsBtnActive : ''}`}
+            onClick={onOpenSettings}
+            title="Settings"
+            aria-label="Open settings"
+          >
+            <LayoutGrid size={15} />
+          </button>
+        </div>
 
         <div className={styles.divider} />
 

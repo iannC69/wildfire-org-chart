@@ -109,8 +109,8 @@ export default function EditMemberModal({ node, onClose }) {
     })
   }
 
-  const handleRemove = () => {
-    const reason = window.prompt("Reason for removal (optional):");
+  const handleRemove = async () => {
+    const reason = await useStore.getState().requestPrompt("Remove Member", "Reason for removal (optional):");
     if (reason !== null) {
       kickNode(activeNode.id, reason)
       onClose()

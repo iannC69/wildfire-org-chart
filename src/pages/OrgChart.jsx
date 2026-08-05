@@ -454,9 +454,12 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
           <g
             transform={`translate(${NODE_W - 12}, -12)`}
             onClick={(e) => { 
-              e.stopPropagation(); 
-              const reason = window.prompt("Reason for removal (optional):");
-              if (reason !== null) kickNode(node.id, reason); 
+              e.stopPropagation();
+              const handleKick = async (id) => {
+                const reason = await useStore.getState().requestPrompt("Remove Member", "Reason for removal (optional):");
+                if (reason !== null) kickNode(id, reason);
+              };
+              handleKick(node.id);
             }}
             style={{ cursor: 'pointer' }}
           >

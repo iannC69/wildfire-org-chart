@@ -874,9 +874,11 @@
   font-family: inherit;
 }
 
-.colorGreen { color: #10B981; }
-.colorRed { color: #EF4444; }
-.colorYellow { color: #EAB308; }
+.colorGreen { color: #22c55e !important; font-weight: bold; }
+.colorBlue { color: #3b82f6 !important; font-weight: bold; }
+.colorRed { color: #ef4444 !important; font-weight: bold; }
+.colorOrange { color: #f97316 !important; font-weight: bold; }
+.colorYellow { color: #eab308 !important; font-weight: bold; }
 
 .histTo, .histBy {
   color: rgba(255,255,255,0.4);

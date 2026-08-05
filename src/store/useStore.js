@@ -118,17 +118,18 @@ const initialArchive = savedArchive || [];
 
 export const useStore = create((set, get) => {
       // Pure helper to append log without triggering a nested set()
-      const appendGlobalLog = (state, message, targetAvatar = null) => {
+      const appendGlobalLog = (state, message, targetAvatar = null, overrideBy = null) => {
+        const finalBy = overrideBy || state.adminName || 'Console';
         // Find avatar for 'by' (adminName)
         const allMembers = flattenNodes([state.tree]);
-        const byMember = allMembers.find(m => m.name === state.adminName);
+        const byMember = allMembers.find(m => m.name === finalBy);
         const byAvatar = byMember?.avatarUrl || null;
 
         const newEntry = {
           id: Date.now() + Math.random(),
           date: new Date().toISOString(),
           message,
-          by: state.adminName || 'Console',
+          by: finalBy,
           targetAvatar,
           byAvatar
         };
@@ -139,8 +140,8 @@ export const useStore = create((set, get) => {
         return { globalLog: newLog };
       };
 
-      const addGlobalLog = (message, targetAvatar = null) => {
-        set(state => appendGlobalLog(state, message, targetAvatar));
+      const addGlobalLog = (message, targetAvatar = null, overrideBy = null) => {
+        set(state => appendGlobalLog(state, message, targetAvatar, overrideBy));
       };
 
       const pushHistory = (state) => {
@@ -167,6 +168,26 @@ export const useStore = create((set, get) => {
         adminName: 'Console',
         vacantName: initialPrefs.vacantName,
         vacantAvatar: initialPrefs.vacantAvatar,
+        
+        promptConfig: null,
+        requestPrompt: (title, description, placeholder) => new Promise((resolve) => {
+          set({ 
+            promptConfig: { 
+              title, 
+              description, 
+              placeholder, 
+              onConfirm: (val) => {
+                set({ promptConfig: null })
+                resolve(val)
+              },
+              onCancel: () => {
+                set({ promptConfig: null })
+                resolve(null)
+              }
+            } 
+          })
+        }),
+
         setAdminName: (name) => set({ adminName: name }),
         setVacantPrefs: (name, avatar) => set(state => {
           const newPrefs = { vacantName: name || 'Poziție Liberă', vacantAvatar: avatar || null };
@@ -665,13 +686,25 @@ export const useStore = create((set, get) => {
           let logUpdate = {};
           
           const targetAvatar = node?.avatarUrl || null;
+          let changedRole = false;
 
           if (node && node.roleId !== roleId) {
+            changedRole = true;
             const oldRoleObj = state.roles.find(r => r.id === node.roleId);
             const oldRole = oldRoleObj?.title || 'Unknown';
             const oldRank = oldRoleObj?.rank || 999;
             const newRank = role.rank || 999;
-            const action = newRank < oldRank ? 'Promoted' : 'Demoted';
+            
+            const sortedUniqueRanks = [...new Set(state.roles.map(r => r.rank))].sort((a, b) => b - a);
+            const oldIndex = sortedUniqueRanks.indexOf(oldRank);
+            const newIndex = sortedUniqueRanks.indexOf(newRank);
+            
+            let action = 'Promoted';
+            if (newIndex > oldIndex) {
+              action = 'Promoted';
+            } else if (newIndex < oldIndex) {
+              action = 'Demoted';
+            }
             
             logUpdate = appendGlobalLog(state, `${action} member ${node.name} from ${oldRole} to ${role.title}`, targetAvatar);
 
@@ -686,7 +719,56 @@ export const useStore = create((set, get) => {
           }
 
           const historyUpdate = pushHistory(state);
-          return { tree: updateNodeRole(newTree, nodeId, role), ...historyUpdate, ...logUpdate };
+          newTree = updateNodeRole(newTree, nodeId, role);
+
+          if (changedRole) {
+            // Find current parent
+            let currentParent = null;
+            function findParentTarget(tree, targetId, parent = null) {
+              if (tree.id === targetId) return parent;
+              for (const child of tree.children || []) {
+                const found = findParentTarget(child, targetId, tree);
+                if (found) return found;
+              }
+              return null;
+            }
+            currentParent = findParentTarget(newTree, nodeId);
+
+            if (currentParent) {
+              const currentParentRole = state.roles.find(r => r.id === currentParent.roleId);
+              // We want to find the optimal parent rank (closest to role.rank but strictly less)
+            }
+
+            let candidates = [];
+            function gatherCandidates(n) {
+              if (n.id === nodeId) return; // skip self
+              const pRole = state.roles.find(r => r.id === n.roleId);
+              if (pRole && pRole.rank < role.rank) {
+                candidates.push({ node: n, rank: pRole.rank });
+              }
+              for (const child of n.children || []) gatherCandidates(child);
+            }
+            gatherCandidates(newTree);
+
+            if (candidates.length > 0) {
+              const maxRank = Math.max(...candidates.map(c => c.rank));
+              const bestCandidates = candidates.filter(c => c.rank === maxRank);
+              
+              let chosenParent = bestCandidates[0].node;
+              // If currentParent is already one of the optimal candidates, stay there
+              if (currentParent && bestCandidates.some(c => c.node.id === currentParent.id)) {
+                chosenParent = currentParent;
+              }
+
+              if (chosenParent.id !== currentParent?.id) {
+                const updatedNode = findNode(newTree, nodeId);
+                newTree = removeNode(newTree, nodeId);
+                newTree = insertNode(newTree, chosenParent.id, updatedNode);
+              }
+            }
+          }
+
+          return { tree: newTree, ...historyUpdate, ...logUpdate };
         }),
 
         updateNodeDetails: (id, updates) => set(state => {
@@ -694,14 +776,29 @@ export const useStore = create((set, get) => {
           let newTree = state.tree;
           
           const node = findNode(newTree, id);
+          let changedRole = false;
+          let newRoleObj = null;
+
           if (node && updates.roleId && updates.roleId !== node.roleId) {
+            changedRole = true;
+            newRoleObj = state.roles.find(r => r.id === updates.roleId);
+            
             const oldRoleObj = state.roles.find(r => r.id === node.roleId);
             const oldRole = oldRoleObj?.title || 'Unknown';
             const oldRank = oldRoleObj?.rank || 999;
-            const newRoleObj = state.roles.find(r => r.id === updates.roleId);
             const newRole = newRoleObj?.title || 'Unknown';
             const newRank = newRoleObj?.rank || 999;
-            const action = newRank < oldRank ? 'Promoted' : 'Demoted';
+            
+            const sortedUniqueRanks = [...new Set(state.roles.map(r => r.rank))].sort((a, b) => b - a);
+            const oldIndex = sortedUniqueRanks.indexOf(oldRank);
+            const newIndex = sortedUniqueRanks.indexOf(newRank);
+            
+            let action = 'Promoted';
+            if (newIndex > oldIndex) {
+              action = 'Promoted';
+            } else if (newIndex < oldIndex) {
+              action = 'Demoted';
+            }
             
             const historyEntry = {
               date: new Date().toISOString(),
@@ -715,11 +812,56 @@ export const useStore = create((set, get) => {
             if (!updates.history) {
               updates.history = [...(node.history || []), historyEntry];
             }
+            
+            // Ensure title string stays in sync
+            updates.role = newRole;
           }
 
           for (const [key, value] of Object.entries(updates)) {
             newTree = updateNodeField(newTree, id, key, value);
           }
+          
+          // Auto-reparent logic
+          if (changedRole && newRoleObj) {
+            let currentParent = null;
+            function findParentTarget(tree, targetId, parent = null) {
+              if (tree.id === targetId) return parent;
+              for (const child of tree.children || []) {
+                const found = findParentTarget(child, targetId, tree);
+                if (found) return found;
+              }
+              return null;
+            }
+            currentParent = findParentTarget(newTree, id);
+
+            let candidates = [];
+            function gatherCandidates(n) {
+              if (n.id === id) return; // skip self
+              const pRole = state.roles.find(r => r.id === n.roleId);
+              if (pRole && pRole.rank < newRoleObj.rank) {
+                candidates.push({ node: n, rank: pRole.rank });
+              }
+              for (const child of n.children || []) gatherCandidates(child);
+            }
+            gatherCandidates(newTree);
+
+            if (candidates.length > 0) {
+              const maxRank = Math.max(...candidates.map(c => c.rank));
+              const bestCandidates = candidates.filter(c => c.rank === maxRank);
+              
+              let chosenParent = bestCandidates[0].node;
+              if (currentParent && bestCandidates.some(c => c.node.id === currentParent.id)) {
+                chosenParent = currentParent;
+              }
+
+              if (chosenParent.id !== currentParent?.id) {
+                const updatedNode = findNode(newTree, id);
+                newTree = removeNode(newTree, id);
+                newTree = insertNode(newTree, chosenParent.id, updatedNode);
+              }
+            }
+          }
+
           return { tree: newTree, ...historyUpdate };
         }),
 

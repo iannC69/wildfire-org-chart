@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
-import { X, Save, Trash2, Plus, Users, Shield, Edit3, Search, Hexagon, Crown, AlertTriangle, Archive, RefreshCw, Settings, PlusCircle } from 'lucide-react'
+import { X, Save, Trash2, Plus, Users, Shield, Edit3, Search, Hexagon, Crown, AlertTriangle, Archive, RefreshCw, Settings, PlusCircle, Zap, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useStore, flattenNodes } from '../store/useStore'
 import styles from './SettingsModal.module.css'
 
@@ -11,6 +11,90 @@ function findParent(tree, targetId, parent = null) {
     if (found !== undefined) return found
   }
   return undefined
+}
+
+const ActionDropdown = ({ value, onChange, className }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const options = [
+    { value: '', label: 'SELECT ACTION', color: 'rgba(255,255,255,0.4)' },
+    { value: 'Promoted', label: 'PROMOTED', color: '#22c55e', icon: ArrowUp },
+    { value: 'Demoted', label: 'DEMOTED', color: '#eab308', icon: ArrowDown }
+  ];
+
+  const currentOption = options.find(o => o.value === value) || 
+    (value === 'Removed' ? { value: 'Removed', label: 'REMOVED', color: '#ef4444', icon: Trash2 } : options[0]);
+
+  return (
+    <div 
+      className={className} 
+      style={{ position: 'relative', cursor: 'pointer', userSelect: 'none', outline: 'none', display: 'inline-block' }}
+      tabIndex={0}
+      onClick={() => setIsOpen(!isOpen)}
+      onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+    >
+       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', padding: '8px 12px', background: `linear-gradient(135deg, ${currentOption.color}15, rgba(0,0,0,0.6))`, borderRadius: '8px', border: `1px solid ${currentOption.color}50`, color: currentOption.color, fontWeight: '800', fontSize: '11px', minWidth: '120px', boxShadow: `0 4px 12px ${currentOption.color}20` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {currentOption.icon && <currentOption.icon size={14} />}
+            {currentOption.label}
+          </div>
+          <ChevronDown size={14} color={currentOption.color} style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', opacity: 0.7 }} />
+       </div>
+       {isOpen && (
+         <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: '6px', background: '#111115', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', overflow: 'hidden', zIndex: 100, width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.6)' }}>
+            {options.map(opt => {
+              const Icon = opt.icon;
+              return (
+                <div 
+                  key={opt.value} 
+                  onClick={() => onChange(opt.value)} 
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 12px', fontSize: '11px', fontWeight: '800', color: opt.color, background: value === opt.value ? 'rgba(255,255,255,0.06)' : 'transparent', transition: 'all 0.2s' }} 
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.paddingLeft = '16px'; }} 
+                  onMouseLeave={e => { e.currentTarget.style.background = value === opt.value ? 'rgba(255,255,255,0.06)' : 'transparent'; e.currentTarget.style.paddingLeft = '12px'; }}
+                >
+                  {Icon && <Icon size={14} />}
+                  {opt.label}
+                </div>
+              )
+            })}
+         </div>
+       )}
+    </div>
+  )
+}
+
+const CustomSelect = ({ value, onChange, options, placeholder = 'Select...', className }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const displayValue = options.find(o => o.value === value)?.label || value || placeholder;
+
+  return (
+    <div 
+      className={className} 
+      style={{ position: 'relative', cursor: 'pointer', userSelect: 'none', outline: 'none', display: 'inline-block', minWidth: '130px' }}
+      tabIndex={0}
+      onClick={() => setIsOpen(!isOpen)}
+      onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+    >
+       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', padding: '8px 12px', background: 'rgba(0,0,0,0.4)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '12px', fontWeight: '600' }}>
+          <span>{displayValue}</span>
+          <ChevronDown size={14} color="rgba(255,255,255,0.4)" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+       </div>
+       {isOpen && (
+         <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: '6px', background: '#111115', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', overflowY: 'auto', maxHeight: '180px', zIndex: 100, width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
+            {options.map(opt => (
+              <div 
+                key={opt.value} 
+                onClick={() => onChange(opt.value)} 
+                style={{ padding: '10px 12px', fontSize: '12px', fontWeight: '500', color: '#fff', background: value === opt.value ? 'rgba(255,255,255,0.06)' : 'transparent', transition: 'all 0.2s' }} 
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.paddingLeft = '16px'; }} 
+                onMouseLeave={e => { e.currentTarget.style.background = value === opt.value ? 'rgba(255,255,255,0.06)' : 'transparent'; e.currentTarget.style.paddingLeft = '12px'; }}
+              >
+                {opt.label}
+              </div>
+            ))}
+         </div>
+       )}
+    </div>
+  )
 }
 
 export default function SettingsModal({ onClose }) {
@@ -58,14 +142,25 @@ export default function SettingsModal({ onClose }) {
   const [newHistAction, setNewHistAction] = useState('Promoted')
   const [newHistRole, setNewHistRole] = useState('')
   const [newHistDate, setNewHistDate] = useState(() => new Date().toISOString().split('T')[0])
+  const globalLog = useStore(s => s.globalLog || [])
+  
+  // Find the last real admin who made an action in the global log
+  const lastRealAdmin = React.useMemo(() => {
+    const log = globalLog.find(l => l.by && l.by.toUpperCase() !== 'CONSOLE')
+    return log ? log.by : null
+  }, [globalLog])
+
   const adminName = useStore(s => s.adminName)
-  const [newHistBy, setNewHistBy] = useState(adminName || 'Console')
+  const [newHistBy, setNewHistBy] = useState(() => {
+    try {
+      const saved = localStorage.getItem('wildfire_last_admin_by')
+      if (saved) return saved
+    } catch {}
+    return lastRealAdmin || (adminName !== 'Console' ? adminName : null) || 'Console'
+  })
   const [newHistReason, setNewHistReason] = useState('')
 
-  // Keep newHistBy synced if adminName changes globally while modal is open
-  useEffect(() => {
-    setNewHistBy(adminName || 'Console')
-  }, [adminName])
+
 
   // New Group state
   const [newRoleTitle, setNewRoleTitle] = useState('New Group')
@@ -120,6 +215,21 @@ export default function SettingsModal({ onClose }) {
     return r && r.rank <= supervizorRank
   })
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('wildfire_last_admin_by')
+      if (saved) {
+        setNewHistBy(saved)
+      } else if (lastRealAdmin) {
+        setNewHistBy(lastRealAdmin)
+      } else if (adminName && adminName !== 'Console') {
+        setNewHistBy(adminName)
+      } else if (eligibleAdmins.length > 0) {
+        setNewHistBy(eligibleAdmins[0].name)
+      }
+    } catch {}
+  }, [adminName, lastRealAdmin, eligibleAdmins])
+
   // Close on Escape
   useEffect(() => {
     const handleKeyDown = (e) => { if (e.key === 'Escape') onClose() }
@@ -130,11 +240,11 @@ export default function SettingsModal({ onClose }) {
   // Initialize newHistRole when roles change
   useEffect(() => {
     if (roles.length > 0 && !newHistRole) {
-      setNewHistRole(roles[0].title)
+      const helperRole = roles.find(r => r.id === 'helper' || r.title === 'Helper')
+      setNewHistRole(helperRole ? helperRole.title : roles[0].title)
     }
-  }, [roles])
+  }, [roles, newHistRole])
 
-  const globalLog = useStore(s => s.globalLog || [])
   const validLogs = globalLog.filter(log => 
     log.message.startsWith('Promoted') || 
     log.message.startsWith('Demoted') || 
@@ -181,7 +291,13 @@ export default function SettingsModal({ onClose }) {
     setEditName('')
     setEditAvatar('')
     setEditRoleId(helperRole?.id || '')
-    setEditManagerId('')
+    
+    const moderators = activeMembers.filter(m => m.roleId === 'moderator' && !m.vacant)
+    let randomManagerId = ''
+    if (moderators.length > 0) {
+      randomManagerId = moderators[Math.floor(Math.random() * moderators.length)].id
+    }
+    setEditManagerId(randomManagerId)
     
     const initialResps = roleDetails.find(rd => rd.id === (helperRole?.id || ''))?.responsibilities || []
     setEditResps(initialResps.map(rd => rd.title || rd).join('\n'))
@@ -204,34 +320,59 @@ export default function SettingsModal({ onClose }) {
     setEditingAdmin(m.id)
     setEditName(m.name || '')
     setEditAvatar(m.avatarUrl || '')
+    
+    // Default to NO ACTION to prevent accidental promotions
+    setNewHistAction('')
+    setNewHistRole('')
     setEditRoleId(m.roleId || '')
     
-    // Pre-select current parent
-    const parentNode = findParent(useStore.getState().tree, m.id)
-    setEditManagerId(parentNode ? parentNode.id : '')
-
     let initialResps = m.responsibilities
     if (!initialResps || initialResps.length === 0) {
       const defs = roleDetails.find(rd => rd.id === (m.roleId || ''))?.responsibilities || []
       initialResps = defs.map(rd => rd.title || rd)
     }
     setEditResps(initialResps.join('\n'))
+    
+    // Pre-select current parent
+    const parentNode = findParent(useStore.getState().tree, m.id)
+    setEditManagerId(parentNode ? parentNode.id : '')
     setEditHistory(m.history ? [...m.history] : [])
   }
 
-  const handleAddHistoryEntry = () => {
+  const handleApplyAndSave = (m) => {
     if (!newHistDate) return
+    
+    const fromRoleName = roles.find(r => r.id === m.roleId)?.title || 'Unknown'
     const newLog = {
       action: newHistAction,
-      fromRole: 'Unknown',
+      fromRole: fromRoleName,
       toRole: newHistRole || roles[0]?.title || '',
       date: new Date(newHistDate).toISOString(),
       by: newHistBy || 'Console',
-      reason: newHistReason || '',
-      _isNew: true // Flag to sync to global log on save
+      reason: newHistReason.trim(),
+      _isNew: true
     }
-    setEditHistory(prev => [...prev, newLog])
+    
+    const updatedHistory = [...editHistory, newLog]
+    setEditHistory(updatedHistory)
+    
+    let nextRoleId = editRoleId
+    let nextResps = editResps
+    
+    if (newHistAction === 'Promoted' || newHistAction === 'Demoted') {
+      const matchedRole = roles.find(r => r.title === newHistRole)
+      if (matchedRole) {
+        nextRoleId = matchedRole.id
+        setEditRoleId(nextRoleId)
+        
+        const defs = roleDetails.find(rd => rd.id === matchedRole.id)?.responsibilities || []
+        nextResps = defs.map(rd => rd.title || rd).join('\n')
+        setEditResps(nextResps)
+      }
+    }
+    
     setNewHistReason('')
+    handleSaveAdmin(m, { history: updatedHistory, roleId: nextRoleId, resps: nextResps })
   }
 
   const handleUpdateHistEntry = (i, field, val) => {
@@ -246,14 +387,17 @@ export default function SettingsModal({ onClose }) {
     setEditHistory(prev => prev.filter((_, idx) => idx !== i))
   }
 
-  const handleSaveAdmin = (m) => {
-    let currentEditHistory = [...editHistory]
+  const handleSaveAdmin = (m, overrides = {}) => {
+    let currentEditHistory = overrides.history ? [...overrides.history] : [...editHistory]
+    let finalRoleId = overrides.roleId !== undefined ? overrides.roleId : editRoleId
+    let finalResps = overrides.resps !== undefined ? overrides.resps : editResps
 
     // Auto-commit pending history if user forgot to click '+ Add' but typed a reason
-    if (newHistReason.trim() !== '') {
+    if (!overrides.history && newHistReason.trim() !== '') {
+      const fromRoleName = roles.find(r => r.id === m.roleId)?.title || 'Unknown'
       currentEditHistory.push({
         action: newHistAction,
-        fromRole: 'Unknown',
+        fromRole: fromRoleName,
         toRole: newHistRole || roles[0]?.title || '',
         date: new Date(newHistDate).toISOString(),
         by: newHistBy || 'Console',
@@ -267,7 +411,7 @@ export default function SettingsModal({ onClose }) {
       currentEditHistory.push({
         action: 'Promoted',
         fromRole: 'Player',
-        toRole: roles.find(r => r.id === editRoleId)?.title || 'Staff',
+        toRole: roles.find(r => r.id === finalRoleId)?.title || 'Staff',
         date: new Date().toISOString(),
         by: newHistBy || 'Console',
         reason: 'Initial staff assignment',
@@ -286,11 +430,11 @@ export default function SettingsModal({ onClose }) {
       const newAdmin = {
         id: newId,
         name: editName || 'New Admin',
-        roleId: editRoleId,
-        role: roles.find(r => r.id === editRoleId)?.title || 'No Role',
+        roleId: finalRoleId,
+        role: roles.find(r => r.id === finalRoleId)?.title || 'No Role',
         avatarUrl: editAvatar,
         vacant: false,
-        responsibilities: editResps.split('\n').map(x => x.trim()).filter(Boolean),
+        responsibilities: finalResps.split('\n').map(x => x.trim()).filter(Boolean),
         history: finalHistory,
         children: []
       }
@@ -312,8 +456,8 @@ export default function SettingsModal({ onClose }) {
       useStore.getState().updateNodeDetails(m.id, {
         name: editName,
         avatarUrl: editAvatar,
-        roleId: editRoleId,
-        responsibilities: editResps.split('\n').map(x => x.trim()).filter(Boolean),
+        roleId: finalRoleId,
+        responsibilities: finalResps.split('\n').map(x => x.trim()).filter(Boolean),
         history: finalHistory
       })
 
@@ -327,14 +471,14 @@ export default function SettingsModal({ onClose }) {
     const newlyAdded = currentEditHistory.filter(h => h._isNew)
     newlyAdded.forEach(h => {
       const msg = `${h.action} member ${editName || 'New Admin'} to ${h.toRole}${h.reason ? ` - Reason: ${h.reason}` : ''}`
-      useStore.getState().addGlobalLog(msg)
+      useStore.getState().addGlobalLog(msg, editAvatar, h.by)
     })
 
     setEditingAdmin(null)
   }
 
-  const handleKickAdmin = (id) => {
-    const reason = window.prompt("Reason for removal (optional):");
+  const handleKickAdmin = async (id) => {
+    const reason = await useStore.getState().requestPrompt("Remove Member", "Reason for removal (optional):");
     if (reason !== null) kickNode(id, reason);
   }
 
@@ -497,10 +641,10 @@ export default function SettingsModal({ onClose }) {
                   : filteredMembers;
 
                 return displayMembers.map(m => {
-                  const role = roles.find(r => r.id === m.roleId)
+                  const isEditingAdmin = editingAdmin === m.id
+                  const role = roles.find(r => r.id === (isEditingAdmin ? editRoleId : m.roleId))
                 const steamIdMatch = m.steamLink?.match(/\/profiles\/(\d+)/) || m.steamLink?.match(/\/id\/([^/]+)/)
                 const steamId = steamIdMatch ? steamIdMatch[1] : null
-                const isEditingAdmin = editingAdmin === m.id
 
                 return (
                   <div key={m.id} className={`${styles.adminRowWrapper} ${isEditingAdmin ? styles.adminRowExpanded : ''}`}>
@@ -590,7 +734,7 @@ export default function SettingsModal({ onClose }) {
                                     const childCount = (v.children || []).length;
                                     return (
                                       <option key={v.id} value={v.id}>
-                                        🔲 {v.name} [{vRole?.title || v.roleId}]{childCount > 0 ? ` · ${childCount} subordinates` : ''}
+                                        {v.name} [{vRole?.title || v.roleId}]{childCount > 0 ? ` · ${childCount} subordinates` : ''}
                                       </option>
                                     );
                                   })}
@@ -598,8 +742,9 @@ export default function SettingsModal({ onClose }) {
                               )}
                             </select>
                             {editManagerId && allMembers.find(v => v.vacant && v.id === editManagerId) && (
-                              <div style={{ marginTop: '6px', padding: '6px 10px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '4px', fontSize: '11px', color: '#A5B4FC' }}>
-                                ⚡ This admin will <strong>replace</strong> the vacant slot and inherit its {(allMembers.find(v => v.id === editManagerId)?.children || []).length} subordinates.
+                              <div style={{ marginTop: '6px', padding: '6px 10px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '4px', fontSize: '11px', color: '#A5B4FC', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Zap size={14} color="#A5B4FC" />
+                                <span>This admin will <strong>replace</strong> the vacant slot and inherit its {(allMembers.find(v => v.id === editManagerId)?.children || []).length} subordinates.</span>
                               </div>
                             )}
                           </div>
@@ -614,6 +759,26 @@ export default function SettingsModal({ onClose }) {
                                 className={`${styles.groupPill} ${editRoleId === r.id ? styles.groupPillActive : ''}`}
                                 style={editRoleId === r.id ? { borderColor: r.color, color: r.color } : {}}
                                 onClick={() => {
+                                  const oldRoleObj = roles.find(r => r.id === editRoleId);
+                                  const newRoleObj = r;
+                                  if (oldRoleObj && newRoleObj && oldRoleObj.id !== newRoleObj.id) {
+                                    const oldRank = oldRoleObj.rank || 999;
+                                    const newRank = newRoleObj.rank || 999;
+                                    const sortedUniqueRanks = [...new Set(roles.map(r => r.rank))].sort((a, b) => b - a); // 10, 8, 5, 1
+                                    const oldIndex = sortedUniqueRanks.indexOf(oldRank);
+                                    const newIndex = sortedUniqueRanks.indexOf(newRank);
+                                    
+                                    if (newIndex > oldIndex) {
+                                      setNewHistAction('Promoted');
+                                    } else if (newIndex < oldIndex) {
+                                      setNewHistAction('Demoted');
+                                    } else {
+                                      setNewHistAction('Promoted'); // fallback
+                                    }
+                                    
+                                    setNewHistRole(newRoleObj.title);
+                                  }
+                                  
                                   setEditRoleId(r.id)
                                   const defs = roleDetails.find(rd => rd.id === r.id)?.responsibilities || []
                                   setEditResps(defs.map(rd => rd.title || rd).join('\n'))
@@ -664,33 +829,114 @@ export default function SettingsModal({ onClose }) {
                           </div>
                         </div>
 
+                        {/* PROMOTE / DEMOTE ACTION */}
+                        <div className={styles.editFieldBlock} style={{ background: 'linear-gradient(135deg, rgba(34,197,94,0.05), rgba(0,0,0,0.5))', padding: '16px', borderRadius: '12px', border: '1px solid rgba(34,197,94,0.1)' }}>
+                          <label style={{ color: '#22c55e', fontSize: '11px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <ArrowUp size={14} /> PROMOTE / DEMOTE MEMBER
+                          </label>
+                          <div className={styles.addHistRow} style={{ borderTop: 'none', paddingTop: 0 }}>
+                            <div className={styles.addHistInputs}>
+                              <ActionDropdown 
+                                value={newHistAction} 
+                                onChange={val => {
+                                  setNewHistAction(val)
+                                  if (val === 'Promoted' || val === 'Demoted') {
+                                    const sortedRoles = [...roles].sort((a, b) => a.rank - b.rank);
+                                    const currentIndex = sortedRoles.findIndex(r => r.id === (m.roleId || editRoleId));
+                                    if (currentIndex !== -1) {
+                                      let targetIndex = val === 'Promoted' ? currentIndex - 1 : currentIndex + 1;
+                                      if (targetIndex < 0) targetIndex = 0;
+                                      if (targetIndex >= sortedRoles.length) targetIndex = sortedRoles.length - 1;
+                                      const targetRole = sortedRoles[targetIndex];
+                                      if (targetRole) {
+                                        setNewHistRole(targetRole.title);
+                                        setEditRoleId(targetRole.id);
+                                        const defs = roleDetails.find(rd => rd.id === targetRole.id)?.responsibilities || [];
+                                        setEditResps(defs.map(rd => rd.title || rd).join('\n'));
+                                      }
+                                    }
+                                  }
+                                }} 
+                              />
+                              <CustomSelect 
+                                value={newHistRole} 
+                                onChange={val => {
+                                  setNewHistRole(val);
+                                  if (['Promoted', 'Demoted'].includes(newHistAction)) {
+                                    const matchedRole = roles.find(r => r.title === val);
+                                    if (matchedRole) {
+                                      setEditRoleId(matchedRole.id);
+                                      const defs = roleDetails.find(rd => rd.id === matchedRole.id)?.responsibilities || [];
+                                      setEditResps(defs.map(rd => rd.title || rd).join('\n'));
+                                    }
+                                  }
+                                }} 
+                                options={roles.map(r => ({ value: r.title, label: r.title }))}
+                              />
+                              <input
+                                type="date"
+                                value={newHistDate}
+                                onChange={e => setNewHistDate(e.target.value)}
+                                className={styles.histInputSm}
+                              />
+                              <CustomSelect 
+                                value={newHistBy} 
+                                onChange={val => {
+                                  setNewHistBy(val)
+                                  try { localStorage.setItem('wildfire_last_admin_by', val) } catch {}
+                                }} 
+                                options={[{ value: 'Console', label: 'Console' }, ...eligibleAdmins.map(admin => ({ value: admin.name, label: admin.name }))]}
+                              />
+                            </div>
+                            <div className={styles.addHistReasonRow} style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                              <input
+                                type="text"
+                                placeholder="Reason for change (optional)..."
+                                value={newHistReason}
+                                onChange={e => setNewHistReason(e.target.value)}
+                                className={styles.histReasonInput}
+                                style={{ flex: 1, padding: '8px 12px' }}
+                              />
+                              <button 
+                                className={styles.addHistBtn} 
+                                onClick={() => handleApplyAndSave(m)} 
+                                disabled={!newHistAction}
+                                style={{ 
+                                  background: '#22c55e', 
+                                  color: '#000', 
+                                  fontWeight: 'bold', 
+                                  border: 'none', 
+                                  padding: '8px 16px', 
+                                  borderRadius: '6px',
+                                  opacity: !newHistAction ? 0.4 : 1,
+                                  cursor: !newHistAction ? 'not-allowed' : 'pointer',
+                                  filter: !newHistAction ? 'grayscale(1)' : 'none'
+                                }}
+                              >
+                                <Plus size={14} /> Apply & Save
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
                         {/* History Logs — fully React state controlled */}
                         <div className={styles.editFieldBlock}>
-                          <label>HISTORY LOGS</label>
+                          <label>PAST HISTORY LOGS</label>
                           <div className={styles.historyBox}>
                             {editHistory.length > 0 ? (
                               editHistory.map((h, i) => (
                                 <div key={i} className={styles.histEntry}>
                                   <div className={styles.histEntryRow}>
-                                    <select
+                                    <ActionDropdown 
                                       value={h.action}
-                                      onChange={e => handleUpdateHistEntry(i, 'action', e.target.value)}
-                                      className={`${styles.histSelect} ${
-                                        h.action === 'Promoted' ? styles.colorGreen :
-                                        h.action === 'Removed' ? styles.colorRed : styles.colorYellow
-                                      }`}
-                                    >
-                                      <option value="Promoted">PROMOTED</option>
-                                      <option value="Demoted">DEMOTED</option>
-                                    </select>
+                                      onChange={val => handleUpdateHistEntry(i, 'action', val)}
+                                    />
                                     <span className={styles.histTo}>To:</span>
-                                    <select
+                                    <CustomSelect
                                       value={h.toRole}
-                                      onChange={e => handleUpdateHistEntry(i, 'toRole', e.target.value)}
-                                      className={styles.histSelectNeutral}
-                                    >
-                                      {roles.map(r => <option key={r.id} value={r.title}>{r.title}</option>)}
-                                    </select>
+                                      onChange={val => handleUpdateHistEntry(i, 'toRole', val)}
+                                      options={roles.map(r => ({ value: r.title, label: r.title }))}
+                                    />
                                     <input
                                       type="date"
                                       value={h.date ? h.date.split('T')[0] : ''}
@@ -701,16 +947,11 @@ export default function SettingsModal({ onClose }) {
                                       className={styles.histDate}
                                     />
                                     <span className={styles.histBy}>by</span>
-                                    <select
+                                    <CustomSelect
                                       value={h.by || 'Console'}
-                                      onChange={e => handleUpdateHistEntry(i, 'by', e.target.value)}
-                                      className={styles.histSelectNeutral}
-                                    >
-                                      <option value="Console">Console</option>
-                                      {eligibleAdmins.map(admin => (
-                                        <option key={admin.id} value={admin.name}>{admin.name}</option>
-                                      ))}
-                                    </select>
+                                      onChange={val => handleUpdateHistEntry(i, 'by', val)}
+                                      options={[{ value: 'Console', label: 'Console' }, ...eligibleAdmins.map(admin => ({ value: admin.name, label: admin.name }))]}
+                                    />
                                     <button
                                       className={styles.histDeleteBtn}
                                       onClick={() => handleRemoveHistEntry(i)}
@@ -730,43 +971,6 @@ export default function SettingsModal({ onClose }) {
                             ) : (
                               <div className={styles.noHistory}>No history logs found.</div>
                             )}
-
-                            {/* New log row — React state controlled */}
-                            <div className={styles.addHistRow}>
-                              <div className={styles.addHistInputs}>
-                                <select value={newHistAction} onChange={e => setNewHistAction(e.target.value)} className={styles.histInputSm}>
-                                  <option value="Promoted">Promoted</option>
-                                  <option value="Demoted">Demoted</option>
-                                </select>
-                                <select value={newHistRole} onChange={e => setNewHistRole(e.target.value)} className={styles.histInputSm}>
-                                  {roles.map(r => <option key={r.id} value={r.title}>{r.title}</option>)}
-                                </select>
-                                <input
-                                  type="date"
-                                  value={newHistDate}
-                                  onChange={e => setNewHistDate(e.target.value)}
-                                  className={styles.histInputSm}
-                                />
-                                <select value={newHistBy} onChange={e => setNewHistBy(e.target.value)} className={styles.histInputSm}>
-                                  <option value="Console">Console</option>
-                                  {eligibleAdmins.map(admin => (
-                                    <option key={admin.id} value={admin.name}>{admin.name}</option>
-                                  ))}
-                                </select>
-                              </div>
-                              <div className={styles.addHistReasonRow}>
-                                <input
-                                  type="text"
-                                  placeholder="Reason (optional)..."
-                                  value={newHistReason}
-                                  onChange={e => setNewHistReason(e.target.value)}
-                                  className={styles.histReasonInput}
-                                />
-                                <button className={styles.addHistBtn} onClick={handleAddHistoryEntry}>
-                                  <Plus size={13} /> Add
-                                </button>
-                              </div>
-                            </div>
                           </div>
                         </div>
 

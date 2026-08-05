@@ -383,11 +383,61 @@
   color: #fff;
 }
 
-.settingsBtn {
+/* Edit & Settings Group (Unified pill) */
+.editSettingsGroup {
+  display: flex;
+  align-items: center;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  width: 32px;
-  height: 32px;
+  border-radius: 12px;
+  padding: 2px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.editSettingsGroup:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.groupEditBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.groupEditBtn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.groupEditBtnActive {
+  background: rgba(255, 107, 0, 0.12) !important;
+  color: #FF6B00 !important;
+}
+
+.groupDivider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 2px;
+}
+
+.groupSettingsBtn {
+  background: transparent;
+  border: none;
+  width: 30px;
+  height: 30px;
   border-radius: 9px;
   color: rgba(255, 255, 255, 0.45);
   display: flex;
@@ -395,22 +445,15 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
 }
 
-.settingsBtn:hover {
-  background: rgba(255, 107, 0, 0.1);
-  border-color: rgba(255, 107, 0, 0.28);
+.groupSettingsBtn:hover {
   color: #FF6B00;
-  box-shadow: 0 0 12px rgba(255, 107, 0, 0.14);
-  transform: rotate(28deg);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.settingsBtnActive {
-  background: rgba(251, 146, 60, 0.1);
-  border-color: rgba(251, 146, 60, 0.35);
+.groupSettingsBtnActive {
   color: #fb923c;
-  box-shadow: 0 0 12px rgba(251, 146, 60, 0.18);
 }
 
 /* User Chip */
