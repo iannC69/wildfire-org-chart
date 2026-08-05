@@ -1,6 +1,5 @@
 // ─── ROLE DEFINITIONS ────────────────────────────────────────────────────────
 export const ROLES = [
-  
   {
     "id": "founder",
     "title": "Founder",
@@ -86,7 +85,6 @@ export const ROLES = [
 
 // ─── INITIAL STAFF DATA ───────────────────────────────────────────────────────
 export const INITIAL_ROLES_DATA = [
-  
   {
     "id": "founder",
     "members": [
@@ -532,32 +530,7 @@ export const ORG_TREE = {
                       "name": "V1ccX",
                       "role": "Moderator",
                       "roleId": "moderator",
-                      "children": [
-                        {
-                          "id": "dibu",
-                          "name": "Dibu",
-                          "role": "Helper",
-                          "roleId": "helper",
-                          "children": [],
-                          "avatarUrl": "https://avatars.fastly.steamstatic.com/095f3bbb014f0efc95665e60bfcceb0b0f16c9ff_full.jpg",
-                          "steamLink": "https://steamcommunity.com/profiles/76561199044843735",
-                          "joinDate": "2023-01-15",
-                          "status": "offline",
-                          "history": [
-                            {
-                              "date": "2026-03-14T12:00:00Z",
-                              "action": "Promoted",
-                              "toRole": "Moderator"
-                            },
-                            {
-                              "date": "2026-08-02T12:00:00Z",
-                              "action": "Demoted",
-                              "toRole": "Helper"
-                            }
-                          ],
-                          "responsibilities": []
-                        }
-                      ],
+                      "children": [],
                       "avatarUrl": "https://avatars.fastly.steamstatic.com/4963bca91b1b3edf88de548e459b2092a35312e7_full.jpg",
                       "steamLink": "https://steamcommunity.com/profiles/76561199698821208",
                       "joinDate": "2023-01-15",
@@ -653,6 +626,7 @@ export const ORG_TREE = {
         }
       ],
       "responsibilities": [
+        "În lipsa Owner-ului/Developer-ului, acesta poate lua decizii în locul lor pentru tot ce ține de STAFF și COMUNITATE",
         "Organizarea și coordonarea evenimentelor comunității",
         "Moderarea discuțiilor din comunitate (Discord, etc.)",
         "La cerere primește acces la docs.wildfire.ro",
@@ -664,8 +638,7 @@ export const ORG_TREE = {
         "Face parte din consiliul de administrație al comunității",
         "Urmărește evoluția constantă a comunității și colaborează împreună cu Server Manager-ul ori de câte ori este nevoie",
         "Primește accese mari pe Discord și este responsabil de orice cameră și permisiune făcută",
-        "Verifică aptitudinile fiecărui admin și ajută la formarea acestora",
-        "În lipsa Owner-ului/Developer-ului, acesta poate lua decizii în locul lor pentru tot ce ține de STAFF și COMUNITATE"
+        "Verifică aptitudinile fiecărui admin și ajută la formarea acestora"
       ]
     }
   ],

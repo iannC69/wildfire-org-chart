@@ -4,9 +4,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,17 +26,39 @@
 }
 
 .modalContent {
-  background: var(--bg);
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  background: rgba(8, 8, 12, 0.45);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border: 1px solid color-mix(in srgb, var(--role-color) 40%, rgba(255,255,255,0.1));
   border-radius: 16px;
   width: 100%;
   max-width: 800px;
   height: 580px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+  box-shadow:
+    0 40px 120px rgba(0, 0, 0, 0.6),
+    inset 0 0 80px color-mix(in srgb, var(--role-color) 3%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   display: flex;
   overflow: hidden;
   position: relative;
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Top glow line */
+.modalContent::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--role-color) 50%, transparent) 20%,
+    color-mix(in srgb, var(--role-color) 70%, transparent) 50%,
+    color-mix(in srgb, var(--role-color) 50%, transparent) 80%,
+    transparent 100%
+  );
+  border-radius: 16px 16px 0 0;
+  z-index: 1;
 }
 
 .modalContent::after {
@@ -113,7 +135,14 @@
 }
 
 .profileSidebar::before {
-  display: none;
+  content: '';
+  position: absolute;
+  top: -120px; left: -120px;
+  width: 350px; height: 350px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--role-color) 8%, transparent) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .avatarWrapper {
@@ -183,16 +212,21 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #0c0c0e;
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   padding: 12px;
-  transition: transform 0.2s, background 0.2s;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  position: relative;
+  z-index: 1;
 }
 
 a.infoItem:hover {
   transform: translateY(-2px);
-  background: #111115;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .infoIconBox {
@@ -269,7 +303,9 @@ a.infoItem:hover {
 }
 
 .respItem {
-  background: #09090b;
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   padding: 16px 20px;
@@ -290,15 +326,15 @@ a.infoItem:hover {
 }
 
 .respItem:hover {
-  background: #111114;
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .respItemActive {
-  background: #141418;
-  border-color: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--role-color) 5%, rgba(255,255,255,0.03));
+  border-color: color-mix(in srgb, var(--role-color) 20%, rgba(255,255,255,0.08));
 }
 
 .respHeader {
@@ -476,7 +512,9 @@ a.infoItem:hover {
 }
 
 .historyItem {
-  background: #09090b;
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   padding: 12px 16px;
@@ -488,7 +526,8 @@ a.infoItem:hover {
 
 .historyItem:hover {
   transform: translateY(-2px);
-  background: #111114;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .historyIconWrapper {

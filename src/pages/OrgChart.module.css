@@ -6,6 +6,7 @@
   height: 100vh;
   min-height: 0;
   overflow: hidden;
+  padding-top: 60px; /* offset for fixed Navbar */
 }
 
 .viewWrapper {
@@ -57,7 +58,7 @@
 /* ─── NAVBAR ─── */
 .navbar {
   position: absolute;
-  top: 24px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -406,7 +407,6 @@
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   gap: 8px;
   z-index: 50;
   animation: scaleInLegend 0.22s ease;
@@ -890,10 +890,12 @@
 .collapseBtnInner {
   cursor: pointer;
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Push the entire pill 6px further below the node card */
+  transform: translateY(6px);
 }
 
 .collapseBtnInner:hover {
-  transform: scale(1.15);
+  transform: translateY(6px) scale(1.15);
 }
 
 .collapsePillBg {
@@ -1029,4 +1031,65 @@
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
   border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ─── TOAST NOTIFICATIONS ── */
+.toastContainer {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(15, 15, 20, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 200px;
+  max-width: 340px;
+  pointer-events: all;
+}
+
+.toast.toastSuccess {
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10B981;
+}
+
+.toast.toastError {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.toast.toastInfo {
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(24px) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.toastOut {
+  animation: toastOut 0.25s ease forwards;
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(24px); }
 }

@@ -1,15 +1,15 @@
-import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react'
+﻿import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { INITIAL_ROLES_DATA, getInitials } from '../data/staffData'
 import { toPng } from 'html-to-image'
 import * as d3 from 'd3-selection'
 import { drag } from 'd3-drag'
 import ProfileModal from '../components/ProfileModal'
 import SettingsModal from '../components/SettingsModal'
-import MemberEditSidebar from '../components/MemberEditSidebar'
+import EditMemberModal from '../components/EditMemberModal'
+import Navbar from '../components/Navbar'
 import { useStore } from '../store/useStore'
 import styles from './OrgChart.module.css'
-// ROLE_DETAILS is now from store
-import { Gamepad2, Pencil, Trash2, PlusCircle, Search, X, ArrowUp, ArrowDown, ZoomIn, ZoomOut, Maximize, Share2, Download, Upload, Lock, Unlock, Edit3, List, Network, ClipboardList, History, Settings, User, Copy, Shield, Undo2, Redo2, RotateCcw } from 'lucide-react'
+import { Gamepad2, Pencil, Trash2, PlusCircle, Search, X, ArrowUp, ArrowDown, ZoomIn, ZoomOut, Maximize, Download, Upload, Lock, Unlock, Edit3, List, Network, ClipboardList, History, Settings, User, Copy, Shield, Undo2, Redo2, RotateCcw, CheckCircle, AlertCircle, Info } from 'lucide-react'
 import { userHistories } from '../utils/patchHistory'
 
 // ─── NODE DIMENSIONS ─────────────────────────────────────────────────────────
@@ -455,210 +455,9 @@ function Edge({ from, to }) {
   )
 }
 
-// ─── SELECTED PANEL ──────────────────────────────────────────────────────────
-function SelectedPanel({ node, onClose, roles }) {
-  const isEditMode = useStore(s => s.isEditMode)
-  const updateNodeSteam = useStore(s => s.updateNodeSteam)
-  const moveNode = useStore(s => s.moveNode)
-  const setNodeRole = useStore(s => s.setNodeRole)
-  const updateNodeDetails = useStore(s => s.updateNodeDetails)
-  const addNode = useStore(s => s.addNode)
-  const tree = useStore(s => s.tree)
 
-  const [steamInput, setSteamInput] = useState('')
-  const [nameInput, setNameInput] = useState('')
-  const [respInput, setRespInput] = useState('')
 
-  useEffect(() => {
-    setSteamInput(node?.avatarUrl || node?.steamLink || '')
-    setNameInput(node?.name || '')
-    setRespInput((node?.responsibilities || []).join('\n'))
-  }, [node])
-
-  const allMembers = useMemo(() => {
-    const list = []
-    const traverse = (n) => {
-      if (n.id !== node?.id && !n.vacant) list.push({ id: n.id, name: n.name })
-      if (n.children) n.children.forEach(traverse)
-    }
-    traverse(tree)
-    return list
-  }, [tree, node])
-
-  const handleAvatarSave = async () => {
-    if (!node) return
-    const input = steamInput.trim()
-    if (!input) {
-      updateNodeSteam(node.id, '', '')
-      return
-    }
-
-    let url = node.avatarUrl
-    let link = ''
-
-    const scrapeAvatar = async (profilePath) => {
-      try {
-        const res = await fetch(`/steam-profile/${profilePath}/?xml=1`)
-        if (!res.ok) return null
-        const text = await res.text()
-        const xmlMatch = text.match(/<avatarFull><!\[CDATA\[(.*?)\]\]><\/avatarFull>/)
-        if (xmlMatch && xmlMatch[1]) return xmlMatch[1]
-        const xmlMatch2 = text.match(/<avatarFull>([^<]+)<\/avatarFull>/)
-        if (xmlMatch2 && xmlMatch2[1]) return xmlMatch2[1]
-        const doc = new DOMParser().parseFromString(text, 'text/html')
-        const imgLink = doc.querySelector('link[rel="image_src"]')
-        if (imgLink) return imgLink.getAttribute('href')
-      } catch (e) {
-        console.error('Steam scraping error', e)
-      }
-      return null
-    }
-
-    if (input.startsWith('http')) {
-      link = input
-      if (link.includes('steamcommunity.com/profiles/')) {
-        const steamId = link.split('profiles/')[1].split('/')[0]
-        const scraped = await scrapeAvatar(`profiles/${steamId}`)
-        if (scraped) url = scraped
-      } else if (link.includes('steamcommunity.com/id/')) {
-        const vanity = link.split('id/')[1].split('/')[0]
-        const scraped = await scrapeAvatar(`id/${vanity}`)
-        if (scraped) url = scraped
-      } else if (input.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
-        url = input
-      }
-    } else if (/^\d{17}$/.test(input)) {
-      link = `https://steamcommunity.com/profiles/${input}`
-      const scraped = await scrapeAvatar(`profiles/${input}`)
-      if (scraped) url = scraped
-    } else if (input.startsWith('STEAM_')) {
-      const parts = input.split(':')
-      if (parts.length === 3) {
-        const y = parseInt(parts[1], 10)
-        const z = parseInt(parts[2], 10)
-        const steamID64 = BigInt('76561197960265728') + BigInt(z * 2) + BigInt(y)
-        const steamId = steamID64.toString()
-        link = `https://steamcommunity.com/profiles/${steamId}`
-        const scraped = await scrapeAvatar(`profiles/${steamId}`)
-        if (scraped) url = scraped
-      } else {
-        link = `https://steamcommunity.com/id/${input}`
-        const scraped = await scrapeAvatar(`id/${input}`)
-        if (scraped) url = scraped
-      }
-    } else {
-      link = `https://steamcommunity.com/id/${input}`
-      const scraped = await scrapeAvatar(`id/${input}`)
-      if (scraped) url = scraped
-    }
-    updateNodeSteam(node.id, url, link)
-  }
-
-  const handleDetailsSave = () => {
-    if (!node) return
-    updateNodeDetails(node.id, {
-      name: nameInput,
-      responsibilities: respInput.split('\n').map(s => s.trim()).filter(Boolean)
-    })
-    handleAvatarSave()
-  }
-
-  const handleAddSubordinate = () => {
-    addNode(node.id, {
-      id: `node-${Date.now()}`,
-      name: 'New Member',
-      roleId: 'helper',
-      role: 'Helper',
-      vacant: false,
-      responsibilities: [],
-      children: []
-    })
-  }
-
-  if (!node) return null
-  const role = roles.find(r => r.id === node.roleId) || { color: '#555', title: node.role }
-
-  return (
-    <div className={styles.panel} style={{ '--role-color': role?.color, '--role-glow': role?.glow }}>
-      <button className={styles.panelClose} onClick={onClose}>✕</button>
-
-      {node.avatarUrl ? (
-        <img src={node.avatarUrl} alt="avatar" style={{ width: 64, height: 64, borderRadius: '50%', border: `2px solid ${role?.color}`, marginBottom: 12, margin: '0 auto', display: 'block' }} />
-      ) : (
-        <div className={styles.panelAvatar} style={{ borderColor: role?.color, boxShadow: `0 0 20px ${role?.glow}` }}>
-          <span style={{ color: role?.color }}>{getInitials(node.name)}</span>
-        </div>
-      )}
-
-      <div className={styles.orgNodeName} style={{ color: role?.color || '#fff' }}>{node.name}</div>
-      <div className={styles.orgNodeTitle}>{role?.title?.toUpperCase().replace('_', ' ') || 'STAFF'}</div>
-      {node.children?.length > 0 && (
-        <div className={styles.panelSub}>
-          {node.children.length} subordonat{node.children.length !== 1 ? 'i' : ''}
-        </div>
-      )}
-
-      {isEditMode && (
-        <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-
-          <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-            <label style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '8px', display: 'block' }}>Name &amp; Details</label>
-            <input
-              type="text"
-              placeholder="Name"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #333', background: '#1a1a24', color: '#fff', marginBottom: '8px' }}
-            />
-            <input
-              type="text"
-              placeholder="Steam URL or ID"
-              value={steamInput}
-              onChange={(e) => setSteamInput(e.target.value)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #333', background: '#1a1a24', color: '#fff', marginBottom: '8px' }}
-            />
-            <textarea
-              placeholder="Responsibilities (one per line)"
-              value={respInput}
-              onChange={(e) => setRespInput(e.target.value)}
-              rows={4}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #333', background: '#1a1a24', color: '#fff', marginBottom: '8px', resize: 'vertical' }}
-            />
-            <button onClick={handleDetailsSave} style={{ width: '100%', padding: '8px', background: '#3B82F6', border: 'none', borderRadius: '4px', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}>Save Details</button>
-          </div>
-
-          <div style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-            <label style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '8px', display: 'block' }}>Hierarchy</label>
-            <select
-              value={node.roleId || ''}
-              onChange={(e) => setNodeRole(node.id, e.target.value)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #333', background: '#1a1a24', color: '#fff', marginBottom: '8px' }}
-            >
-              <option value="" disabled>Select Role...</option>
-              {roles.map(r => <option key={r.id} value={r.id}>{r.title}</option>)}
-            </select>
-
-            <select
-              value=""
-              onChange={(e) => moveNode(node.id, e.target.value)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #333', background: '#1a1a24', color: '#fff', marginBottom: '8px' }}
-            >
-              <option value="" disabled>Move to Manager...</option>
-              {allMembers.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select>
-
-            <button onClick={handleAddSubordinate} style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '8px' }}>
-              <PlusCircle size={14} /> Add Subordinate
-            </button>
-            <button onClick={() => kickNode(node.id)} style={{ width: '100%', padding: '8px', background: '#EF4444', border: 'none', borderRadius: '4px', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-              <Trash2 size={14} /> Remove User
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+// ─── LEGEND ───────────────────────────────────────────────────────────────────
 
 // ─── LEGEND ───────────────────────────────────────────────────────────────────
 function Legend() {
@@ -1039,6 +838,13 @@ export default function OrgChart() {
   const [searchQuery, setSearchQuery] = useState('')
   const [zoomDisplay, setZoomDisplay] = useState(100) // % shown in navbar
   const [dragging, setDragging] = useState(false)
+  const [toasts, setToasts] = useState([])
+
+  const addToast = useCallback((message, type = 'info') => {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, message, type }])
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000)
+  }, [])
 
   // Single source of truth for transform — stored in a ref so wheel/pointer
   // handlers can read and write atomically without React re-render lag.
@@ -1125,9 +931,8 @@ export default function OrgChart() {
   }, [isEditMode])
 
   const handleVacantClick = useCallback((node) => {
-    if (window.confirm('This position is open. Apply on Discord →')) {
-      window.open('https://discord.com', '_blank')
-    }
+    // Non-blocking: open Discord link directly (no confirm popup)
+    window.open('https://discord.com', '_blank')
   }, [])
 
 
@@ -1150,15 +955,7 @@ export default function OrgChart() {
     }
   }, [fitToScreen, applyTransform])
 
-  const handleShareLink = () => {
-    const t = transform.current
-    const url = new URL(window.location.href)
-    url.searchParams.set('zoom', t.z.toFixed(3))
-    url.searchParams.set('x', t.x.toFixed(1))
-    url.searchParams.set('y', t.y.toFixed(1))
-    navigator.clipboard.writeText(url.toString())
-    alert('Link copied to clipboard!')
-  }
+
 
   const handleExport = useCallback(() => {
     if (!canvasRef.current) return
@@ -1168,11 +965,13 @@ export default function OrgChart() {
         link.download = 'wildfire-org-chart.png'
         link.href = dataUrl
         link.click()
+        addToast('Chart exported as PNG', 'success')
       })
       .catch((err) => {
         console.error('Failed to export image', err)
+        addToast('Export failed', 'error')
       })
-  }, [])
+  }, [addToast])
 
   // ─── Wheel zoom ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -1235,10 +1034,11 @@ export default function OrgChart() {
     <div className={styles.page}>
       <div className={styles.chartBackground} />
 
-      {/* ─── NAVBAR ─── */}
+      {/* ─── TOP NAVBAR ─── */}
+      <Navbar onOpenSettings={() => setShowSettings(true)} />
+
+      {/* ─── FLOATING CHART TOOLBAR ─── */}
       <div className={styles.navbar}>
-
-
         {/* Center: Tabs */}
         <div className={styles.navCenter}>
           <button
@@ -1264,13 +1064,12 @@ export default function OrgChart() {
                 <div className={styles.zoomValue}>{zoomDisplay}%</div>
                 <button className={styles.zoomBtn} onClick={() => handleZoomBtn(1.25)}><ZoomIn size={16} /></button>
               </div>
-              <div className={styles.navDivider}></div>
+              <div className={styles.navDivider} />
 
               <button className={styles.navBtn} onClick={fitToScreen}><Maximize size={15} /> Fit</button>
-              <button className={styles.navBtn} onClick={handleShareLink}><Share2 size={15} /> Share</button>
               <button className={styles.navBtn} onClick={handleExport}><Download size={15} /> Export PNG</button>
 
-              <div className={styles.navDivider}></div>
+              <div className={styles.navDivider} />
 
               <button
                 className={`${styles.navBtn} ${isEditMode ? styles.navBtnActive : ''}`}
@@ -1280,7 +1079,7 @@ export default function OrgChart() {
               </button>
               {isEditMode && (
                 <>
-                  <div className={styles.navDivider}></div>
+                  <div className={styles.navDivider} />
                   <button
                     className={styles.navBtn}
                     onClick={undo}
@@ -1298,17 +1097,15 @@ export default function OrgChart() {
                     <Redo2 size={15} />
                   </button>
                   <button className={styles.navBtn} onClick={() => {
-                    if (confirm('Are you sure you want to reset the organization chart to defaults?')) {
-                      reset();
+                    if (confirm('Reset the organization chart to defaults?')) {
+                      reset()
+                      addToast('Chart reset to defaults', 'info')
                     }
                   }}>
                     <RotateCcw size={15} />
                   </button>
-                  <div className={styles.navDivider}></div>
+                  <div className={styles.navDivider} />
 
-                  <button className={styles.navBtn} onClick={() => setShowSettings(true)}>
-                    <Settings size={15} /> Setări Roluri
-                  </button>
                   <button className={styles.navBtn} onClick={() => {
                     const data = JSON.stringify(tree, null, 2)
                     const blob = new Blob([data], { type: 'application/json' })
@@ -1317,9 +1114,10 @@ export default function OrgChart() {
                     a.href = url
                     a.download = 'org-tree-export.json'
                     a.click()
-                  }}><Download size={15} /> Export JSON</button>
+                    addToast('JSON exported', 'success')
+                  }}><Download size={15} /> JSON</button>
                   <label className={styles.navBtn} style={{ cursor: 'pointer' }}>
-                    <Upload size={15} /> Import JSON
+                    <Upload size={15} /> Import
                     <input
                       type="file"
                       accept=".json"
@@ -1333,11 +1131,12 @@ export default function OrgChart() {
                             const newTree = JSON.parse(ev.target.result)
                             if (newTree && newTree.id) {
                               useStore.getState().importTree(newTree)
+                              addToast('Chart imported successfully', 'success')
                             } else {
-                              alert('Invalid OrgChart JSON structure.')
+                              addToast('Invalid OrgChart JSON structure', 'error')
                             }
                           } catch (err) {
-                            alert('Failed to parse JSON.')
+                            addToast('Failed to parse JSON', 'error')
                             console.error('Failed to parse JSON', err)
                           }
                         }
@@ -1355,7 +1154,7 @@ export default function OrgChart() {
                 <List size={15} /> Legend
               </button>
 
-              <div className={styles.navDivider}></div>
+              <div className={styles.navDivider} />
 
               <input
                 type="text"
@@ -1366,6 +1165,12 @@ export default function OrgChart() {
               />
             </>
           )}
+
+          {/* Settings — always visible */}
+          <div className={styles.navDivider} />
+          <button className={styles.navBtn} onClick={() => setShowSettings(true)}>
+            <Settings size={15} /> Settings
+          </button>
         </div>
       </div>
 
@@ -1431,17 +1236,14 @@ export default function OrgChart() {
             {/* Legend */}
             {showLegend && <Legend />}
 
-            {/* Selected panel (Edit Mode) */}
-            {selected && isEditMode && <SelectedPanel node={selected} onClose={() => setSelected(null)} roles={roles} />}
-
             {/* Profile Modal (View Mode) */}
             {profileNode && !isEditMode && <ProfileModal node={profileNode} onClose={() => setProfileNode(null)} />}
 
-            {/* Settings Modal (Edit Mode) */}
-            {showSettings && isEditMode && <SettingsModal onClose={() => setShowSettings(false)} />}
+            {/* Edit Member Modal (Edit Mode — replaces old sidebar + selected panel) */}
+            {selected && isEditMode && <EditMemberModal node={selected} onClose={() => setSelected(null)} />}
 
-            {/* Member Edit Sidebar (Edit Mode) */}
-            {selected && isEditMode && <MemberEditSidebar node={selected} onClose={() => setSelected(null)} />}
+            {/* Settings Modal — always accessible */}
+            {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
           </>
         ) : (
           <AttributionsView
@@ -1453,6 +1255,19 @@ export default function OrgChart() {
             updateRoleDetails={updateRoleDetails}
           />
         )}
+      </div>
+
+      {/* Toast Notifications */}
+      <div className={styles.toastContainer}>
+        {toasts.map(t => {
+          const Icon = t.type === 'success' ? CheckCircle : t.type === 'error' ? AlertCircle : Info
+          return (
+            <div key={t.id} className={`${styles.toast} ${styles['toast' + t.type.charAt(0).toUpperCase() + t.type.slice(1)]}`}>
+              <Icon size={16} />
+              {t.message}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

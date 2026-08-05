@@ -172,7 +172,7 @@ export const useStore = create((set, get) => {
 
         addRole: (newRole) => set(state => {
           const historyUpdate = pushHistory(state);
-          const roleId = `role-${Date.now()}`;
+          const roleId = newRole.id || `role-${Date.now()}`;
           const role = { id: roleId, title: 'New Role', color: '#888888', glow: 'rgba(136,136,136,0.5)', rank: 10, maxSlots: null, ...newRole };
           return {
             roles: [...state.roles, role],
