@@ -38,11 +38,11 @@ export default function EditMemberModal({ node, onClose }) {
   }, [tree, activeNode.id, allNodes])
 
   // Controlled move-to select value — shows current parent by default
-  const [moveToId, setMoveToId] = useState('__keep__')
+  const [moveToId, setMoveToId] = useState(currentParent?.id || '')
 
   // Sync move-to when parent changes after move
   useEffect(() => {
-    setMoveToId('__keep__')
+    setMoveToId(currentParent?.id || '')
   }, [currentParent?.id])
 
   useEffect(() => {
@@ -83,8 +83,9 @@ export default function EditMemberModal({ node, onClose }) {
   }
 
   const handleMoveApply = () => {
-    if (!moveToId || moveToId === '__keep__') return
+    if (!moveToId) return
     if (moveToId === activeNode.id) return
+    if (currentParent && moveToId === currentParent.id) return
 
     // Find if target is a descendant (would create cycle)
     const targetNode = allNodes.find(n => n.id === moveToId)
@@ -95,7 +96,7 @@ export default function EditMemberModal({ node, onClose }) {
     const targetName = targetNode.name || 'selected manager'
     setMoveToast(`Moved under ${targetName}`)
     setTimeout(() => setMoveToast(''), 2500)
-    setMoveToId('__keep__')
+    setMoveToId(targetNode.id)
   }
 
   const handleAddSubordinate = () => {
@@ -245,7 +246,7 @@ export default function EditMemberModal({ node, onClose }) {
                     onChange={e => setMoveToId(e.target.value)}
                     style={{ flex: 1 }}
                   >
-                    <option value="__keep__">-- Keep Current Manager --</option>
+                    {!currentParent && <option value="">-- No Manager (Root) --</option>}
                     {eligibleManagers.map(n => (
                       <option key={n.id} value={n.id}>
                         {n.name} ({roles.find(r => r.id === n.roleId)?.title || '?'})
@@ -255,7 +256,7 @@ export default function EditMemberModal({ node, onClose }) {
                   <button
                     className={styles.moveApplyBtn}
                     onClick={handleMoveApply}
-                    disabled={!moveToId || moveToId === '__keep__'}
+                    disabled={!moveToId || (currentParent && moveToId === currentParent.id)}
                     title="Apply move"
                   >
                     <ArrowRight size={15} />

@@ -41,15 +41,14 @@ export default function Navbar({
   onToggleNav,
 }) {
   const isEditMode = useStore(s => s.isEditMode)
-  const [notifOpen, setNotifOpen] = useState(false)
+  const globalLog = useStore(s => s.globalLog || [])
+  const [changelogOpen, setChangelogOpen] = useState(false)
 
   return (
     <nav className={`${styles.nav} ${isHidden ? styles.navHidden : ''}`}>
       {/* ── LEFT: Brand ── */}
       <div className={styles.left}>
-        <div className={styles.logoMark}>
-          <Flame size={18} color="#FF6B00" />
-        </div>
+        <img src="https://wildfire.ro/logo.png" alt="Wildfire Logo" className={styles.logoImage} />
         <div className={styles.brandText}>
           <span className={styles.brandName}>WILDFIRE</span>
           <span className={styles.brandSub}>Organization Chart</span>
@@ -207,15 +206,41 @@ export default function Navbar({
 
         <div className={styles.divider} />
 
-        {/* Notifications */}
-        <button
-          className={styles.iconBtn}
-          onClick={() => setNotifOpen(v => !v)}
-          title="Notifications"
-          aria-label="Notifications"
-        >
-          <Bell size={15} />
-        </button>
+        {/* Changelog */}
+        <div className={styles.changelogWrapper}>
+          <button
+            className={`${styles.iconBtn} ${changelogOpen ? styles.iconBtnActive : ''}`}
+            onClick={() => setChangelogOpen(v => !v)}
+            title="Changelog"
+            aria-label="Changelog"
+          >
+            <Bell size={15} />
+            <span className={styles.unreadDot} />
+          </button>
+
+          {changelogOpen && (
+            <div className={styles.changelogDropdown}>
+              <div className={styles.changelogHeader}>
+                <h4>Changelog</h4>
+                <span className={styles.versionBadge}>v1.2.0</span>
+              </div>
+              <div className={styles.changelogBody}>
+                {globalLog.length === 0 ? (
+                  <div className={styles.changelogDesc} style={{ textAlign: 'center', padding: '20px 0' }}>No recent activity.</div>
+                ) : (
+                  globalLog.slice(0, 50).map(log => (
+                    <div className={styles.changelogItem} key={log.id}>
+                      <div className={styles.changelogDate}>
+                        {new Date(log.date).toLocaleString()} • by {log.by}
+                      </div>
+                      <div className={styles.changelogTitle}>{log.message}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Settings */}
         <button
@@ -232,10 +257,10 @@ export default function Navbar({
         {/* User chip */}
         <div className={styles.userChip}>
           <div className={styles.userAvatar}>
-            <Shield size={11} color="#FF6B00" />
+            <Shield size={12} color="rgba(255,255,255,0.6)" />
           </div>
           <span className={styles.userName}>IANNC</span>
-          <ChevronDown size={11} color="rgba(255,255,255,0.4)" />
+          <ChevronDown size={11} className={styles.userChevron} />
         </div>
 
         {/* Cinematic hide button */}

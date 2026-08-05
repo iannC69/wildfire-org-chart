@@ -80,7 +80,25 @@ function updateNodeField(node, id, field, value) {
   return { ...node, children: node.children.map(c => updateNodeField(c, id, field, value)) };
 }
 
+const savedLog = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('wildfire_audit_log') || '[]') : [];
+
 export const useStore = create((set, get) => {
+      const addGlobalLog = (message) => {
+        set(state => {
+          const newEntry = {
+            id: Date.now() + Math.random(),
+            date: new Date().toISOString(),
+            message,
+            by: state.adminName || 'Console'
+          };
+          const newLog = [newEntry, ...(state.globalLog || [])].slice(0, 100);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('wildfire_audit_log', JSON.stringify(newLog));
+          }
+          return { globalLog: newLog };
+        });
+      };
+
       const pushHistory = (state) => {
         let newStack = (state.historyStack || []).slice(0, state.historyIndex + 1);
         newStack.push({ tree: state.tree, roles: state.roles, roleDetails: state.roleDetails });
@@ -94,6 +112,7 @@ export const useStore = create((set, get) => {
       };
 
       return {
+        globalLog: savedLog,
         tree: enrichTreeWithData(ORG_TREE, INITIAL_ROLES_DATA),
         rolesData: INITIAL_ROLES_DATA,
         roles: INITIAL_ROLES,
@@ -133,6 +152,15 @@ export const useStore = create((set, get) => {
         updateRoleDetails: (roleId, updates, oldTitle = null, newTitle = null) => set(state => {
           const historyUpdate = pushHistory(state);
           
+          const roleName = state.roles.find(r => r.id === roleId)?.title || 'Role';
+          if (oldTitle && newTitle === null) {
+            addGlobalLog(`Deleted responsibility "${oldTitle}" from ${roleName}`);
+          } else if (oldTitle && oldTitle !== newTitle) {
+            addGlobalLog(`Renamed responsibility "${oldTitle}" to "${newTitle}" in ${roleName}`);
+          } else if (!oldTitle && updates.responsibilities) {
+            addGlobalLog(`Updated responsibilities for ${roleName}`);
+          }
+
           let newTree = state.tree;
           if (oldTitle) {
             // Helper to recursively update or delete responsibilities in the tree
@@ -164,6 +192,12 @@ export const useStore = create((set, get) => {
 
         updateRole: (roleId, updates) => set(state => {
           const historyUpdate = pushHistory(state);
+          const role = state.roles.find(r => r.id === roleId);
+          if (updates.title && updates.title !== role?.title) {
+            addGlobalLog(`Renamed role "${role?.title}" to "${updates.title}"`);
+          } else {
+            addGlobalLog(`Updated settings for role "${role?.title || 'Unknown'}"`);
+          }
           return {
             roles: state.roles.map(r => r.id === roleId ? { ...r, ...updates } : r),
             ...historyUpdate
@@ -174,6 +208,7 @@ export const useStore = create((set, get) => {
           const historyUpdate = pushHistory(state);
           const roleId = newRole.id || `role-${Date.now()}`;
           const role = { id: roleId, title: 'New Role', color: '#888888', glow: 'rgba(136,136,136,0.5)', rank: 10, maxSlots: null, ...newRole };
+          addGlobalLog(`Created new role "${role.title}"`);
           return {
             roles: [...state.roles, role],
             roleDetails: [...state.roleDetails, { id: roleId, responsibilities: [] }],
@@ -183,6 +218,8 @@ export const useStore = create((set, get) => {
 
         deleteRole: (roleId) => set(state => {
           const historyUpdate = pushHistory(state);
+          const role = state.roles.find(r => r.id === roleId);
+          addGlobalLog(`Deleted role "${role?.title || 'Unknown'}"`);
           return {
             roles: state.roles.filter(r => r.id !== roleId),
             roleDetails: state.roleDetails.filter(r => r.id !== roleId),
@@ -206,6 +243,10 @@ export const useStore = create((set, get) => {
           const historyUpdate = pushHistory(state);
           let newTree = removeNode(state.tree, draggedId);
           newTree = insertNode(newTree, newParentId, node);
+          const newParent = findNode(state.tree, newParentId);
+          if (newParent) {
+            addGlobalLog(`Moved ${node.name} under ${newParent.name}`);
+          }
           return { tree: newTree, ...historyUpdate };
         }),
 
@@ -228,6 +269,8 @@ export const useStore = create((set, get) => {
           const historyUpdate = pushHistory(state);
           let newTree = updateNodeRole(state.tree, nodeId, newRole);
           
+          addGlobalLog(`Promoted ${node.name} from ${currentRole.title} to ${newRole.title}`);
+
           // Add history
           const historyEntry = {
             date: new Date().toISOString(),
@@ -275,6 +318,8 @@ export const useStore = create((set, get) => {
           const historyUpdate = pushHistory(state);
           let newTree = updateNodeRole(state.tree, nodeId, newRole);
           
+          addGlobalLog(`Demoted ${node.name} from ${currentRole.title} to ${newRole.title}`);
+
           // Add history
           const historyEntry = {
             date: new Date().toISOString(),
@@ -313,6 +358,8 @@ export const useStore = create((set, get) => {
           if (!node) return state;
           const role = state.roles.find(r => r.id === node.roleId);
           
+          addGlobalLog(`Kicked member ${node.name} (${role?.title || ''})`);
+
           const historyUpdate = pushHistory(state);
           let newTree = state.tree;
           
@@ -359,10 +406,18 @@ export const useStore = create((set, get) => {
           let newTree = state.tree;
           
           const node = findNode(newTree, id);
+          if (node) {
+            if (updates.name && updates.name !== node.name) {
+              addGlobalLog(`Renamed member "${node.name}" to "${updates.name}"`);
+            }
+          }
           if (node && updates.roleId && updates.roleId !== node.roleId) {
             const oldRole = state.roles.find(r => r.id === node.roleId)?.title || 'Unknown';
             const newRoleObj = state.roles.find(r => r.id === updates.roleId);
             const newRole = newRoleObj?.title || 'Unknown';
+            
+            addGlobalLog(`Changed role of ${node.name || updates.name} from ${oldRole} to ${newRole}`);
+
             
             const oldRank = state.roles.find(r => r.id === node.roleId)?.rank || 999;
             const newRank = newRoleObj?.rank || 999;

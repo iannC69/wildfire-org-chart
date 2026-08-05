@@ -3,6 +3,16 @@ import { X, Save, Trash2, Plus, Users, Shield, Edit3, Search, Hexagon, Crown, Al
 import { useStore, flattenNodes } from '../store/useStore'
 import styles from './SettingsModal.module.css'
 
+// Helper to find parent of a node in tree
+function findParent(tree, targetId, parent = null) {
+  if (tree.id === targetId) return parent
+  for (const child of tree.children || []) {
+    const found = findParent(child, targetId, tree)
+    if (found !== undefined) return found
+  }
+  return undefined
+}
+
 export default function SettingsModal({ onClose }) {
   const roles = useStore(s => s.roles)
   const roleDetails = useStore(s => s.roleDetails)
@@ -140,7 +150,11 @@ export default function SettingsModal({ onClose }) {
     setEditName(m.name || '')
     setEditAvatar(m.avatarUrl || '')
     setEditRoleId(m.roleId || '')
-    setEditManagerId('')
+    
+    // Pre-select current parent
+    const parentNode = findParent(useStore.getState().tree, m.id)
+    setEditManagerId(parentNode ? parentNode.id : '')
+
     let initialResps = m.responsibilities
     if (!initialResps || initialResps.length === 0) {
       const defs = roleDetails.find(rd => rd.id === (m.roleId || ''))?.responsibilities || []
@@ -199,7 +213,9 @@ export default function SettingsModal({ onClose }) {
         responsibilities: editResps.split('\n').map(x => x.trim()).filter(Boolean),
         history: editHistory
       })
-      if (editManagerId) {
+      
+      const currentParent = findParent(tree, m.id)
+      if (editManagerId && (!currentParent || currentParent.id !== editManagerId)) {
         useStore.getState().moveNode(m.id, editManagerId)
       }
     }
@@ -403,8 +419,8 @@ export default function SettingsModal({ onClose }) {
                           <div className={styles.editField}>
                             <label>MANAGER (MOVE TO)</label>
                             <select value={editManagerId} onChange={e => setEditManagerId(e.target.value)}>
-                              <option value="">-- {m.id === 'NEW' ? 'Default Manager (Root)' : 'Keep Current Manager'} --</option>
-                              {activeMembers.filter(n => n.id !== m.id).map(n => (
+                              {m.id === 'NEW' && <option value="">-- Default Manager (Root) --</option>}
+                              {activeMembers.filter(n => n.id !== m.id && flattenNodes(m).every(desc => desc.id !== n.id)).map(n => (
                                 <option key={n.id} value={n.id}>{n.name}</option>
                               ))}
                             </select>

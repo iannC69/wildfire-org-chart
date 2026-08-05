@@ -801,6 +801,13 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
                     const resp = respItem.data;
                     const respKey = respItem.type === 'role' ? `${role.id}-role-${respItem.originalIndex}` : `${role.id}-member-${respItem.member.id}-${displayIdx}`;
                     const isExpanded = !!expandedResps[respKey];
+                    const respTitle = typeof resp === 'string' ? resp : resp.title;
+
+                    const assignedMembers = membersWithRole.filter(m => {
+                      const mResps = m.responsibilities;
+                      if (!mResps || mResps.length === 0) return respItem.type === 'role';
+                      return mResps.some(mr => (typeof mr === 'string' ? mr : mr.title) === respTitle);
+                    });
 
                     return (
                       <div
@@ -822,16 +829,25 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
                             </span>
                           )}
                           <div className={styles.attrChartRespIcon}>
-                            {respItem.type === 'member' && (
-                              <div className={styles.attrChartMemberBadge} title={`Atribuție specifică pentru ${respItem.member.name}`} style={{ '--role-color': role.color }}>
-                                {respItem.member.avatarUrl ? (
-                                  <img src={respItem.member.avatarUrl} alt={respItem.member.name} className={styles.attrChartMemberBadgeImg} />
-                                ) : (
-                                  <div className={styles.attrChartMemberBadgeInitials} style={{ color: role.color }}>
-                                    {getInitials(respItem.member.name)}
+                            {assignedMembers.length > 0 && (
+                              <div className={styles.attrRespStaffCluster}>
+                                {assignedMembers.map((member, idx) => (
+                                  <div
+                                    key={member.id}
+                                    className={styles.attrRespAvatarWrap}
+                                    style={{ zIndex: assignedMembers.length - idx }}
+                                    onClick={(e) => { e.stopPropagation(); onAvatarClick && onAvatarClick(member); }}
+                                    title={member.name}
+                                  >
+                                    {member.avatarUrl ? (
+                                      <img src={member.avatarUrl} alt={member.name} className={styles.attrStaffAvatarImg} style={{ borderColor: role.color }} />
+                                    ) : (
+                                      <div className={styles.attrStaffAvatarInitials} style={{ borderColor: role.color, color: role.color, backgroundColor: `color-mix(in srgb, ${role.color} 10%, #0f1117)` }}>
+                                        {getInitials(member.name)}
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                                <span className={styles.attrChartMemberBadgeName}>{respItem.member.name}</span>
+                                ))}
                               </div>
                             )}
 
