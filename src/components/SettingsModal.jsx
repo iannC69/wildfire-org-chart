@@ -1541,35 +1541,70 @@ export default function SettingsModal({ onClose }) {
 
               <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                 <h3 style={{ color: '#FCA5A5', fontSize: '14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <AlertTriangle size={16} /> Factory Reset
+                  <RefreshCw size={16} /> Reload from Disk
                 </h3>
                 <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginBottom: '16px' }}>
-                  This will completely wipe your current configuration and restore the default database. Make sure to save a preset first!
+                  If you made mistakes that haven't been saved yet, you can reload your chart from the last auto-saved state on disk.
                 </p>
-                <button
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.15)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    color: '#FCA5A5',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                  onClick={async () => {
-                    if (window.confirm('WARNING: Are you absolutely sure you want to reset everything to default? All unsaved custom changes will be lost forever.')) {
-                      await useStore.getState().reset();
-                      alert('Tree reset to default successfully!');
-                    }
-                  }}
-                >
-                  <RefreshCw size={14} /> Reset Tree to Default
-                </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    style={{
+                      background: 'rgba(59, 130, 246, 0.15)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      color: '#60A5FA',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                    onClick={async () => {
+                      if (window.confirm('Discard unsaved changes and reload from the last auto-saved state?')) {
+                        await useStore.getState().reset();
+                        alert('Reloaded successfully!');
+                      }
+                    }}
+                  >
+                    <RefreshCw size={14} /> Reload Last Save
+                  </button>
 
+                  <button
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.15)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#FCA5A5',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                    onClick={() => {
+                      if (window.confirm('WARNING: Are you absolutely sure you want to WIPE the entire tree and start completely fresh? Make sure to save a preset first!')) {
+                        useStore.setState({
+                          tree: {
+                            id: 'root',
+                            name: 'Owner',
+                            roleId: 'founder',
+                            role: 'Founder',
+                            status: 'online',
+                            children: []
+                          },
+                          globalLog: []
+                        });
+                        alert('Tree wiped successfully. You can now build from scratch.');
+                      }
+                    }}
+                  >
+                    <AlertTriangle size={14} /> Wipe Tree (Start Fresh)
+                  </button>
+                </div>
                 <button
                   style={{
                     background: 'rgba(16, 185, 129, 0.15)',
