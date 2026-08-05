@@ -292,86 +292,23 @@ export const ORG_TREE = {
               "roleId": "supervizor",
               "children": [
                 {
-                  "id": "admin-vacant",
-                  "name": "Vacant",
-                  "role": "Administrator",
+                  "id": "vacant-1785945580214",
+                  "name": "Poziție Liberă",
                   "roleId": "administrator",
                   "vacant": true,
+                  "avatarUrl": null,
                   "children": [
                     {
-                      "id": "legale",
-                      "name": "LEGALE",
-                      "role": "Moderator",
-                      "roleId": "moderator",
-                      "children": [
-                        {
-                          "id": "lucian",
-                          "name": "LcNneb",
-                          "role": "Helper",
-                          "roleId": "helper",
-                          "children": [],
-                          "avatarUrl": "https://avatars.fastly.steamstatic.com/c78e87c68a89fcdd6c895f2b6b13474085a9c5ab_full.jpg",
-                          "steamLink": "https://steamcommunity.com/profiles/76561198711973791",
-                          "joinDate": "2023-01-15",
-                          "status": "online",
-                          "history": [
-                            {
-                              "date": "2026-07-06T16:46:00Z",
-                              "action": "Promoted",
-                              "toRole": "Helper"
-                            }
-                          ],
-                          "responsibilities": []
-                        }
-                      ],
-                      "avatarUrl": "https://avatars.fastly.steamstatic.com/83961e4642c3e472cd20da37d1056664844db409_full.jpg",
-                      "steamLink": "https://steamcommunity.com/profiles/76561199496891246",
-                      "joinDate": "2023-01-15",
-                      "status": "online",
-                      "history": [
-                        {
-                          "date": "2026-06-12T12:00:00Z",
-                          "action": "Promoted",
-                          "toRole": "Helper"
-                        },
-                        {
-                          "date": "2026-07-01T12:00:00Z",
-                          "action": "Promoted",
-                          "toRole": "Moderator"
-                        }
-                      ],
-                      "responsibilities": []
-                    },
-                    {
-                      "id": "r3ally",
+                      "id": "m12",
                       "name": "r3ally",
                       "role": "Moderator",
                       "roleId": "moderator",
-                      "children": [
-                        {
-                          "id": "dropya",
-                          "name": "dropYA-",
-                          "role": "Helper",
-                          "roleId": "helper",
-                          "children": [],
-                          "avatarUrl": "https://avatars.fastly.steamstatic.com/53a234baae33c23f1326d23d0699039d7cccfddf_full.jpg",
-                          "steamLink": "https://steamcommunity.com/profiles/76561199172444948",
-                          "joinDate": "2023-01-15",
-                          "status": "online",
-                          "history": [
-                            {
-                              "date": "2026-07-31T12:00:00Z",
-                              "action": "Promoted",
-                              "toRole": "Helper"
-                            }
-                          ],
-                          "responsibilities": []
-                        }
-                      ],
                       "avatarUrl": "https://avatars.fastly.steamstatic.com/79a8119bd2a027755f93872d0d09b959909a0405_full.jpg",
                       "steamLink": "https://steamcommunity.com/profiles/76561199439185612",
                       "joinDate": "2023-01-15",
                       "status": "offline",
+                      "immunity": 0,
+                      "responsibilities": [],
                       "history": [
                         {
                           "date": "2026-05-26T12:00:00Z",
@@ -384,38 +321,40 @@ export const ORG_TREE = {
                           "toRole": "Moderator"
                         }
                       ],
-                      "responsibilities": []
-                    },
-                    {
-                      "id": "bounty",
-                      "name": "bounty",
-                      "role": "Moderator",
-                      "roleId": "moderator",
                       "children": [
                         {
-                          "id": "n3lutzu",
-                          "name": "n3lutzU",
+                          "id": "m17",
+                          "name": "dropYA-",
                           "role": "Helper",
                           "roleId": "helper",
-                          "children": [],
-                          "avatarUrl": "https://avatars.fastly.steamstatic.com/4d199d4a935f8921a93abe8d443b48bc653fc82d_full.jpg",
-                          "steamLink": "https://steamcommunity.com/profiles/76561199070188905",
+                          "avatarUrl": "https://avatars.fastly.steamstatic.com/53a234baae33c23f1326d23d0699039d7cccfddf_full.jpg",
+                          "steamLink": "https://steamcommunity.com/id/dropYA/",
                           "joinDate": "2023-01-15",
                           "status": "online",
+                          "immunity": 0,
+                          "responsibilities": [],
                           "history": [
                             {
-                              "date": "2026-06-28T12:00:00Z",
+                              "date": "2026-07-31T12:00:00Z",
                               "action": "Promoted",
                               "toRole": "Helper"
                             }
                           ],
-                          "responsibilities": []
+                          "children": []
                         }
-                      ],
+                      ]
+                    },
+                    {
+                      "id": "m13",
+                      "name": "bounty",
+                      "role": "Moderator",
+                      "roleId": "moderator",
                       "avatarUrl": "https://avatars.fastly.steamstatic.com/d768ab6b9bdd99e15b6ac4ea0b6d7774b7fbf9be_full.jpg",
-                      "steamLink": "https://steamcommunity.com/profiles/76561199226358217",
+                      "steamLink": "https://steamcommunity.com/id/hennessyx1/",
                       "joinDate": "2023-01-15",
                       "status": "online",
+                      "immunity": 0,
+                      "responsibilities": [],
                       "history": [
                         {
                           "date": "2026-07-01T12:00:00Z",
@@ -428,18 +367,40 @@ export const ORG_TREE = {
                           "toRole": "Moderator"
                         }
                       ],
-                      "responsibilities": []
+                      "children": [
+                        {
+                          "id": "m16",
+                          "name": "LcNneb",
+                          "role": "Helper",
+                          "roleId": "helper",
+                          "avatarUrl": "https://avatars.fastly.steamstatic.com/c78e87c68a89fcdd6c895f2b6b13474085a9c5ab_full.jpg",
+                          "steamLink": "https://steamcommunity.com/profiles/76561198711973791/",
+                          "joinDate": "2023-01-15",
+                          "status": "online",
+                          "immunity": 0,
+                          "responsibilities": [],
+                          "history": [
+                            {
+                              "date": "2026-07-06T16:46:00Z",
+                              "action": "Promoted",
+                              "toRole": "Helper"
+                            }
+                          ],
+                          "children": []
+                        }
+                      ]
                     },
                     {
-                      "id": "v1ccx",
+                      "id": "m14",
                       "name": "V1ccX",
                       "role": "Moderator",
                       "roleId": "moderator",
-                      "children": [],
                       "avatarUrl": "https://avatars.fastly.steamstatic.com/4963bca91b1b3edf88de548e459b2092a35312e7_full.jpg",
                       "steamLink": "https://steamcommunity.com/profiles/76561199698821208",
                       "joinDate": "2023-01-15",
                       "status": "offline",
+                      "immunity": 0,
+                      "responsibilities": [],
                       "history": [
                         {
                           "date": "2026-06-30T12:00:00Z",
@@ -452,7 +413,53 @@ export const ORG_TREE = {
                           "toRole": "Moderator"
                         }
                       ],
-                      "responsibilities": []
+                      "children": [
+                        {
+                          "id": "m15",
+                          "name": "n3lutzU",
+                          "role": "Helper",
+                          "roleId": "helper",
+                          "avatarUrl": "https://avatars.fastly.steamstatic.com/4d199d4a935f8921a93abe8d443b48bc653fc82d_full.jpg",
+                          "steamLink": "https://steamcommunity.com/profiles/76561199070188905",
+                          "joinDate": "2023-01-15",
+                          "status": "online",
+                          "immunity": 0,
+                          "responsibilities": [],
+                          "history": [
+                            {
+                              "date": "2026-06-28T12:00:00Z",
+                              "action": "Promoted",
+                              "toRole": "Helper"
+                            }
+                          ],
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "m11",
+                      "name": "LEGALE",
+                      "role": "Moderator",
+                      "roleId": "moderator",
+                      "avatarUrl": "https://avatars.fastly.steamstatic.com/83961e4642c3e472cd20da37d1056664844db409_full.jpg",
+                      "steamLink": "https://steamcommunity.com/id/LEGALEV2/",
+                      "joinDate": "2023-01-15",
+                      "status": "online",
+                      "immunity": 0,
+                      "responsibilities": [],
+                      "history": [
+                        {
+                          "date": "2026-06-12T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Helper"
+                        },
+                        {
+                          "date": "2026-07-01T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Moderator"
+                        }
+                      ],
+                      "children": []
                     }
                   ],
                   "responsibilities": []
@@ -489,7 +496,9 @@ export const ORG_TREE = {
                   "toRole": "Supervizor"
                 }
               ],
-              "responsibilities": []
+              "responsibilities": [],
+              "immunity": 0,
+              "collapsed": false
             }
           ],
           "avatarUrl": "https://avatars.fastly.steamstatic.com/562c921ff1c8b59f1c5f9642c39608af2984128b_full.jpg",
@@ -503,19 +512,9 @@ export const ORG_TREE = {
               "toRole": "Server Manager"
             }
           ],
-          "responsibilities": []
-        },
-        {
-          "id": "langw0w",
-          "name": "langw0w",
-          "role": "Community Advisor",
-          "roleId": "community-advisor",
-          "children": [],
-          "avatarUrl": "https://avatars.fastly.steamstatic.com/fbfd6af383257e2de1bf4db735a9f21993df1426_full.jpg",
-          "steamLink": "https://steamcommunity.com/profiles/76561198841502450",
-          "joinDate": "2023-01-15",
-          "status": "online",
-          "responsibilities": []
+          "responsibilities": [],
+          "collapsed": false,
+          "immunity": 0
         },
         {
           "id": "spark",
@@ -562,7 +561,7 @@ export const ORG_TREE = {
             {
               "id": "booyeto",
               "name": "Booyeto",
-              "role": "Community Advisor",
+              "role": "Server Manager",
               "roleId": "community-advisor",
               "children": [],
               "avatarUrl": "https://avatars.fastly.steamstatic.com/7645c030071b46e0a5e7cac29a9f9f9f035c927e_full.jpg",
@@ -586,7 +585,8 @@ export const ORG_TREE = {
                   "action": "Promoted",
                   "toRole": "Community Advisor"
                 }
-              ]
+              ],
+              "immunity": 90
             }
           ],
           "avatarUrl": "https://avatars.fastly.steamstatic.com/c41386971a8f05a08d9c5ada6a4cdc28766af535_full.jpg",
@@ -610,7 +610,27 @@ export const ORG_TREE = {
               "toRole": "Community Manager"
             }
           ],
-          "responsibilities": []
+          "responsibilities": [],
+          "immunity": 97
+        },
+        {
+          "id": "langw0w",
+          "name": "langw0w",
+          "role": "Community Manager",
+          "roleId": "community-advisor",
+          "children": [],
+          "avatarUrl": "https://avatars.fastly.steamstatic.com/fbfd6af383257e2de1bf4db735a9f21993df1426_full.jpg",
+          "steamLink": "https://steamcommunity.com/profiles/76561198841502450",
+          "joinDate": "2023-01-15",
+          "status": "online",
+          "responsibilities": [
+            "Consultanță strategică",
+            "Monitorizarea staff-ului",
+            "Sprijin decizional",
+            "Feedback constant"
+          ],
+          "immunity": 0,
+          "history": []
         }
       ],
       "avatarUrl": "https://avatars.fastly.steamstatic.com/5aae7060c5118b7da78bd6498e3e4bed4afa1fa2_full.jpg",
@@ -625,7 +645,8 @@ export const ORG_TREE = {
           "toRole": "Community Manager"
         }
       ],
-      "responsibilities": []
+      "responsibilities": [],
+      "immunity": 97
     }
   ],
   "avatarUrl": "https://avatars.fastly.steamstatic.com/e0bc71c8cc0a992273ab3428e40778fe55800218_full.jpg",
@@ -639,7 +660,8 @@ export const ORG_TREE = {
       "toRole": "Founder"
     }
   ],
-  "responsibilities": []
+  "responsibilities": [],
+  "immunity": 100
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────

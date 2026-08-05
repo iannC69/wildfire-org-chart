@@ -199,7 +199,7 @@ export default function ProfileModal({ node, onClose }) {
           {activeTab === 'history' && (
             <div className={styles.historyList}>
               {node.history && node.history.length > 0 ? (
-                [...node.history].sort((a, b) => new Date(b.date) - new Date(a.date)).map((h, i) => {
+                [...node.history].reverse().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((h, i) => {
                   const targetRole = roles.find(r => r.title.toLowerCase() === h.toRole.toLowerCase())
                   let hColor = targetRole?.color || '#10B981'
                   if (h.action === 'Removed') hColor = '#EF4444' // Red for removed

@@ -3,6 +3,7 @@ import { ROLES, INITIAL_ROLES_DATA, getRoleById, genId } from '../data/staffData
 import Avatar from '../components/Avatar'
 import MemberModal from '../components/MemberModal'
 import AddMemberModal from '../components/AddMemberModal'
+import { useStore } from '../store/useStore'
 import styles from './Dashboard.module.css'
 
 // ─── STAFF CARD ───────────────────────────────────────────────────────────────
@@ -32,10 +33,17 @@ function StaffCard({ member, role, editMode, onClick, onDelete, onEdit }) {
 
 // ─── VACANT CARD ─────────────────────────────────────────────────────────────
 function VacantCard({ role }) {
+  const vacantName = useStore(s => s.vacantName)
+  const vacantAvatar = useStore(s => s.vacantAvatar)
+
   return (
     <div className={styles.vacantCard} style={{ '--role-color': role.color }}>
-      <div className={styles.vacantAvatar}>?</div>
-      <div className={styles.vacantName}>Poziție vacantă</div>
+      {vacantAvatar ? (
+        <img src={vacantAvatar} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', opacity: 0.8 }} />
+      ) : (
+        <div className={styles.vacantAvatar}>?</div>
+      )}
+      <div className={styles.vacantName}>{vacantName || 'Poziție vacantă'}</div>
       <div className={styles.vacantSub}>Recrutăm</div>
     </div>
   )

@@ -87,6 +87,39 @@ function autoSavePlugin() {
           })
           return
         }
+        if (req.url === '/api/reset-to-default' && req.method === 'GET') {
+          try {
+            const staffDataPath = path.resolve('./src/data/staffData.js')
+            const roleDetailsPath = path.resolve('./src/data/roleDetails.json')
+            const staffContent = fs.readFileSync(staffDataPath, 'utf8')
+            const roleDetailsContent = fs.readFileSync(roleDetailsPath, 'utf8')
+            
+            // Extract JSON from the JS file
+            const rolesMatch = staffContent.match(/export const ROLES = (\[[\s\S]*?\]);\s*\n\n/)
+            const rolesDataMatch = staffContent.match(/export const INITIAL_ROLES_DATA = (\[[\s\S]*?\]);\s*\n\n/)
+            const orgTreeMatch = staffContent.match(/export const ORG_TREE = ([\s\S]*?);\s*\n\n\/\/ ─── HELPERS/)
+            
+            if (!rolesMatch || !rolesDataMatch || !orgTreeMatch) {
+              res.statusCode = 500
+              return res.end(JSON.stringify({ error: 'Failed to parse staffData.js' }))
+            }
+            
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({
+              roles: JSON.parse(rolesMatch[1]),
+              rolesData: JSON.parse(rolesDataMatch[1]),
+              tree: JSON.parse(orgTreeMatch[1]),
+              roleDetails: JSON.parse(roleDetailsContent)
+            }))
+          } catch (err) {
+            console.error('Reset failed:', err)
+            res.statusCode = 500
+            res.end(JSON.stringify({ error: err.message }))
+          }
+          return
+        }
+
         next()
       })
     },

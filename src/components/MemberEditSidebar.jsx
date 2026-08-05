@@ -72,8 +72,9 @@ export default function MemberEditSidebar({ node, onClose }) {
   }
 
   const handleRemove = () => {
-    if (window.confirm(`Are you sure you want to remove ${activeNode.name}?`)) {
-      kickNode(activeNode.id)
+    const reason = window.prompt("Reason for removal (optional):");
+    if (reason !== null) {
+      kickNode(activeNode.id, reason)
       onClose()
     }
   }

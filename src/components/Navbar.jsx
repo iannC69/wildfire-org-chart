@@ -3,10 +3,11 @@ import {
   Bell, ChevronDown, Flame, Shield,
   Network, ClipboardList,
   ZoomOut, ZoomIn, Maximize, Download, Edit3, Lock,
-  Undo2, Redo2, RotateCcw, Upload, List, Search, Settings, EyeOff
+  Undo2, Redo2, RotateCcw, Upload, List, Search, Settings, EyeOff, Maximize2
 } from 'lucide-react'
 import styles from './Navbar.module.css'
 import { useStore } from '../store/useStore'
+import StaffChangesModal from './StaffChangesModal'
 
 export default function Navbar({
   // Settings
@@ -42,7 +43,18 @@ export default function Navbar({
 }) {
   const isEditMode = useStore(s => s.isEditMode)
   const globalLog = useStore(s => s.globalLog || [])
+  const validLogs = globalLog.filter(log => 
+    log.message.startsWith('Promoted') || 
+    log.message.startsWith('Demoted') || 
+    log.message.startsWith('Removed')
+  );
   const [changelogOpen, setChangelogOpen] = useState(false)
+  const [staffChangesModalOpen, setStaffChangesModalOpen] = useState(false)
+  const [lastSeenLogCount, setLastSeenLogCount] = useState(() => {
+    try { return parseInt(localStorage.getItem('wildfire_last_seen_logs')) || 0 } catch { return 0 }
+  })
+  
+  const hasUnreadLogs = globalLog.length > lastSeenLogCount;
 
   return (
     <nav className={`${styles.nav} ${isHidden ? styles.navHidden : ''}`}>
@@ -210,25 +222,59 @@ export default function Navbar({
         <div className={styles.changelogWrapper}>
           <button
             className={`${styles.iconBtn} ${changelogOpen ? styles.iconBtnActive : ''}`}
-            onClick={() => setChangelogOpen(v => !v)}
-            title="Changelog"
-            aria-label="Changelog"
+            onClick={() => {
+              const nextState = !changelogOpen;
+              setChangelogOpen(nextState);
+              if (nextState) {
+                setLastSeenLogCount(globalLog.length);
+                localStorage.setItem('wildfire_last_seen_logs', globalLog.length.toString());
+              }
+            }}
+            title="Staff Changes"
+            aria-label="Staff Changes"
           >
             <Bell size={15} />
-            <span className={styles.unreadDot} />
+            {hasUnreadLogs && <span className={styles.unreadDot} />}
           </button>
 
           {changelogOpen && (
             <div className={styles.changelogDropdown}>
               <div className={styles.changelogHeader}>
-                <h4>Changelog</h4>
-                <span className={styles.versionBadge}>v1.2.0</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h4>Staff Changes</h4>
+                  <button
+                    className={styles.expandBtn}
+                    onClick={() => {
+                      setChangelogOpen(false)
+                      setStaffChangesModalOpen(true)
+                      setLastSeenLogCount(globalLog.length)
+                      localStorage.setItem('wildfire_last_seen_logs', globalLog.length.toString())
+                    }}
+                    title="Expand to full view"
+                    aria-label="Expand Staff Changes"
+                  >
+                    <Maximize2 size={13} />
+                  </button>
+                </div>
+                {isEditMode && (
+                  <button
+                    className={styles.clearLogsBtn}
+                    onClick={() => {
+                      if (window.confirm('Clear all staff changes?')) {
+                        useStore.setState({ globalLog: [] })
+                        localStorage.setItem('wildfire_audit_log', '[]')
+                      }
+                    }}
+                  >
+                    Clear Logs
+                  </button>
+                )}
               </div>
               <div className={styles.changelogBody}>
-                {globalLog.length === 0 ? (
-                  <div className={styles.changelogDesc} style={{ textAlign: 'center', padding: '20px 0' }}>No recent activity.</div>
+                {validLogs.length === 0 ? (
+                  <div className={styles.changelogDesc} style={{ textAlign: 'center', padding: '20px 0' }}>No staff changes recorded yet.</div>
                 ) : (
-                  globalLog.slice(0, 50).map(log => (
+                  validLogs.slice(0, 50).map(log => (
                     <div className={styles.changelogItem} key={log.id}>
                       <div className={styles.changelogDate}>
                         {new Date(log.date).toLocaleString()} • by {log.by}
@@ -274,6 +320,10 @@ export default function Navbar({
           <EyeOff size={14} />
         </button>
       </div>
+
+      {staffChangesModalOpen && (
+        <StaffChangesModal onClose={() => setStaffChangesModalOpen(false)} />
+      )}
     </nav>
   )
 }

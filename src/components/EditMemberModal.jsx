@@ -110,8 +110,11 @@ export default function EditMemberModal({ node, onClose }) {
   }
 
   const handleRemove = () => {
-    kickNode(activeNode.id)
-    onClose()
+    const reason = window.prompt("Reason for removal (optional):");
+    if (reason !== null) {
+      kickNode(activeNode.id, reason)
+      onClose()
+    }
   }
 
   if (!role) return null

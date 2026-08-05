@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
-import { X, Save, Trash2, Plus, Users, Shield, Edit3, Search, Hexagon, Crown, AlertTriangle } from 'lucide-react'
+import { X, Save, Trash2, Plus, Users, Shield, Edit3, Search, Hexagon, Crown, AlertTriangle, Archive, RefreshCw, Settings, PlusCircle } from 'lucide-react'
 import { useStore, flattenNodes } from '../store/useStore'
 import styles from './SettingsModal.module.css'
 
@@ -20,12 +20,27 @@ export default function SettingsModal({ onClose }) {
   const updateRole = useStore(s => s.updateRole)
   const addRole = useStore(s => s.addRole)
   const deleteRole = useStore(s => s.deleteRole)
+  const updateRoleDetails = useStore(s => s.updateRoleDetails)
   const updateNodeDetails = useStore(s => s.updateNodeDetails)
   const kickNode = useStore(s => s.kickNode)
+  const restoreNode = useStore(s => s.restoreNode)
+  const archivedAdmins = useStore(s => s.archivedAdmins || [])
+  const moveMultipleNodes = useStore(s => s.moveMultipleNodes)
+  const vacantName = useStore(s => s.vacantName)
+  const vacantAvatar = useStore(s => s.vacantAvatar)
+  const setVacantPrefs = useStore(s => s.setVacantPrefs)
+  const recoverLostAdmins = useStore(s => s.recoverLostAdmins)
+  const loadPreset = useStore(s => s.loadPreset)
+
+  const [presets, setPresets] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('wildfire_presets')) || [] } catch { return [] }
+  })
+  const [newPresetName, setNewPresetName] = useState('')
 
   const [activeTab, setActiveTab] = useState('ADMINS')
   const [searchQuery, setSearchQuery] = useState('')
   const [editingRole, setEditingRole] = useState(null)
+  const [editRoleResps, setEditRoleResps] = useState('')
   const [editingAdmin, setEditingAdmin] = useState(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState(null)
 
@@ -36,6 +51,8 @@ export default function SettingsModal({ onClose }) {
   const [editManagerId, setEditManagerId] = useState('')
   const [editResps, setEditResps] = useState('')
   const [editHistory, setEditHistory] = useState([])
+  const [selectedAdmins, setSelectedAdmins] = useState([])
+  const [bulkManagerId, setBulkManagerId] = useState('')
 
   // New history log form state — React controlled
   const [newHistAction, setNewHistAction] = useState('Promoted')
@@ -55,6 +72,31 @@ export default function SettingsModal({ onClose }) {
   const [newRoleColor, setNewRoleColor] = useState('#8b5cf6')
   const [newRoleRank, setNewRoleRank] = useState(10)
   const [newRoleSlots, setNewRoleSlots] = useState('')
+  const [newRoleResps, setNewRoleResps] = useState('')
+  
+  // Responsibilities Panel State
+  const [respSelectedRole, setRespSelectedRole] = useState('')
+  const [newRespInput, setNewRespInput] = useState('')
+  const [newRespDetailInput, setNewRespDetailInput] = useState('')
+
+  // Sync default respSelectedRole
+  useEffect(() => {
+    if (roles.length > 0 && !respSelectedRole) {
+      setRespSelectedRole(roles[0].id)
+    }
+  }, [roles, respSelectedRole])
+
+  // Preferences State
+  const [prefVacantName, setPrefVacantName] = useState(vacantName || 'Poziție Liberă')
+  const [prefVacantAvatar, setPrefVacantAvatar] = useState(vacantAvatar || '')
+  const [assigningVacantId, setAssigningVacantId] = useState(null)
+  const [assignPickSteam, setAssignPickSteam] = useState('')
+  const [assignPickName, setAssignPickName] = useState('')
+  const [assignPickAvatar, setAssignPickAvatar] = useState('')
+  const [assignPickExistingId, setAssignPickExistingId] = useState('')
+  const [autoVacantEnabled, setAutoVacantEnabled] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('wildfire_auto_vacant') || 'false') } catch { return false }
+  })
 
   // Computed stats
   const allMembers = useMemo(() => {
@@ -92,9 +134,21 @@ export default function SettingsModal({ onClose }) {
     }
   }, [roles])
 
+  const globalLog = useStore(s => s.globalLog || [])
+  const validLogs = globalLog.filter(log => 
+    log.message.startsWith('Promoted') || 
+    log.message.startsWith('Demoted') || 
+    log.message.startsWith('Removed')
+  );
+
   const TABS = [
     { id: 'ADMINS', label: 'ADMINS', icon: Users, count: activeMembers.length },
-    { id: 'GROUPS', label: 'GROUPS', icon: Shield, count: roles.length }
+    { id: 'GROUPS', label: 'GROUPS', icon: Shield, count: roles.length },
+    { id: 'RESPONSIBILITIES', label: 'ATRIBUȚII', icon: Edit3, count: roleDetails.reduce((acc, r) => acc + (r.responsibilities?.length || 0), 0) },
+    { id: 'ARCHIVE', label: 'ARHIVĂ', icon: Archive, count: archivedAdmins.length },
+    { id: 'PREFS', label: 'PREFERINȚE', icon: Settings, count: 0 },
+    { id: 'BACKUPS', label: 'BACKUPS', icon: Save, count: presets.length },
+    { id: 'LOGS', label: 'GLOBAL LOGS', icon: AlertTriangle, count: validLogs.length }
   ]
 
   const filteredMembers = activeMembers.filter(m =>
@@ -116,6 +170,7 @@ export default function SettingsModal({ onClose }) {
     setNewRoleColor('#8b5cf6')
     setNewRoleRank(roles.length + 1)
     setNewRoleSlots('')
+    setNewRoleResps('')
     setActiveTab('GROUPS')
   }
 
@@ -172,7 +227,8 @@ export default function SettingsModal({ onClose }) {
       toRole: newHistRole || roles[0]?.title || '',
       date: new Date(newHistDate).toISOString(),
       by: newHistBy || 'Console',
-      reason: newHistReason || ''
+      reason: newHistReason || '',
+      _isNew: true // Flag to sync to global log on save
     }
     setEditHistory(prev => [...prev, newLog])
     setNewHistReason('')
@@ -191,6 +247,40 @@ export default function SettingsModal({ onClose }) {
   }
 
   const handleSaveAdmin = (m) => {
+    let currentEditHistory = [...editHistory]
+
+    // Auto-commit pending history if user forgot to click '+ Add' but typed a reason
+    if (newHistReason.trim() !== '') {
+      currentEditHistory.push({
+        action: newHistAction,
+        fromRole: 'Unknown',
+        toRole: newHistRole || roles[0]?.title || '',
+        date: new Date(newHistDate).toISOString(),
+        by: newHistBy || 'Console',
+        reason: newHistReason.trim(),
+        _isNew: true
+      })
+    }
+
+    // Auto-generate initial history log for new admins if none provided
+    if (m.id === 'NEW' && currentEditHistory.length === 0) {
+      currentEditHistory.push({
+        action: 'Promoted',
+        fromRole: 'Player',
+        toRole: roles.find(r => r.id === editRoleId)?.title || 'Staff',
+        date: new Date().toISOString(),
+        by: newHistBy || 'Console',
+        reason: 'Initial staff assignment',
+        _isNew: true
+      })
+    }
+
+    // Strip _isNew from the history entries we save to the node
+    const finalHistory = currentEditHistory.map(h => {
+      const { _isNew, ...rest } = h
+      return rest
+    })
+
     if (m.id === 'NEW') {
       const newId = `node-${Date.now()}`
       const newAdmin = {
@@ -201,29 +291,51 @@ export default function SettingsModal({ onClose }) {
         avatarUrl: editAvatar,
         vacant: false,
         responsibilities: editResps.split('\n').map(x => x.trim()).filter(Boolean),
-        history: editHistory,
+        history: finalHistory,
         children: []
       }
-      useStore.getState().addNode(editManagerId || tree.id, newAdmin)
+      const targetVacant = allMembers.find(v => v.vacant && v.id === editManagerId)
+      if (targetVacant) {
+        // Replace the vacant node directly, inheriting its children
+        const inheritedChildren = [...(targetVacant.children || []), ...newAdmin.children]
+        const finalNode = { ...newAdmin, children: inheritedChildren }
+        function replaceVacant(node) {
+          if (node.id === targetVacant.id) return finalNode
+          if (!node.children) return node
+          return { ...node, children: node.children.map(replaceVacant) }
+        }
+        useStore.setState({ tree: replaceVacant(useStore.getState().tree) })
+      } else {
+        useStore.getState().addNode(editManagerId || tree.id, newAdmin)
+      }
     } else {
       useStore.getState().updateNodeDetails(m.id, {
         name: editName,
         avatarUrl: editAvatar,
         roleId: editRoleId,
         responsibilities: editResps.split('\n').map(x => x.trim()).filter(Boolean),
-        history: editHistory
+        history: finalHistory
       })
-      
+
       const currentParent = findParent(tree, m.id)
       if (editManagerId && (!currentParent || currentParent.id !== editManagerId)) {
         useStore.getState().moveNode(m.id, editManagerId)
       }
     }
+
+    // Sync newly added history entries to the global log
+    const newlyAdded = currentEditHistory.filter(h => h._isNew)
+    newlyAdded.forEach(h => {
+      const msg = `${h.action} member ${editName || 'New Admin'} to ${h.toRole}${h.reason ? ` - Reason: ${h.reason}` : ''}`
+      useStore.getState().addGlobalLog(msg)
+    })
+
     setEditingAdmin(null)
   }
 
   const handleKickAdmin = (id) => {
-    kickNode(id)
+    const reason = window.prompt("Reason for removal (optional):");
+    if (reason !== null) kickNode(id, reason);
   }
 
   return (
@@ -259,11 +371,7 @@ export default function SettingsModal({ onClose }) {
             <div className={styles.statNum}>{roles.length}</div>
             <div className={styles.statLabel}>GROUPS</div>
           </div>
-          <div className={styles.statCard} style={{ '--card-color': '#EAB308' }}>
-            <div className={styles.statIcon}><Crown size={18} /></div>
-            <div className={styles.statNum}>{roles.filter(r => r.rank <= 2).length > 0 ? activeMembers.filter(m => roles.find(r => r.id === m.roleId)?.rank <= 2).length : 0}</div>
-            <div className={styles.statLabel}>ACTIVE VIPS</div>
-          </div>
+
           <div className={styles.statCard} style={{ '--card-color': '#EF4444' }}>
             <div className={styles.statIcon}><AlertTriangle size={18} /></div>
             <div className={styles.statNum}>{vacantCount}</div>
@@ -347,6 +455,42 @@ export default function SettingsModal({ onClose }) {
           {/* ADMINS TAB */}
           {activeTab === 'ADMINS' && (
             <div className={styles.adminList}>
+              
+              {/* BULK MOVE UI */}
+              {selectedAdmins.length > 0 && (
+                <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: '#fff', fontSize: '13px', fontWeight: 'bold' }}>{selectedAdmins.length} selected</span>
+                    <button 
+                      onClick={() => setSelectedAdmins([])}
+                      style={{ background: 'transparent', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: '12px', textDecoration: 'underline' }}
+                    >Clear</button>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <select 
+                      value={bulkManagerId} 
+                      onChange={e => setBulkManagerId(e.target.value)}
+                      style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '4px', padding: '6px 8px', fontSize: '13px' }}
+                    >
+                      <option value="">-- Select Manager --</option>
+                      {activeMembers.map(n => (
+                        <option key={n.id} value={n.id}>{n.name}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => {
+                        if (!bulkManagerId) return alert('Select a manager first!');
+                        moveMultipleNodes(selectedAdmins, bulkManagerId);
+                        setSelectedAdmins([]);
+                        setBulkManagerId('');
+                        alert('Members successfully moved!');
+                      }}
+                      style={{ background: '#3B82F6', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
+                    >Move to Manager</button>
+                  </div>
+                </div>
+              )}
+
               {(() => {
                 const displayMembers = editingAdmin === 'NEW'
                   ? [{ id: 'NEW', name: editName || 'New Admin', roleId: editRoleId, avatarUrl: editAvatar, history: editHistory }, ...filteredMembers]
@@ -361,6 +505,19 @@ export default function SettingsModal({ onClose }) {
                 return (
                   <div key={m.id} className={`${styles.adminRowWrapper} ${isEditingAdmin ? styles.adminRowExpanded : ''}`}>
                     <div className={styles.adminRow}>
+                      
+                      {m.id !== 'NEW' && (
+                        <input 
+                          type="checkbox" 
+                          checked={selectedAdmins.includes(m.id)}
+                          onChange={e => {
+                            if (e.target.checked) setSelectedAdmins(prev => [...prev, m.id]);
+                            else setSelectedAdmins(prev => prev.filter(id => id !== m.id));
+                          }}
+                          style={{ marginRight: '12px', cursor: 'pointer', width: '16px', height: '16px' }}
+                        />
+                      )}
+
                       <div className={styles.adminAvatar}>
                         {m.avatarUrl
                           ? <img src={m.avatarUrl} alt={m.name} />
@@ -417,13 +574,34 @@ export default function SettingsModal({ onClose }) {
                             <input type="text" value={editAvatar} onChange={e => setEditAvatar(e.target.value)} />
                           </div>
                           <div className={styles.editField}>
-                            <label>MANAGER (MOVE TO)</label>
+                            <label>MANAGER / VACANT SLOT</label>
                             <select value={editManagerId} onChange={e => setEditManagerId(e.target.value)}>
-                              {m.id === 'NEW' && <option value="">-- Default Manager (Root) --</option>}
-                              {activeMembers.filter(n => n.id !== m.id && flattenNodes(m).every(desc => desc.id !== n.id)).map(n => (
-                                <option key={n.id} value={n.id}>{n.name}</option>
-                              ))}
+                              {m.id === 'NEW' && <option value="">-- Default (Root) --</option>}
+                              <optgroup label="── Staff Members ──">
+                                {activeMembers.filter(n => n.id !== m.id && flattenNodes(m).every(desc => desc.id !== n.id)).map(n => {
+                                  const nRole = roles.find(r => r.id === n.roleId);
+                                  return <option key={n.id} value={n.id}>{n.name} ({nRole?.title || n.roleId})</option>
+                                })}
+                              </optgroup>
+                              {allMembers.filter(v => v.vacant).length > 0 && (
+                                <optgroup label="── Vacant Positions (will replace) ──">
+                                  {allMembers.filter(v => v.vacant).map(v => {
+                                    const vRole = roles.find(r => r.id === v.roleId);
+                                    const childCount = (v.children || []).length;
+                                    return (
+                                      <option key={v.id} value={v.id}>
+                                        🔲 {v.name} [{vRole?.title || v.roleId}]{childCount > 0 ? ` · ${childCount} subordinates` : ''}
+                                      </option>
+                                    );
+                                  })}
+                                </optgroup>
+                              )}
                             </select>
+                            {editManagerId && allMembers.find(v => v.vacant && v.id === editManagerId) && (
+                              <div style={{ marginTop: '6px', padding: '6px 10px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '4px', fontSize: '11px', color: '#A5B4FC' }}>
+                                ⚡ This admin will <strong>replace</strong> the vacant slot and inherit its {(allMembers.find(v => v.id === editManagerId)?.children || []).length} subordinates.
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -504,7 +682,6 @@ export default function SettingsModal({ onClose }) {
                                     >
                                       <option value="Promoted">PROMOTED</option>
                                       <option value="Demoted">DEMOTED</option>
-                                      <option value="Removed">REMOVED</option>
                                     </select>
                                     <span className={styles.histTo}>To:</span>
                                     <select
@@ -560,7 +737,6 @@ export default function SettingsModal({ onClose }) {
                                 <select value={newHistAction} onChange={e => setNewHistAction(e.target.value)} className={styles.histInputSm}>
                                   <option value="Promoted">Promoted</option>
                                   <option value="Demoted">Demoted</option>
-                                  <option value="Removed">Removed</option>
                                 </select>
                                 <select value={newHistRole} onChange={e => setNewHistRole(e.target.value)} className={styles.histInputSm}>
                                   {roles.map(r => <option key={r.id} value={r.title}>{r.title}</option>)}
@@ -699,6 +875,957 @@ export default function SettingsModal({ onClose }) {
                   </div>
                 )
               })})()}
+            </div>
+          )}
+
+          {/* RESPONSIBILITIES TAB */}
+          {activeTab === 'RESPONSIBILITIES' && (
+            <div className={styles.rolesList}>
+              <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px', fontWeight: 'bold' }}>SELECT GROUP:</label>
+                  <select
+                    value={respSelectedRole}
+                    onChange={e => setRespSelectedRole(e.target.value)}
+                    style={{
+                      background: 'rgba(0,0,0,0.3)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#fff',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      flex: 1
+                    }}
+                  >
+                    {roles.map(r => <option key={r.id} value={r.id}>{r.title}</option>)}
+                  </select>
+                </div>
+
+                {(() => {
+                  const currentRoleDetails = roleDetails.find(r => r.id === respSelectedRole)
+                  const currentResps = currentRoleDetails?.responsibilities || []
+                  
+                  return (
+                    <div style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '8px', padding: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ marginBottom: '16px', fontWeight: 'bold', color: '#fff', fontSize: '14px' }}>
+                        Default Responsibilities ({currentResps.length})
+                      </div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {currentResps.length === 0 ? (
+                          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontStyle: 'italic', padding: '8px 0' }}>No responsibilities assigned to this group yet.</div>
+                        ) : (
+                          currentResps.map((resp, idx) => {
+                            const title = typeof resp === 'string' ? resp : resp.title
+                            const detail = typeof resp === 'object' ? resp.detail : null
+                            return (
+                              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '4px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <div style={{ flex: 1, fontSize: '13px', color: '#ddd', fontWeight: 'bold' }}>{title}</div>
+                                  <button
+                                    style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', opacity: 0.8 }}
+                                    onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                                    onMouseLeave={e => e.currentTarget.style.opacity = 0.8}
+                                    onClick={() => {
+                                      const next = currentResps.filter((_, i) => i !== idx)
+                                      updateRoleDetails(respSelectedRole, { responsibilities: next })
+                                    }}
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                                {detail && (
+                                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', paddingLeft: '4px' }}>
+                                    {detail}
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px', background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                        <label style={{ fontSize: '11px', color: '#888', fontWeight: 'bold' }}>ADD NEW RESPONSIBILITY</label>
+                        <input
+                          type="text"
+                          value={newRespInput}
+                          onChange={e => setNewRespInput(e.target.value)}
+                          placeholder="Title (e.g. Manage Staff)..."
+                          style={{
+                            background: 'rgba(0,0,0,0.3)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            color: '#fff',
+                            padding: '10px 12px',
+                            borderRadius: '4px',
+                            width: '100%',
+                            fontSize: '13px'
+                          }}
+                        />
+                        <textarea
+                          value={newRespDetailInput}
+                          onChange={e => setNewRespDetailInput(e.target.value)}
+                          placeholder="Details/Description (Optional)..."
+                          style={{
+                            background: 'rgba(0,0,0,0.3)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            color: '#fff',
+                            padding: '10px 12px',
+                            borderRadius: '4px',
+                            width: '100%',
+                            fontSize: '13px',
+                            minHeight: '60px',
+                            resize: 'vertical'
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            if (newRespInput.trim()) {
+                              updateRoleDetails(respSelectedRole, { 
+                                responsibilities: [...currentResps, { title: newRespInput.trim(), detail: newRespDetailInput.trim() || null }] 
+                              })
+                              setNewRespInput('')
+                              setNewRespDetailInput('')
+                            }
+                          }}
+                          style={{
+                            background: '#3B82F6',
+                            border: 'none',
+                            color: '#fff',
+                            padding: '10px 16px',
+                            borderRadius: '4px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            marginTop: '4px'
+                          }}
+                        >
+                          <Plus size={14} /> Add Responsibility
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* ARCHIVE TAB */}
+          {activeTab === 'ARCHIVE' && (
+            <div className={styles.rolesList}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 24px 16px' }}>
+                <button
+                  style={{
+                    background: 'rgba(255, 50, 50, 0.1)',
+                    border: '1px solid rgba(255, 50, 50, 0.2)',
+                    color: 'rgba(255, 100, 100, 0.9)',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to permanently delete all archived admins?')) {
+                      useStore.getState().clearArchive()
+                    }
+                  }}
+                >
+                  CLEAR ALL
+                </button>
+              </div>
+              {archivedAdmins.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>
+                  No archived admins.
+                </div>
+              ) : (
+                archivedAdmins.map(admin => (
+                  <div key={admin.id} className={styles.adminRow} style={{ alignItems: 'center', gap: '16px' }}>
+                    {admin.avatarUrl ? (
+                      <img src={admin.avatarUrl} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold' }}>
+                        {admin.name.substring(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    <div className={styles.groupInfoCol}>
+                      <div className={styles.adminNameRow}>
+                        <span style={{ fontWeight: 'bold', color: '#fff' }}>{admin.name}</span>
+                        <span className={styles.adminSteamId}>Deleted on {new Date(admin.archivedAt).toLocaleString()}</span>
+                      </div>
+                      <div className={styles.adminBadges}>
+                        <span className={styles.memberCountText} style={{ color: 'rgba(255,255,255,0.6)' }}>
+                          Last Role: {admin.role}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.rowActions}>
+                      <button 
+                        className={styles.actionBtn} 
+                        style={{ color: '#10B981', border: '1px solid rgba(16, 185, 129, 0.2)', background: 'rgba(16, 185, 129, 0.1)', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', width: 'auto', height: 'auto', gap: '6px' }}
+                        onClick={() => {
+                          if (window.confirm(`Restore ${admin.name} to the active staff tree?`)) {
+                            restoreNode(admin.id)
+                          }
+                        }}
+                      >
+                        <RefreshCw size={14} /> Restore
+                      </button>
+                      <button 
+                        className={styles.actionBtn} 
+                        style={{ color: '#EF4444', border: '1px solid rgba(239, 68, 68, 0.2)', background: 'rgba(239, 68, 68, 0.1)', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', width: 'auto', height: 'auto', gap: '6px' }}
+                        onClick={() => {
+                          if (window.confirm(`Permanently delete ${admin.name} from the archive?`)) {
+                            useStore.getState().deleteArchivedAdmin(admin.id)
+                          }
+                        }}
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* BACKUPS TAB */}
+          {activeTab === 'BACKUPS' && (
+            <div className={styles.rolesList} style={{ padding: '24px' }}>
+
+              {/* ── EXPORT / IMPORT JSON ── */}
+              <div style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08))', border: '1px solid rgba(99,102,241,0.3)', padding: '20px', borderRadius: '12px', marginBottom: '24px' }}>
+                <h3 style={{ color: '#A5B4FC', fontSize: '14px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Save size={16} /> Export / Import JSON
+                </h3>
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', marginBottom: '16px' }}>
+                  Export your entire org chart as a JSON file. Import it anytime to perfectly restore everything — including histories, immunities, and Steam links.
+                </p>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button
+                    style={{
+                      background: 'rgba(99,102,241,0.2)',
+                      border: '1px solid rgba(99,102,241,0.4)',
+                      color: '#A5B4FC',
+                      padding: '9px 18px',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                    onClick={() => {
+                      const s = useStore.getState();
+                      const exportData = {
+                        exportedAt: new Date().toISOString(),
+                        tree: s.tree,
+                        roles: s.roles,
+                        roleDetails: s.roleDetails,
+                        archivedAdmins: s.archivedAdmins || [],
+                        globalLog: s.globalLog || []
+                      };
+                      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `wildfire-org-chart-${new Date().toISOString().split('T')[0]}.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                  >
+                    <Save size={14} /> Export JSON
+                  </button>
+
+                  <label style={{
+                    background: 'rgba(16,185,129,0.15)',
+                    border: '1px solid rgba(16,185,129,0.3)',
+                    color: '#6EE7B7',
+                    padding: '9px 18px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <RefreshCw size={14} /> Import JSON
+                    <input
+                      type="file"
+                      accept=".json"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          try {
+                            const data = JSON.parse(ev.target.result);
+                            if (!data.tree) { alert('Invalid file — missing tree data.'); return; }
+                            if (window.confirm(`Import "${file.name}"? This will replace your current org chart.`)) {
+                              useStore.getState().loadPreset(data);
+                              alert('Import successful! Your org chart has been restored.');
+                            }
+                          } catch {
+                            alert('Failed to parse JSON file. Make sure it was exported from this app.');
+                          }
+                        };
+                        reader.readAsText(file);
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
+                <h3 style={{ color: '#FCA5A5', fontSize: '14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <AlertTriangle size={16} /> Data Recovery
+                </h3>
+                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginBottom: '16px' }}>
+                  If you lost administrators due to an old bug, use this tool to scan the original database and recover missing personnel. They will be spawned at the top of the tree.
+                </p>
+                <button
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: '#FCA5A5',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onClick={() => {
+                    if (window.confirm('Click OK to recover all missing admins from the original database!')) {
+                      recoverLostAdmins();
+                      alert('Recovery complete! Check the top of the tree.');
+                    }
+                  }}
+                >
+                  <AlertTriangle size={14} /> Recover Missing Admins
+                </button>
+              </div>
+
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
+                <h3 style={{ color: '#fff', fontSize: '14px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Save size={16} /> Save New Preset
+                </h3>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={newPresetName}
+                    onChange={e => setNewPresetName(e.target.value)}
+                    placeholder="Preset Name (e.g. Backup Before Major Changes)"
+                    style={{
+                      background: 'rgba(0,0,0,0.3)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#fff',
+                      padding: '8px 12px',
+                      borderRadius: '4px',
+                      fontSize: '13px',
+                      flex: 1
+                    }}
+                  />
+                  <button
+                    style={{
+                      background: '#3B82F6',
+                      border: 'none',
+                      color: '#fff',
+                      padding: '8px 16px',
+                      borderRadius: '4px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => {
+                      if (!newPresetName.trim()) return;
+                      const s = useStore.getState();
+                      const newPreset = {
+                        id: Date.now().toString(),
+                        name: newPresetName.trim(),
+                        date: new Date().toISOString(),
+                        tree: s.tree,
+                        roles: s.roles,
+                        roleDetails: s.roleDetails,
+                        archivedAdmins: s.archivedAdmins,
+                        globalLog: s.globalLog
+                      };
+                      const updated = [newPreset, ...presets];
+                      setPresets(updated);
+                      localStorage.setItem('wildfire_presets', JSON.stringify(updated));
+                      setNewPresetName('');
+                      alert('Preset saved!');
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+
+              <h3 style={{ color: '#fff', fontSize: '14px', marginBottom: '16px' }}>Saved Presets</h3>
+              {presets.length === 0 ? (
+                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontStyle: 'italic', marginBottom: '24px' }}>No saved presets.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+                  {presets.map(p => (
+                    <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px' }}>
+                      <div>
+                        <div style={{ color: '#fff', fontSize: '13px', fontWeight: 'bold' }}>{p.name}</div>
+                        <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', marginTop: '2px' }}>
+                          Saved on {new Date(p.date).toLocaleString()}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          style={{
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            color: '#60A5FA',
+                            padding: '6px 12px',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to load preset "${p.name}"? This will overwrite your current active organization chart.`)) {
+                              loadPreset(p);
+                              alert('Preset loaded successfully!');
+                            }
+                          }}
+                        >
+                          Load
+                        </button>
+                        <button
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            color: '#EF4444',
+                            padding: '6px 12px',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => {
+                            if (window.confirm(`Delete preset "${p.name}" forever?`)) {
+                              const updated = presets.filter(x => x.id !== p.id);
+                              setPresets(updated);
+                              localStorage.setItem('wildfire_presets', JSON.stringify(updated));
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#FCA5A5', fontSize: '14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <AlertTriangle size={16} /> Factory Reset
+                </h3>
+                <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginBottom: '16px' }}>
+                  This will completely wipe your current configuration and restore the default database. Make sure to save a preset first!
+                </p>
+                <button
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: '#FCA5A5',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onClick={async () => {
+                    if (window.confirm('WARNING: Are you absolutely sure you want to reset everything to default? All unsaved custom changes will be lost forever.')) {
+                      await useStore.getState().reset();
+                      alert('Tree reset to default successfully!');
+                    }
+                  }}
+                >
+                  <RefreshCw size={14} /> Reset Tree to Default
+                </button>
+
+                <button
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    color: '#6EE7B7',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginTop: '8px'
+                  }}
+                  onClick={() => {
+                    const MODS_AND_HELPERS = [
+                      {
+                        id: 'm12', name: 'r3ally', role: 'Moderator', roleId: 'moderator',
+                        avatarUrl: 'https://avatars.fastly.steamstatic.com/1358a6f462ce93511842f9c3d067ec0e7662aab7_full.jpg',
+                        steamLink: 'https://steamcommunity.com/profiles/76561199439185612',
+                        joinDate: '2023-01-15', status: 'offline', immunity: 0, responsibilities: [],
+                        history: [{ date: '2026-05-26T12:00:00Z', action: 'Promoted', toRole: 'Helper' }, { date: '2026-08-01T12:00:00Z', action: 'Promoted', toRole: 'Moderator' }],
+                        children: []
+                      },
+                      {
+                        id: 'm13', name: 'bounty', role: 'Moderator', roleId: 'moderator',
+                        avatarUrl: 'https://avatars.fastly.steamstatic.com/d768ab6b9bdd99e15b6ac4ea0b6d7774b7fbf9be_full.jpg',
+                        steamLink: 'https://steamcommunity.com/id/hennessyx1/',
+                        joinDate: '2023-01-15', status: 'online', immunity: 0, responsibilities: [],
+                        history: [{ date: '2026-07-01T12:00:00Z', action: 'Promoted', toRole: 'Helper' }, { date: '2026-08-01T12:00:00Z', action: 'Promoted', toRole: 'Moderator' }],
+                        children: []
+                      },
+                      {
+                        id: 'm11', name: 'LEGALE', role: 'Moderator', roleId: 'moderator',
+                        avatarUrl: 'https://avatars.fastly.steamstatic.com/83961e4642c3e472cd20da37d1056664844db409_full.jpg',
+                        steamLink: 'https://steamcommunity.com/id/LEGALEV2/',
+                        joinDate: '2023-01-15', status: 'online', immunity: 0, responsibilities: [],
+                        history: [{ date: '2026-06-12T12:00:00Z', action: 'Promoted', toRole: 'Helper' }, { date: '2026-07-01T12:00:00Z', action: 'Promoted', toRole: 'Moderator' }],
+                        children: []
+                      },
+                      {
+                        id: 'm14', name: 'V1ccX', role: 'Moderator', roleId: 'moderator',
+                        avatarUrl: 'https://avatars.fastly.steamstatic.com/4963bca91b1b3edf88de548e459b2092a35312e7_full.jpg',
+                        steamLink: 'https://steamcommunity.com/profiles/76561199698821208',
+                        joinDate: '2023-01-15', status: 'offline', immunity: 0, responsibilities: [],
+                        history: [{ date: '2026-06-30T12:00:00Z', action: 'Promoted', toRole: 'Helper' }, { date: '2026-08-01T12:00:00Z', action: 'Promoted', toRole: 'Moderator' }],
+                        children: [
+                          {
+                            id: 'm17', name: 'dropYA-', role: 'Helper', roleId: 'helper',
+                            avatarUrl: 'https://avatars.fastly.steamstatic.com/53a234baae33c23f1326d23d0699039d7cccfddf_full.jpg',
+                            steamLink: 'https://steamcommunity.com/id/dropYA/',
+                            joinDate: '2023-01-15', status: 'online', immunity: 0, responsibilities: [],
+                            history: [{ date: '2026-07-31T12:00:00Z', action: 'Promoted', toRole: 'Helper' }],
+                            children: []
+                          },
+                          {
+                            id: 'm16', name: 'LcNneb', role: 'Helper', roleId: 'helper',
+                            avatarUrl: 'https://avatars.fastly.steamstatic.com/c78e87c68a89fcdd6c895f2b6b13474085a9c5ab_full.jpg',
+                            steamLink: 'https://steamcommunity.com/profiles/76561198711973791/',
+                            joinDate: '2023-01-15', status: 'online', immunity: 0, responsibilities: [],
+                            history: [{ date: '2026-06-07T12:00:00Z', action: 'Promoted', toRole: 'Helper' }],
+                            children: []
+                          },
+                          {
+                            id: 'm15', name: 'n3lutzU', role: 'Helper', roleId: 'helper',
+                            avatarUrl: 'https://avatars.fastly.steamstatic.com/59e75dc27ff9c6a73ef242ac14dc4c3fc7001827_full.jpg',
+                            steamLink: 'https://steamcommunity.com/profiles/76561199070188905',
+                            joinDate: '2023-01-15', status: 'online', immunity: 0, responsibilities: [],
+                            history: [{ date: '2026-06-28T12:00:00Z', action: 'Promoted', toRole: 'Helper' }],
+                            children: []
+                          }
+                        ]
+                      }
+                    ];
+
+                    // Find vacant admin node and inject all mods as its children
+                    function injectIntoNode(node, targetId, newChildren) {
+                      if (node.id === targetId || (node.vacant && node.roleId === 'administrator')) {
+                        return { ...node, children: newChildren };
+                      }
+                      if (!node.children) return node;
+                      return { ...node, children: node.children.map(c => injectIntoNode(c, targetId, newChildren)) };
+                    }
+
+                    const currentTree = useStore.getState().tree;
+                    const newTree = injectIntoNode(currentTree, 'vacant-1785945580214', MODS_AND_HELPERS);
+                    useStore.setState({ tree: newTree });
+                    alert('Moderators & Helpers injected successfully!');
+                  }}
+                >
+                  <Users size={14} /> Inject Mods &amp; Helpers Now
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* PREFS TAB */}
+          {activeTab === 'PREFS' && (
+            <div className={`${styles.rolesList} ${styles.inlineEditPanel}`} style={{ padding: '24px' }}>
+              <h3 style={{ color: '#fff', marginBottom: '24px', fontSize: '14px' }}>Global Preferences</h3>
+              
+              <div className={styles.editFieldBlock}>
+                <label>VACANT POSITION TEXT</label>
+                <input
+                  type="text"
+                  value={prefVacantName}
+                  onChange={e => setPrefVacantName(e.target.value)}
+                  placeholder="e.g. Poziție Liberă"
+                />
+              </div>
+
+              <div className={styles.editFieldBlock} style={{ marginTop: '20px' }}>
+                <label>VACANT POSITION AVATAR URL (OPTIONAL)</label>
+                <input
+                  type="text"
+                  value={prefVacantAvatar}
+                  onChange={e => setPrefVacantAvatar(e.target.value)}
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
+                <button
+                  className={styles.updateBtn}
+                  onClick={() => {
+                    setVacantPrefs(prefVacantName, prefVacantAvatar);
+                    alert('Preferences saved successfully!');
+                  }}
+                >
+                  <Save size={14} /> Save Preferences
+                </button>
+              </div>
+
+              <div style={{ marginTop: '48px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#fff', marginBottom: '16px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  Active Vacant Positions <span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '12px', fontSize: '11px' }}>{allMembers.filter(m => m.vacant).length}</span>
+                </h3>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {allMembers.filter(m => m.vacant).length === 0 ? (
+                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontStyle: 'italic' }}>No vacant positions active in the tree.</div>
+                  ) : (
+                    allMembers.filter(m => m.vacant).map(vacantNode => {
+                      const roleTitle = roles.find(r => r.id === vacantNode.roleId)?.title || 'No Role'
+                      const isAssigning = assigningVacantId === vacantNode.id
+                      return (
+                        <div key={vacantNode.id} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: `1px solid ${isAssigning ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.05)'}`, overflow: 'hidden' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              {vacantNode.avatarUrl ? (
+                                <img src={vacantNode.avatarUrl} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <Users size={16} color="rgba(255,255,255,0.5)" />
+                                </div>
+                              )}
+                              <div>
+                                <div style={{ color: '#fff', fontSize: '13px', fontWeight: 'bold' }}>{vacantNode.name}</div>
+                                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px' }}>{roleTitle.toUpperCase()} · {(vacantNode.children||[]).length} subordinates</div>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button
+                                style={{ background: isAssigning ? 'rgba(99,102,241,0.3)' : 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#A5B4FC', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                onClick={() => {
+                                  if (isAssigning) { setAssigningVacantId(null); setAssignPickName(''); setAssignPickSteam(''); setAssignPickAvatar(''); }
+                                  else { setAssigningVacantId(vacantNode.id); setAssignPickName(''); setAssignPickSteam(''); setAssignPickAvatar(''); }
+                                }}
+                              >
+                                <Shield size={12} /> {isAssigning ? 'Cancel' : 'Assign Admin'}
+                              </button>
+                              <button
+                                style={{ color: '#EF4444', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', padding: '6px', borderRadius: '4px', cursor: 'pointer' }}
+                                onClick={() => { if (window.confirm(`Delete vacant ${roleTitle} position? Its ${(vacantNode.children||[]).length} subordinates will be hoisted up.`)) kickNode(vacantNode.id) }}
+                                title="Delete Vacant Position"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Assign Admin Panel */}
+                          {isAssigning && (
+                            <div style={{ padding: '12px 16px 16px', borderTop: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.05)' }}>
+                              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', marginBottom: '10px' }}>Fill this position with a real person. Their subordinates will be inherited.</p>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <select
+                                  value={assignPickExistingId || ''}
+                                  onChange={e => {
+                                    setAssignPickExistingId(e.target.value);
+                                    if (e.target.value) {
+                                      setAssignPickName(''); setAssignPickSteam(''); setAssignPickAvatar('');
+                                    }
+                                  }}
+                                  style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', padding: '7px 10px', borderRadius: '4px', fontSize: '12px' }}
+                                >
+                                  <option value="">-- Create New Admin --</option>
+                                  <optgroup label="Select Existing Admin (will be moved here)">
+                                    {activeMembers.map(a => {
+                                      const aRole = roles.find(r => r.id === a.roleId);
+                                      return <option key={a.id} value={a.id}>{a.name} (Current: {aRole?.title || 'Unknown'})</option>
+                                    })}
+                                  </optgroup>
+                                </select>
+
+                                {!assignPickExistingId && (
+                                  <>
+                                    <input
+                                      type="text" placeholder="Name *"
+                                      value={assignPickName}
+                                      onChange={e => setAssignPickName(e.target.value)}
+                                      style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '7px 10px', borderRadius: '4px', fontSize: '12px' }}
+                                    />
+                                    <input
+                                      type="text" placeholder="Steam URL or ID"
+                                      value={assignPickSteam}
+                                      onChange={e => setAssignPickSteam(e.target.value)}
+                                      style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '7px 10px', borderRadius: '4px', fontSize: '12px' }}
+                                    />
+                                    <input
+                                      type="text" placeholder="Avatar URL (optional)"
+                                      value={assignPickAvatar}
+                                      onChange={e => setAssignPickAvatar(e.target.value)}
+                                      style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '7px 10px', borderRadius: '4px', fontSize: '12px' }}
+                                    />
+                                  </>
+                                )}
+
+                                <button
+                                  style={{ background: 'rgba(99,102,241,0.3)', border: '1px solid rgba(99,102,241,0.5)', color: '#A5B4FC', padding: '8px 14px', borderRadius: '4px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', alignSelf: 'flex-start', marginTop: '4px' }}
+                                  onClick={() => {
+                                    const s = useStore.getState();
+                                    let newTree = s.tree;
+                                    let finalNode;
+
+                                    if (assignPickExistingId) {
+                                      const allM = flattenNodes(newTree);
+                                      const existing = allM.find(a => a.id === assignPickExistingId);
+                                      if (!existing) return alert('Admin not found!');
+
+                                      // Remove existing from old location and hoist its children
+                                      function removeAndHoist(tree, idToRemove) {
+                                        if (!tree.children) return tree;
+                                        const targetIdx = tree.children.findIndex(c => c.id === idToRemove);
+                                        if (targetIdx !== -1) {
+                                          const target = tree.children[targetIdx];
+                                          const nextChildren = [
+                                            ...tree.children.slice(0, targetIdx),
+                                            ...tree.children.slice(targetIdx + 1),
+                                            ...(target.children || [])
+                                          ];
+                                          return { ...tree, children: nextChildren };
+                                        }
+                                        return { ...tree, children: tree.children.map(c => removeAndHoist(c, idToRemove)) };
+                                      }
+                                      newTree = removeAndHoist(newTree, existing.id);
+
+                                      finalNode = {
+                                        ...existing,
+                                        role: roleTitle,
+                                        roleId: vacantNode.roleId,
+                                        history: [...(existing.history||[]), { date: new Date().toISOString(), action: 'Promoted', toRole: roleTitle }],
+                                        children: [...(vacantNode.children || [])]
+                                      };
+                                    } else {
+                                      if (!assignPickName.trim()) { alert('Please enter a name.'); return; }
+                                      finalNode = {
+                                        id: `m${Date.now()}`,
+                                        name: assignPickName.trim(),
+                                        role: roleTitle,
+                                        roleId: vacantNode.roleId,
+                                        steamLink: assignPickSteam.trim() || null,
+                                        avatarUrl: assignPickAvatar.trim() || null,
+                                        joinDate: new Date().toISOString().split('T')[0],
+                                        status: 'online',
+                                        immunity: 0,
+                                        responsibilities: [],
+                                        history: [{ date: new Date().toISOString(), action: 'Promoted', toRole: roleTitle }],
+                                        children: [...(vacantNode.children || [])]
+                                      };
+                                    }
+
+                                    // Replace the vacant node in tree directly
+                                    function replaceNode(node) {
+                                      if (node.id === vacantNode.id) return finalNode;
+                                      if (!node.children) return node;
+                                      return { ...node, children: node.children.map(replaceNode) };
+                                    }
+                                    
+                                    newTree = replaceNode(newTree);
+                                    useStore.setState({ tree: newTree });
+                                    
+                                    // Add to logs and reset UI
+                                    const actionText = assignPickExistingId ? `Moved ${finalNode.name} to` : `Created ${finalNode.name} in`;
+                                    s.addGlobalLog(`${actionText} vacant ${roleTitle} position.`);
+                                    
+                                    setAssigningVacantId(null); setAssignPickName(''); setAssignPickSteam(''); setAssignPickAvatar(''); setAssignPickExistingId('');
+                                    alert(`${finalNode.name} has been assigned as ${roleTitle}!`);
+                                  }}
+                                >
+                                  <Shield size={12} /> Assign & Fill Position
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+
+                {/* AUTO-FILL VACANT SLOTS */}
+                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div>
+                      <h4 style={{ color: '#fff', fontSize: '13px', margin: 0 }}>Auto-fill Vacant Slots</h4>
+                      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', margin: '3px 0 0' }}>Show vacant placeholders for all unfilled role slots</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const next = !autoVacantEnabled;
+                        setAutoVacantEnabled(next);
+                        localStorage.setItem('wildfire_auto_vacant', JSON.stringify(next));
+                      }}
+                      style={{
+                        width: '44px', height: '24px', borderRadius: '12px', border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0,
+                        background: autoVacantEnabled ? 'rgba(99,102,241,0.8)' : 'rgba(255,255,255,0.1)',
+                        transition: 'background 0.2s'
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute', top: '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff',
+                        left: autoVacantEnabled ? '23px' : '3px', transition: 'left 0.2s'
+                      }} />
+                    </button>
+                  </div>
+
+                  {/* Per-role slot table */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {roles.filter(r => r.maxSlots !== null && r.maxSlots > 0).map(r => {
+                      const filled = allMembers.filter(m => !m.vacant && m.roleId === r.id).length;
+                      const vacants = allMembers.filter(m => m.vacant && m.roleId === r.id).length;
+                      const empty = Math.max(0, r.maxSlots - filled - vacants);
+                      return (
+                        <div key={r.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255,255,255,0.02)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: r.color, flexShrink: 0 }} />
+                            <span style={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}>{r.title}</span>
+                            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px' }}>{filled}/{r.maxSlots} filled · {vacants} vacant · {empty} empty</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            {empty > 0 && (
+                              <button
+                                title={`Spawn ${empty} vacant slot(s)`}
+                                style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', color: '#A5B4FC', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                onClick={() => {
+                                  for (let i = 0; i < empty; i++) {
+                                    useStore.getState().addNode(useStore.getState().tree.id, {
+                                      id: `vacant-${Date.now()}-${i}`,
+                                      name: vacantName || 'Poziție Liberă',
+                                      roleId: r.id,
+                                      vacant: true,
+                                      avatarUrl: vacantAvatar || null,
+                                      children: []
+                                    });
+                                  }
+                                }}
+                              >
+                                <PlusCircle size={10} /> +{empty}
+                              </button>
+                            )}
+                            {vacants > 0 && (
+                              <button
+                                title="Remove all vacant slots for this role"
+                                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#FCA5A5', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                onClick={() => {
+                                  const toRemove = allMembers.filter(m => m.vacant && m.roleId === r.id);
+                                  toRemove.forEach(v => kickNode(v.id));
+                                }}
+                              >
+                                <Trash2 size={10} /> -{vacants}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* LOGS TAB */}
+          {activeTab === 'LOGS' && (
+            <div className={styles.rolesList}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 24px 16px' }}>
+                <button
+                  style={{
+                    background: 'rgba(255, 50, 50, 0.1)',
+                    border: '1px solid rgba(255, 50, 50, 0.2)',
+                    color: 'rgba(255, 100, 100, 0.9)',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete ALL staff changes?')) {
+                      useStore.setState({ globalLog: [] })
+                      localStorage.setItem('wildfire_audit_log', '[]')
+                    }
+                  }}
+                >
+                  DELETE ALL STAFF CHANGES
+                </button>
+              </div>
+              {validLogs.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>
+                  No staff changes recorded yet.
+                </div>
+              ) : (
+                validLogs.map(log => (
+                  <div key={log.id} className={styles.adminRow} style={{ alignItems: 'center', gap: '16px' }}>
+                    {log.targetAvatar ? (
+                      <img src={log.targetAvatar} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Users size={20} color="rgba(255,255,255,0.5)" />
+                      </div>
+                    )}
+                    <div className={styles.groupInfoCol}>
+                      <div className={styles.adminNameRow}>
+                        <span className={styles.adminSteamId}>
+                          {new Date(log.date).toLocaleString()} • BY{' '}
+                          {log.byAvatar && <img src={log.byAvatar} alt="" style={{ width: 14, height: 14, borderRadius: '50%', display: 'inline-block', verticalAlign: 'middle', marginRight: 4 }} />}
+                          {log.by.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className={styles.adminBadges}>
+                        <span className={styles.memberCountText} style={{ color: '#fff' }}>
+                          {log.message}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.rowActions}>
+                      <button 
+                        className={styles.actionBtn} 
+                        onClick={() => {
+                          if (window.confirm('Delete this log entry?')) {
+                            const updated = globalLog.filter(l => l.id !== log.id)
+                            useStore.setState({ globalLog: updated })
+                            localStorage.setItem('wildfire_audit_log', JSON.stringify(updated))
+                          }
+                        }}
+                        title="Delete log"
+                      >
+                        <Trash2 size={14} color="#EF4444" />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>

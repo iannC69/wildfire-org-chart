@@ -200,7 +200,7 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
   }, [node.id])
 
   useEffect(() => {
-    if (!isEditMode || isVacant || !gRef.current) return;
+    if (!isEditMode || !gRef.current) return;
 
     let currentX = 0;
     let currentY = 0;
@@ -264,7 +264,7 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
     d3.select(gRef.current).call(dragHandler)
 
     return () => { d3.select(gRef.current)?.on('.drag', null) }
-  }, [isEditMode, isVacant, node, moveNode])
+  }, [isEditMode, node, moveNode])
 
   // The node group is translated to (node.x, node.y).
   // All child coordinates are LOCAL (relative to top-left of card).
@@ -274,7 +274,7 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
       className={styles.nodeGroup}
       style={{
         opacity: isDimmed ? 0.2 : isDraggingMe ? 0.55 : 1,
-        cursor: isEditMode && !isVacant ? (isDraggingMe ? 'grabbing' : 'grab') : 'pointer',
+        cursor: isEditMode ? (isDraggingMe ? 'grabbing' : 'grab') : 'pointer',
       }}
       transform={`translate(${node.x}, ${node.y})`}
       data-node-id={node.id}
@@ -340,10 +340,25 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
         </>
       ) : (
         <>
-          <circle cx={NODE_W / 2} cy={36} r={24} fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.15)" strokeWidth={1.5} strokeDasharray="4,4" />
-          <g transform={`translate(${NODE_W / 2 - 10}, 26)`} opacity={0.3}>
-            <User size={20} color="#fff" />
-          </g>
+          {node.avatarUrl ? (
+            <image
+              href={node.avatarUrl}
+              x={NODE_W / 2 - 24}
+              y={12}
+              width={48}
+              height={48}
+              clipPath={`url(#avatar-clip-${node.id})`}
+              preserveAspectRatio="xMidYMid slice"
+              style={{ opacity: 0.5 }}
+            />
+          ) : (
+            <>
+              <circle cx={NODE_W / 2} cy={36} r={24} fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.15)" strokeWidth={1.5} strokeDasharray="4,4" />
+              <g transform={`translate(${NODE_W / 2 - 10}, 26)`} opacity={0.3}>
+                <User size={20} color="#fff" />
+              </g>
+            </>
+          )}
         </>
       )}
 
@@ -357,7 +372,7 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
         fontFamily="inherit"
         pointerEvents="none"
       >
-        {isVacant ? 'Poziție Liberă' : node.name}
+        {isVacant ? (node.name || 'Poziție Liberă') : node.name}
       </text>
 
       {/* Role badge (foreignObject for flexbox auto-sizing & icons) */}
@@ -396,11 +411,11 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
       </foreignObject>
 
       {/* Responsibilities count pill (attached to top-right of Avatar) */}
-      {!isVacant && roleDetails?.responsibilities?.length > 0 && (
+      {!isVacant && (node.responsibilities?.length > 0 || roleDetails?.responsibilities?.length > 0) && (
         <g transform={`translate(${NODE_W / 2 + 14}, 12)`} style={{ pointerEvents: 'none' }}>
           <rect width="24" height="16" rx="8" fill={nodeColor} stroke="#0f1117" strokeWidth="2.5" />
           <text x="12" y="11.5" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="900">
-            +{roleDetails.responsibilities.length}
+            +{(node.responsibilities && node.responsibilities.length > 0) ? node.responsibilities.length : roleDetails.responsibilities.length}
           </text>
         </g>
       )}
@@ -433,12 +448,16 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
       )}
 
       {/* Edit Mode Overlay Controls */}
-      {isEditMode && !isVacant && (
+      {isEditMode && (
         <>
           {/* Remove button — top right */}
           <g
             transform={`translate(${NODE_W - 12}, -12)`}
-            onClick={(e) => { e.stopPropagation(); kickNode(node.id); }}
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              const reason = window.prompt("Reason for removal (optional):");
+              if (reason !== null) kickNode(node.id, reason); 
+            }}
             style={{ cursor: 'pointer' }}
           >
             <circle cx="12" cy="12" r="14" fill="#0f1117" />
@@ -449,17 +468,19 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
           </g>
 
           {/* Edit button — top left */}
-          <g
-            transform={`translate(-12, -12)`}
-            onClick={(e) => { e.stopPropagation(); onSelect(node); }}
-            style={{ cursor: 'pointer' }}
-          >
-            <circle cx="12" cy="12" r="14" fill="#0f1117" />
-            <circle cx="12" cy="12" r="12" fill={nodeColor} opacity={0.2} stroke={nodeColor} strokeWidth="1" />
-            <g transform="translate(6, 6)">
-              <Pencil size={12} color={nodeColor} />
+          {!isVacant && (
+            <g
+              transform={`translate(-12, -12)`}
+              onClick={(e) => { e.stopPropagation(); onSelect(node); }}
+              style={{ cursor: 'pointer' }}
+            >
+              <circle cx="12" cy="12" r="14" fill="#0f1117" />
+              <circle cx="12" cy="12" r="12" fill={nodeColor} opacity={0.2} stroke={nodeColor} strokeWidth="1" />
+              <g transform="translate(6, 6)">
+                <Pencil size={12} color={nodeColor} />
+              </g>
             </g>
-          </g>
+          )}
         </>
       )}
       {isEditMode && isVacant && (

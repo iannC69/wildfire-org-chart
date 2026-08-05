@@ -10,6 +10,25 @@ function removeNode(tree, id) {
   return { ...tree, children: nextChildren };
 }
 
+// Removes a node but hoists its children to the parent
+function removeAndHoistNode(tree, id) {
+  if (!tree.children) return tree;
+  
+  const targetIndex = tree.children.findIndex(c => c.id === id);
+  if (targetIndex !== -1) {
+    const target = tree.children[targetIndex];
+    const hoistedChildren = target.children || [];
+    const nextChildren = [
+      ...tree.children.slice(0, targetIndex),
+      ...tree.children.slice(targetIndex + 1),
+      ...hoistedChildren
+    ];
+    return { ...tree, children: nextChildren };
+  }
+  
+  return { ...tree, children: tree.children.map(c => removeAndHoistNode(c, id)) };
+}
+
 export function flattenNodes(node) {
   const nodes = [node]
   for (const child of node.children || []) {
@@ -18,24 +37,35 @@ export function flattenNodes(node) {
   return nodes
 }
 
-function enrichTreeWithData(treeNode, rolesData) {
+const savedPrefs = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('wildfire_prefs') || 'null') : null;
+const initialPrefs = savedPrefs || { vacantName: 'Poziție Liberă', vacantAvatar: null };
+
+function enrichTreeWithData(treeNode, rolesData, prefs = initialPrefs) {
   let enriched = { ...treeNode };
   for (const role of rolesData) {
     const member = role.members.find(m => m.name.toLowerCase() === treeNode.name.toLowerCase() || m.id === treeNode.id);
     if (member) {
-      enriched.avatarUrl = member.avatarUrl || null;
-      enriched.steamLink = member.steamLink || null;
-      enriched.responsibilities = member.responsibilities || [];
-      enriched.joinDate = member.joinDate || 'N/A';
-      enriched.status = member.status || 'offline';
+      // Only fill in fields that are missing/null on the tree node
+      if (!enriched.avatarUrl) enriched.avatarUrl = member.avatarUrl || null;
+      if (!enriched.steamLink) enriched.steamLink = member.steamLink || null;
+      if (!enriched.responsibilities) enriched.responsibilities = member.responsibilities || [];
+      if (!enriched.joinDate) enriched.joinDate = member.joinDate || 'N/A';
+      if (!enriched.status) enriched.status = member.status || 'offline';
       break;
     }
   }
   // Ensure default responsibilities if missing
   if (!enriched.responsibilities) enriched.responsibilities = [];
+
+  // Apply vacant preferences if this node is vacant
+  if (enriched.vacant || enriched.id.startsWith('vacant-')) {
+    enriched.name = prefs.vacantName;
+    enriched.avatarUrl = prefs.vacantAvatar;
+    enriched.vacant = true;
+  }
   
   if (enriched.children) {
-    enriched.children = enriched.children.map(c => enrichTreeWithData(c, rolesData));
+    enriched.children = enriched.children.map(c => enrichTreeWithData(c, rolesData, prefs));
   }
   return enriched;
 }
@@ -80,23 +110,37 @@ function updateNodeField(node, id, field, value) {
   return { ...node, children: node.children.map(c => updateNodeField(c, id, field, value)) };
 }
 
-const savedLog = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('wildfire_audit_log') || '[]') : [];
+const savedLog = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('wildfire_audit_log') || 'null') : null;
+const initialLog = savedLog || [];
+
+const savedArchive = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('wildfire_archived_admins') || 'null') : null;
+const initialArchive = savedArchive || [];
 
 export const useStore = create((set, get) => {
-      const addGlobalLog = (message) => {
-        set(state => {
-          const newEntry = {
-            id: Date.now() + Math.random(),
-            date: new Date().toISOString(),
-            message,
-            by: state.adminName || 'Console'
-          };
-          const newLog = [newEntry, ...(state.globalLog || [])].slice(0, 100);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('wildfire_audit_log', JSON.stringify(newLog));
-          }
-          return { globalLog: newLog };
-        });
+      // Pure helper to append log without triggering a nested set()
+      const appendGlobalLog = (state, message, targetAvatar = null) => {
+        // Find avatar for 'by' (adminName)
+        const allMembers = flattenNodes([state.tree]);
+        const byMember = allMembers.find(m => m.name === state.adminName);
+        const byAvatar = byMember?.avatarUrl || null;
+
+        const newEntry = {
+          id: Date.now() + Math.random(),
+          date: new Date().toISOString(),
+          message,
+          by: state.adminName || 'Console',
+          targetAvatar,
+          byAvatar
+        };
+        const newLog = [newEntry, ...(state.globalLog || [])].slice(0, 100);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('wildfire_audit_log', JSON.stringify(newLog));
+        }
+        return { globalLog: newLog };
+      };
+
+      const addGlobalLog = (message, targetAvatar = null) => {
+        set(state => appendGlobalLog(state, message, targetAvatar));
       };
 
       const pushHistory = (state) => {
@@ -112,14 +156,33 @@ export const useStore = create((set, get) => {
       };
 
       return {
-        globalLog: savedLog,
+        addGlobalLog, // Export the function
+        globalLog: initialLog,
+        archivedAdmins: initialArchive,
         tree: enrichTreeWithData(ORG_TREE, INITIAL_ROLES_DATA),
         rolesData: INITIAL_ROLES_DATA,
         roles: INITIAL_ROLES,
         roleDetails: INITIAL_ROLE_DETAILS,
         isEditMode: false,
         adminName: 'Console',
+        vacantName: initialPrefs.vacantName,
+        vacantAvatar: initialPrefs.vacantAvatar,
         setAdminName: (name) => set({ adminName: name }),
+        setVacantPrefs: (name, avatar) => set(state => {
+          const newPrefs = { vacantName: name || 'Poziție Liberă', vacantAvatar: avatar || null };
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('wildfire_prefs', JSON.stringify(newPrefs));
+          }
+          // We must also recursively update all existing vacant nodes in the tree
+          const updateVacantNodes = (node) => {
+            if (node.vacant || node.id.startsWith('vacant-')) {
+              return { ...node, name: newPrefs.vacantName, avatarUrl: newPrefs.vacantAvatar };
+            }
+            if (!node.children) return node;
+            return { ...node, children: node.children.map(updateVacantNodes) };
+          };
+          return { ...newPrefs, tree: updateVacantNodes(state.tree) };
+        }),
         historyStack: [],
         historyIndex: -1,
 
@@ -137,30 +200,40 @@ export const useStore = create((set, get) => {
           return { ...restoredState, historyIndex: newIndex };
         }),
 
-        reset: () => set(state => {
-          const historyUpdate = pushHistory(state);
-          return {
-            tree: enrichTreeWithData(ORG_TREE, INITIAL_ROLES_DATA),
-            roles: INITIAL_ROLES,
-            roleDetails: INITIAL_ROLE_DETAILS,
-            ...historyUpdate
-          };
-        }),
+        reset: async () => {
+          try {
+            const res = await fetch('/api/reset-to-default');
+            if (!res.ok) throw new Error('API error');
+            const data = await res.json();
+            set(state => {
+              const historyUpdate = pushHistory(state);
+              return {
+                tree: data.tree,
+                roles: data.roles,
+                roleDetails: data.roleDetails,
+                rolesData: data.rolesData,
+                ...historyUpdate
+              };
+            });
+          } catch (err) {
+            console.error('Reset failed, falling back to bundled defaults', err);
+            set(state => {
+              const historyUpdate = pushHistory(state);
+              return {
+                tree: enrichTreeWithData(ORG_TREE, INITIAL_ROLES_DATA),
+                roles: INITIAL_ROLES,
+                roleDetails: INITIAL_ROLE_DETAILS,
+                ...historyUpdate
+              };
+            });
+          }
+        },
 
         toggleEditMode: () => set(state => ({ isEditMode: !state.isEditMode })),
 
         updateRoleDetails: (roleId, updates, oldTitle = null, newTitle = null) => set(state => {
           const historyUpdate = pushHistory(state);
           
-          const roleName = state.roles.find(r => r.id === roleId)?.title || 'Role';
-          if (oldTitle && newTitle === null) {
-            addGlobalLog(`Deleted responsibility "${oldTitle}" from ${roleName}`);
-          } else if (oldTitle && oldTitle !== newTitle) {
-            addGlobalLog(`Renamed responsibility "${oldTitle}" to "${newTitle}" in ${roleName}`);
-          } else if (!oldTitle && updates.responsibilities) {
-            addGlobalLog(`Updated responsibilities for ${roleName}`);
-          }
-
           let newTree = state.tree;
           if (oldTitle) {
             // Helper to recursively update or delete responsibilities in the tree
@@ -192,12 +265,6 @@ export const useStore = create((set, get) => {
 
         updateRole: (roleId, updates) => set(state => {
           const historyUpdate = pushHistory(state);
-          const role = state.roles.find(r => r.id === roleId);
-          if (updates.title && updates.title !== role?.title) {
-            addGlobalLog(`Renamed role "${role?.title}" to "${updates.title}"`);
-          } else {
-            addGlobalLog(`Updated settings for role "${role?.title || 'Unknown'}"`);
-          }
           return {
             roles: state.roles.map(r => r.id === roleId ? { ...r, ...updates } : r),
             ...historyUpdate
@@ -208,7 +275,6 @@ export const useStore = create((set, get) => {
           const historyUpdate = pushHistory(state);
           const roleId = newRole.id || `role-${Date.now()}`;
           const role = { id: roleId, title: 'New Role', color: '#888888', glow: 'rgba(136,136,136,0.5)', rank: 10, maxSlots: null, ...newRole };
-          addGlobalLog(`Created new role "${role.title}"`);
           return {
             roles: [...state.roles, role],
             roleDetails: [...state.roleDetails, { id: roleId, responsibilities: [] }],
@@ -218,8 +284,6 @@ export const useStore = create((set, get) => {
 
         deleteRole: (roleId) => set(state => {
           const historyUpdate = pushHistory(state);
-          const role = state.roles.find(r => r.id === roleId);
-          addGlobalLog(`Deleted role "${role?.title || 'Unknown'}"`);
           return {
             roles: state.roles.filter(r => r.id !== roleId),
             roleDetails: state.roleDetails.filter(r => r.id !== roleId),
@@ -243,11 +307,33 @@ export const useStore = create((set, get) => {
           const historyUpdate = pushHistory(state);
           let newTree = removeNode(state.tree, draggedId);
           newTree = insertNode(newTree, newParentId, node);
-          const newParent = findNode(state.tree, newParentId);
-          if (newParent) {
-            addGlobalLog(`Moved ${node.name} under ${newParent.name}`);
-          }
           return { tree: newTree, ...historyUpdate };
+        }),
+
+        moveMultipleNodes: (draggedIds, newParentId) => set(state => {
+          if (!draggedIds || draggedIds.length === 0) return state;
+          
+          let newTree = state.tree;
+          let movedCount = 0;
+          const historyUpdate = pushHistory(state);
+
+          for (const draggedId of draggedIds) {
+            if (draggedId === newParentId) continue;
+            const node = findNode(newTree, draggedId);
+            if (!node) continue;
+            
+            // Prevent cycle
+            if (findNode(node, newParentId)) continue;
+            
+            newTree = removeNode(newTree, draggedId);
+            newTree = insertNode(newTree, newParentId, node);
+            movedCount++;
+          }
+          
+          if (movedCount > 0) {
+            return { tree: newTree, ...historyUpdate };
+          }
+          return state;
         }),
 
         importTree: (newTree) => set(state => {
@@ -269,7 +355,7 @@ export const useStore = create((set, get) => {
           const historyUpdate = pushHistory(state);
           let newTree = updateNodeRole(state.tree, nodeId, newRole);
           
-          addGlobalLog(`Promoted ${node.name} from ${currentRole.title} to ${newRole.title}`);
+          const logUpdate = appendGlobalLog(state, `Promoted ${node.name} from ${currentRole.title} to ${newRole.title}`, node.avatarUrl);
 
           // Add history
           const historyEntry = {
@@ -318,7 +404,7 @@ export const useStore = create((set, get) => {
           const historyUpdate = pushHistory(state);
           let newTree = updateNodeRole(state.tree, nodeId, newRole);
           
-          addGlobalLog(`Demoted ${node.name} from ${currentRole.title} to ${newRole.title}`);
+          const logUpdate = appendGlobalLog(state, `Demoted ${node.name} from ${currentRole.title} to ${newRole.title}`, node.avatarUrl);
 
           // Add history
           const historyEntry = {
@@ -350,33 +436,209 @@ export const useStore = create((set, get) => {
             newTree = insertNode(newTree, bestParent.id, updatedNode);
           }
 
-          return { tree: newTree, ...historyUpdate };
+          return { tree: newTree, ...historyUpdate, ...logUpdate };
         }),
 
-        kickNode: (nodeId) => set(state => {
+        kickNode: (nodeId, reason) => set(state => {
           const node = findNode(state.tree, nodeId);
           if (!node) return state;
+
           const role = state.roles.find(r => r.id === node.roleId);
           
-          addGlobalLog(`Kicked member ${node.name} (${role?.title || ''})`);
+          const reasonText = reason ? ` - Reason: ${reason}` : '';
+          const logUpdate = appendGlobalLog(state, `Removed member ${node.name} (${role?.title || ''})${reasonText}`, node.avatarUrl);
 
           const historyUpdate = pushHistory(state);
           let newTree = state.tree;
-          
-          if (role && role.maxSlots !== null) {
-            const replaceWithVacant = (t) => {
-              if (t.id === nodeId) {
-                return { ...t, name: 'Vacant', vacant: true, id: `vacant-${Date.now()}`, children: t.children || [] };
-              }
-              if (!t.children) return t;
-              return { ...t, children: t.children.map(c => replaceWithVacant(c)) };
+
+          const replaceWithVacant = (t) => {
+            if (t.id === nodeId) {
+              return { ...t, name: state.vacantName || 'Poziție Liberă', vacant: true, avatarUrl: state.vacantAvatar || null, id: `vacant-${Date.now()}`, children: t.children || [] };
             }
-            newTree = replaceWithVacant(state.tree);
-          } else {
-            newTree = removeNode(state.tree, nodeId);
+            if (!t.children) return t;
+            return { ...t, children: t.children.map(c => replaceWithVacant(c)) };
+          }
+
+          if (node.vacant) {
+            if (node.children && node.children.length > 0) {
+              // Hoist children up to grandparent, then remove the vacant node
+              newTree = removeAndHoistNode(state.tree, nodeId);
+            } else {
+              newTree = removeAndHoistNode(state.tree, nodeId);
+            }
+            return { tree: newTree, ...historyUpdate };
+          }
+
+          // Save to archive
+          const archivedNode = { ...node, children: [], archivedAt: new Date().toISOString() };
+          const newArchive = [archivedNode, ...(state.archivedAdmins || [])];
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('wildfire_archived_admins', JSON.stringify(newArchive));
           }
           
-          return { tree: newTree, ...historyUpdate };
+          if ((role && role.maxSlots !== null) || (node.children && node.children.length > 0)) {
+            newTree = replaceWithVacant(state.tree);
+          } else {
+            newTree = removeAndHoistNode(state.tree, nodeId);
+          }
+          
+          return { tree: newTree, archivedAdmins: newArchive, ...historyUpdate, ...logUpdate };
+        }),
+
+        restoreNode: (adminId) => set(state => {
+          const admin = state.archivedAdmins.find(a => a.id === adminId);
+          if (!admin) return state;
+
+          const newArchive = state.archivedAdmins.filter(a => a.id !== adminId);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('wildfire_archived_admins', JSON.stringify(newArchive));
+          }
+
+          const restoredAdmin = { ...admin };
+          delete restoredAdmin.archivedAt;
+
+          // Push history log for restoration
+          const logUpdate = appendGlobalLog(state, `Restored member ${admin.name} from archive`, admin.avatarUrl);
+
+          const historyUpdate = pushHistory(state);
+          
+          // Restore to root node by default
+          const newTree = insertNode(state.tree, state.tree.id, restoredAdmin);
+
+          return { tree: newTree, archivedAdmins: newArchive, ...historyUpdate, ...logUpdate };
+        }),
+
+        recoverLostAdmins: () => set(state => {
+          let newTree = state.tree;
+          let recoveredCount = 0;
+
+          // Build maps of the original structure
+          const originalParentMap = {};
+          const originalNodeMap = {};
+          function buildMaps(node, parentName) {
+            originalNodeMap[node.name] = node;
+            if (parentName) originalParentMap[node.name] = parentName;
+            for (const c of node.children || []) buildMaps(c, node.name);
+          }
+          buildMaps(ORG_TREE, null);
+
+          // Helper to find node in current tree (finds by ID or Name)
+          const findInTree = (t, id, name) => {
+            if (t.id === id || t.name === name) return t;
+            for (const c of t.children || []) {
+              const res = findInTree(c, id, name);
+              if (res) return res;
+            }
+            return null;
+          };
+
+          const spawnedVacants = {};
+
+          // Recursive function to ensure a node's original parent exists in the tree
+          function ensureParentExists(originalParentName) {
+            if (!originalParentName) return state.tree.id; // root
+
+            let parentInCurrentTree = findInTree(newTree, null, originalParentName);
+            if (parentInCurrentTree) return parentInCurrentTree.id;
+
+            if (spawnedVacants[originalParentName]) return spawnedVacants[originalParentName];
+
+            // Parent doesn't exist, we must spawn a vacant position!
+            const originalParentNode = originalNodeMap[originalParentName];
+            if (!originalParentNode) return state.tree.id;
+
+            // Ensure the grandparent exists before inserting this vacant parent
+            const grandparentTargetId = ensureParentExists(originalParentMap[originalParentName]);
+
+            const vacantId = `vacant-${originalParentNode.id}-${Date.now()}`;
+            const vacantNode = {
+              id: vacantId,
+              name: state.vacantName || 'Poziție Liberă',
+              roleId: originalParentNode.roleId,
+              vacant: true,
+              avatarUrl: state.vacantAvatar || null,
+              children: []
+            };
+
+            newTree = insertNode(newTree, grandparentTargetId, vacantNode);
+            spawnedVacants[originalParentName] = vacantId;
+            return vacantId;
+          }
+
+          // First, let's recover any missing admins
+          const allCurrentNodes = flattenNodes(newTree);
+          const toRecover = [];
+          
+          INITIAL_ROLES_DATA.forEach(roleGroup => {
+            roleGroup.members.forEach(member => {
+              const existsInTree = findInTree(newTree, member.id, member.name);
+              const existsInArchive = state.archivedAdmins.some(n => n.id === member.id || n.name === member.name);
+              
+              if (!existsInTree && !existsInArchive) {
+                toRecover.push(member);
+              }
+            });
+          });
+
+          // Recover missing admins into their proper places
+          toRecover.forEach(member => {
+            const originalParentName = originalParentMap[member.name];
+            const targetParentId = ensureParentExists(originalParentName);
+
+            const recoveredMember = {
+              ...member,
+              roleId: originalNodeMap[member.name]?.roleId || 'helper',
+              children: []
+            };
+            newTree = insertNode(newTree, targetParentId, recoveredMember);
+            recoveredCount++;
+          });
+
+          // Second, FIX the ones that were already mistakenly recovered to the root in the previous version!
+          const currentRootChildren = newTree.children || [];
+          const nodesToMove = [];
+          
+          currentRootChildren.forEach(child => {
+            const origParentName = originalParentMap[child.name];
+            if (origParentName && origParentName !== newTree.name && !child.vacant) {
+              nodesToMove.push({ childId: child.id, origParentName });
+            }
+          });
+
+          nodesToMove.forEach(({ childId, origParentName }) => {
+            const targetParentId = ensureParentExists(origParentName);
+            const nodeToMove = findInTree(newTree, childId, null);
+            if (nodeToMove && targetParentId !== newTree.id) {
+              newTree = removeNode(newTree, childId);
+              // Fix roleId
+              const correctRoleId = originalNodeMap[nodeToMove.name]?.roleId;
+              if (correctRoleId) nodeToMove.roleId = correctRoleId;
+              
+              newTree = insertNode(newTree, targetParentId, nodeToMove);
+              recoveredCount++;
+            }
+          });
+
+          if (recoveredCount > 0) {
+            const historyUpdate = pushHistory(state);
+            return { tree: newTree, ...historyUpdate };
+          }
+          return state;
+        }),
+
+        deleteArchivedAdmin: (adminId) => set(state => {
+          const newArchive = state.archivedAdmins.filter(a => a.id !== adminId);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('wildfire_archived_admins', JSON.stringify(newArchive));
+          }
+          return { archivedAdmins: newArchive };
+        }),
+
+        clearArchive: () => set(state => {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('wildfire_archived_admins', JSON.stringify([]));
+          }
+          return { archivedAdmins: [] };
         }),
 
         updateNodeAvatarUrl: (id, url) => set(state => {
@@ -397,8 +659,34 @@ export const useStore = create((set, get) => {
         setNodeRole: (nodeId, roleId) => set(state => {
           const role = state.roles.find(r => r.id === roleId);
           if (!role) return state;
+
+          const node = findNode(state.tree, nodeId);
+          let newTree = state.tree;
+          let logUpdate = {};
+          
+          const targetAvatar = node?.avatarUrl || null;
+
+          if (node && node.roleId !== roleId) {
+            const oldRoleObj = state.roles.find(r => r.id === node.roleId);
+            const oldRole = oldRoleObj?.title || 'Unknown';
+            const oldRank = oldRoleObj?.rank || 999;
+            const newRank = role.rank || 999;
+            const action = newRank < oldRank ? 'Promoted' : 'Demoted';
+            
+            logUpdate = appendGlobalLog(state, `${action} member ${node.name} from ${oldRole} to ${role.title}`, targetAvatar);
+
+            const historyEntry = {
+              date: new Date().toISOString(),
+              action: action,
+              fromRole: oldRole,
+              toRole: role.title,
+              by: state.adminName || 'Console'
+            };
+            newTree = updateNodeField(newTree, nodeId, 'history', [...(node.history || []), historyEntry]);
+          }
+
           const historyUpdate = pushHistory(state);
-          return { tree: updateNodeRole(state.tree, nodeId, role), ...historyUpdate };
+          return { tree: updateNodeRole(newTree, nodeId, role), ...historyUpdate, ...logUpdate };
         }),
 
         updateNodeDetails: (id, updates) => set(state => {
@@ -406,20 +694,12 @@ export const useStore = create((set, get) => {
           let newTree = state.tree;
           
           const node = findNode(newTree, id);
-          if (node) {
-            if (updates.name && updates.name !== node.name) {
-              addGlobalLog(`Renamed member "${node.name}" to "${updates.name}"`);
-            }
-          }
           if (node && updates.roleId && updates.roleId !== node.roleId) {
-            const oldRole = state.roles.find(r => r.id === node.roleId)?.title || 'Unknown';
+            const oldRoleObj = state.roles.find(r => r.id === node.roleId);
+            const oldRole = oldRoleObj?.title || 'Unknown';
+            const oldRank = oldRoleObj?.rank || 999;
             const newRoleObj = state.roles.find(r => r.id === updates.roleId);
             const newRole = newRoleObj?.title || 'Unknown';
-            
-            addGlobalLog(`Changed role of ${node.name || updates.name} from ${oldRole} to ${newRole}`);
-
-            
-            const oldRank = state.roles.find(r => r.id === node.roleId)?.rank || 999;
             const newRank = newRoleObj?.rank || 999;
             const action = newRank < oldRank ? 'Promoted' : 'Demoted';
             
@@ -432,7 +712,9 @@ export const useStore = create((set, get) => {
             };
             
             // If they didn't manually pass a history array in updates, create one
-            updates.history = [...(node.history || []), historyEntry];
+            if (!updates.history) {
+              updates.history = [...(node.history || []), historyEntry];
+            }
           }
 
           for (const [key, value] of Object.entries(updates)) {
@@ -443,7 +725,32 @@ export const useStore = create((set, get) => {
 
         addNode: (parentId, newNode) => set(state => {
           const historyUpdate = pushHistory(state);
-          return { tree: insertNode(state.tree, parentId, newNode), ...historyUpdate };
+
+          // Check if parent has a vacant child with the same roleId — if so, replace it
+          function replaceVacantOrInsert(tree) {
+            if (tree.id === parentId) {
+              const vacantIdx = (tree.children || []).findIndex(
+                c => c.vacant && c.roleId === newNode.roleId
+              );
+              if (vacantIdx !== -1) {
+                // Replace vacant, inheriting its children
+                const vacantNode = tree.children[vacantIdx];
+                const replacedNode = { ...newNode, children: [...(vacantNode.children || []), ...(newNode.children || [])] };
+                const newChildren = [
+                  ...tree.children.slice(0, vacantIdx),
+                  replacedNode,
+                  ...tree.children.slice(vacantIdx + 1)
+                ];
+                return { ...tree, children: newChildren };
+              }
+              // No matching vacant — just insert normally
+              return { ...tree, children: [...(tree.children || []), newNode] };
+            }
+            if (!tree.children) return tree;
+            return { ...tree, children: tree.children.map(c => replaceVacantOrInsert(c)) };
+          }
+
+          return { tree: replaceVacantOrInsert(state.tree), ...historyUpdate };
         }),
 
         patchHistories: (histories) => set(state => {
@@ -501,7 +808,17 @@ export const useStore = create((set, get) => {
               return { tree: newTree }; // triggers auto-save to disk via subscribe
             });
           }
-        }
+        },
+
+        loadPreset: (presetState) => set(state => {
+          return {
+            tree: presetState.tree || state.tree,
+            roles: presetState.roles || state.roles,
+            roleDetails: presetState.roleDetails || state.roleDetails,
+            archivedAdmins: presetState.archivedAdmins || state.archivedAdmins,
+            globalLog: presetState.globalLog || state.globalLog
+          };
+        })
       };
     }
 );
