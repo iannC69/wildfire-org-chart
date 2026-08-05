@@ -118,7 +118,7 @@ const initialArchive = savedArchive || [];
 
 export const useStore = create((set, get) => {
       // Pure helper to append log without triggering a nested set()
-      const appendGlobalLog = (state, message, targetAvatar = null, overrideBy = null) => {
+      const appendGlobalLog = (state, message, targetAvatar = null, overrideBy = null, overrideDate = null) => {
         const finalBy = overrideBy || state.adminName || 'Console';
         // Find avatar for 'by' (adminName)
         const allMembers = flattenNodes([state.tree]);
@@ -127,7 +127,7 @@ export const useStore = create((set, get) => {
 
         const newEntry = {
           id: Date.now() + Math.random(),
-          date: new Date().toISOString(),
+          date: overrideDate ? new Date(overrideDate).toISOString() : new Date().toISOString(),
           message,
           by: finalBy,
           targetAvatar,
@@ -170,12 +170,17 @@ export const useStore = create((set, get) => {
         vacantAvatar: initialPrefs.vacantAvatar,
         
         promptConfig: null,
-        requestPrompt: (title, description, placeholder) => new Promise((resolve) => {
+        requestPrompt: (title, description, placeholderOrOptions, optionsObj = {}) => new Promise((resolve) => {
+          const isOptions = placeholderOrOptions && typeof placeholderOrOptions === 'object';
+          const placeholder = isOptions ? undefined : placeholderOrOptions;
+          const options = isOptions ? placeholderOrOptions : optionsObj;
+          
           set({ 
             promptConfig: { 
               title, 
               description, 
               placeholder, 
+              options,
               onConfirm: (val) => {
                 set({ promptConfig: null })
                 resolve(val)
@@ -460,14 +465,14 @@ export const useStore = create((set, get) => {
           return { tree: newTree, ...historyUpdate, ...logUpdate };
         }),
 
-        kickNode: (nodeId, reason) => set(state => {
+        kickNode: (nodeId, reason, adminName, dateOverride) => set(state => {
           const node = findNode(state.tree, nodeId);
           if (!node) return state;
 
           const role = state.roles.find(r => r.id === node.roleId);
           
           const reasonText = reason ? ` - Reason: ${reason}` : '';
-          const logUpdate = appendGlobalLog(state, `Removed member ${node.name} (${role?.title || ''})${reasonText}`, node.avatarUrl);
+          const logUpdate = appendGlobalLog(state, `Removed member ${node.name} (${role?.title || ''})${reasonText}`, node.avatarUrl, adminName, dateOverride);
 
           const historyUpdate = pushHistory(state);
           let newTree = state.tree;

@@ -456,8 +456,13 @@ function OrgNode({ node, onCollapse, onSelect, selected, searchQuery, onVacantCl
             onClick={(e) => { 
               e.stopPropagation();
               const handleKick = async (id) => {
-                const reason = await useStore.getState().requestPrompt("Remove Member", "Reason for removal (optional):");
-                if (reason !== null) kickNode(id, reason);
+                const result = await useStore.getState().requestPrompt("Remove Member", "Reason for removal (optional):", { isAction: true });
+                if (result !== null) {
+                  const reasonText = typeof result === 'string' ? result : result.reason;
+                  const adminName = result.adminName;
+                  const date = result.date;
+                  kickNode(id, reasonText, adminName, date);
+                }
               };
               handleKick(node.id);
             }}
@@ -1159,14 +1164,23 @@ export default function OrgChart() {
         onFit={fitToScreen}
         onExportPng={handleExport}
         onExportJson={() => {
-          const data = JSON.stringify(tree, null, 2)
-          const blob = new Blob([data], { type: 'application/json' })
+          const s = useStore.getState()
+          const exportData = {
+            exportedAt: new Date().toISOString(),
+            tree: s.tree,
+            roles: s.roles,
+            roleDetails: s.roleDetails,
+            archivedAdmins: s.archivedAdmins || [],
+            globalLog: s.globalLog || []
+          }
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
           const url = URL.createObjectURL(blob)
           const a = document.createElement('a')
           a.href = url
-          a.download = 'org-tree-export.json'
+          a.download = `wildfire-org-chart-${new Date().toISOString().split('T')[0]}.json`
           a.click()
-          addToast('JSON exported', 'success')
+          URL.revokeObjectURL(url)
+          addToast('Full backup JSON exported', 'success')
         }}
         onImportJson={(e) => {
           const file = e.target.files[0]
@@ -1174,15 +1188,17 @@ export default function OrgChart() {
           const reader = new FileReader()
           reader.onload = (ev) => {
             try {
-              const newTree = JSON.parse(ev.target.result)
-              if (newTree && newTree.id) {
-                useStore.getState().importTree(newTree)
+              const data = JSON.parse(ev.target.result)
+              if (!data.tree) {
+                addToast('Invalid file — missing tree data', 'error')
+                return
+              }
+              if (window.confirm(`Import "${file.name}"? This will replace your current org chart and logs.`)) {
+                useStore.getState().loadPreset(data)
                 addToast('Chart imported successfully', 'success')
-              } else {
-                addToast('Invalid OrgChart JSON structure', 'error')
               }
             } catch (err) {
-              addToast('Failed to parse JSON', 'error')
+              addToast('Failed to parse JSON file', 'error')
               console.error('Failed to parse JSON', err)
             }
           }

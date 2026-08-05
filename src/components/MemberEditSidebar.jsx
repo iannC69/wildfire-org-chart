@@ -72,9 +72,12 @@ export default function MemberEditSidebar({ node, onClose }) {
   }
 
   const handleRemove = async () => {
-    const reason = await useStore.getState().requestPrompt("Remove Member", "Reason for removal (optional):");
-    if (reason !== null) {
-      kickNode(activeNode.id, reason)
+    const result = await useStore.getState().requestPrompt("Remove Member", "Reason for removal (optional):", { isAction: true });
+    if (result !== null) {
+      const reasonText = typeof result === 'string' ? result : result.reason;
+      const adminName = result.adminName;
+      const date = result.date;
+      kickNode(activeNode.id, reasonText, adminName, date)
       onClose()
     }
   }

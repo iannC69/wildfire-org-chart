@@ -478,8 +478,13 @@ export default function SettingsModal({ onClose }) {
   }
 
   const handleKickAdmin = async (id) => {
-    const reason = await useStore.getState().requestPrompt("Remove Member", "Reason for removal (optional):");
-    if (reason !== null) kickNode(id, reason);
+    const result = await useStore.getState().requestPrompt("Remove Member", "Reason for removal (optional):", { isAction: true });
+    if (result !== null) {
+      const reasonText = typeof result === 'string' ? result : result.reason;
+      const adminName = result.adminName;
+      const date = result.date;
+      kickNode(id, reasonText, adminName, date);
+    }
   }
 
   return (

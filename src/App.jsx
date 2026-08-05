@@ -27,6 +27,7 @@ export default function App() {
           title={promptConfig.title}
           description={promptConfig.description}
           placeholder={promptConfig.placeholder}
+          isAction={promptConfig.options?.isAction}
           onConfirm={promptConfig.onConfirm}
           onCancel={promptConfig.onCancel}
         />

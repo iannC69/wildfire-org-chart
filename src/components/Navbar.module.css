@@ -643,22 +643,124 @@
 
 .changelogItem {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 8px 12px;
+  border-radius: 8px;
+  position: relative;
+  transition: background 0.15s;
+  cursor: default;
+  border: 1px solid transparent;
+}
+
+.changelogItem:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.05);
+}
+
+.changelogItemAccent {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  opacity: 0.85;
+}
+
+.changelogItemAvatars {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.changelogMiniAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.changelogMiniImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.changelogMiniIcon {
+  color: rgba(255,255,255,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.changelogMiniArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+}
+
+.changelogItemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
   flex-direction: column;
+  gap: 1px;
+}
+
+.changelogItemMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 4px;
 }
 
-.changelogDate {
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.3);
-  text-transform: uppercase;
+.changelogItemLabel {
+  font-size: 9px;
+  font-weight: 800;
   letter-spacing: 0.5px;
 }
 
-.changelogTitle {
+.changelogItemTime {
+  font-size: 9px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.changelogItemName {
   font-size: 12px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.changelogItemRole {
+  font-weight: 700;
+}
+
+.changelogItemBy {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 500;
+}
+
+.changelogItemReason {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .changelogDesc {
