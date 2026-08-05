@@ -4,7 +4,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #050505;
+  --bg: #000000;
   --bg-card: #0a0a0a;
   --bg-card-hover: #111111;
   --border: rgba(255,255,255,0.04);
@@ -114,7 +114,7 @@ input:focus { outline: none; }
 button { cursor: pointer; }
 a { text-decoration: none; color: inherit; }
 
-/* ─── GRID BACKGROUND ────────────────────────────────────────────────────────*/
+/* ─── GRID & LIQUID BACKGROUND ────────────────────────────────────────────────*/
 .grid-bg {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background-image:
@@ -123,8 +123,68 @@ a { text-decoration: none; color: inherit; }
   background-size: 48px 48px;
 }
 
+.liquid-wrapper {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  overflow: hidden;
+}
+
+.liquid-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.5;
+  animation: floatOrb 20s infinite alternate ease-in-out;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.liquid-orb.orb-1 {
+  width: 500px;
+  height: 500px;
+  background: rgba(255, 107, 0, 0.06); /* Very subtle Pure Orange */
+  top: -100px;
+  left: -50px;
+  animation-delay: 0s;
+}
+
+.liquid-orb.orb-2 {
+  width: 600px;
+  height: 600px;
+  background: rgba(255, 120, 0, 0.05); /* Very subtle Lighter Orange */
+  bottom: -150px;
+  right: -50px;
+  animation-delay: -5s;
+}
+
+.liquid-orb.orb-3 {
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 80, 0, 0.07); /* Slightly stronger deep orange */
+  top: 40%;
+  left: 25%;
+  animation-delay: -10s;
+}
+
+.liquid-orb.orb-4 {
+  width: 550px;
+  height: 550px;
+  background: rgba(255, 140, 0, 0.04); /* Faint Amber Orange */
+  top: 15%;
+  right: 15%;
+  animation-delay: -15s;
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(50px, -50px) scale(1.1); }
+  66% { transform: translate(-30px, 40px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
 /* ─── PAGE WRAPPER ───────────────────────────────────────────────────────────*/
 .page-wrapper {
   position: relative; z-index: 1;
   flex: 1; display: flex; flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }

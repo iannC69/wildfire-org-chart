@@ -14,6 +14,7 @@
   flex-direction: column;
   min-height: 0;
   position: relative;
+  overflow: hidden;
   /* Animation applied dynamically via classes below */
 }
 
@@ -31,6 +32,7 @@
     transform: translateX(-40px);
     filter: blur(4px);
   }
+
   100% {
     opacity: 1;
     transform: translateX(0);
@@ -44,6 +46,7 @@
     transform: translateX(40px);
     filter: blur(4px);
   }
+
   100% {
     opacity: 1;
     transform: translateX(0);
@@ -404,12 +407,13 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  gap: 8px;
   z-index: 50;
-  animation: scaleIn 0.22s ease;
+  animation: scaleInLegend 0.22s ease;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
 }
 
-@keyframes scaleIn {
+@keyframes scaleInLegend {
   from {
     opacity: 0;
     transform: scale(0.92) translateY(6px);
@@ -564,12 +568,11 @@
   text-align: center;
 }
 
-/* ─── ATTRIBUTIONS VIEW (CONNECTED CHART) ── */
 .attrPage {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: transparent;
   overflow: hidden;
   min-height: 0;
 }
@@ -584,13 +587,14 @@
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  min-height: 0;
 }
 
 .attrChartRow {
   display: flex;
   align-items: center;
   position: relative;
-  animation: fadeInRow 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  will-change: transform;
 }
 
 .attrChartLeftWrapper {
@@ -599,57 +603,9 @@
   position: relative;
 }
 
-.attrChartRow:nth-child(1) {
-  animation-delay: 0.05s;
-}
 
-.attrChartRow:nth-child(2) {
-  animation-delay: 0.10s;
-}
 
-.attrChartRow:nth-child(3) {
-  animation-delay: 0.15s;
-}
 
-.attrChartRow:nth-child(4) {
-  animation-delay: 0.20s;
-}
-
-.attrChartRow:nth-child(5) {
-  animation-delay: 0.25s;
-}
-
-.attrChartRow:nth-child(6) {
-  animation-delay: 0.30s;
-}
-
-.attrChartRow:nth-child(7) {
-  animation-delay: 0.35s;
-}
-
-.attrChartRow:nth-child(8) {
-  animation-delay: 0.40s;
-}
-
-.attrChartRow:nth-child(9) {
-  animation-delay: 0.45s;
-}
-
-.attrChartRow:nth-child(10) {
-  animation-delay: 0.50s;
-}
-
-@keyframes fadeInRow {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
 
 .attrChartRoleBox {
   width: 340px;
@@ -902,10 +858,6 @@
 /* ─── RESPONSIVE ── */
 @media (max-width: 768px) {
   .hint {
-    display: none;
-  }
-
-  .legend {
     display: none;
   }
 

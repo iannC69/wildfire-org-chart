@@ -1,5 +1,6 @@
 // ─── ROLE DEFINITIONS ────────────────────────────────────────────────────────
 export const ROLES = [
+  
   {
     "id": "founder",
     "title": "Founder",
@@ -17,6 +18,15 @@ export const ROLES = [
     "glowSoft": "rgba(220,38,38,0.1)",
     "rank": 1,
     "maxSlots": 2
+  },
+  {
+    "id": "adminul-lunii",
+    "title": "Adminul Lunii",
+    "color": "#FBBF24",
+    "glow": "rgba(251,191,36,0.55)",
+    "glowSoft": "rgba(251,191,36,0.1)",
+    "rank": 1,
+    "maxSlots": 1
   },
   {
     "id": "community-advisor",
@@ -76,6 +86,7 @@ export const ROLES = [
 
 // ─── INITIAL STAFF DATA ───────────────────────────────────────────────────────
 export const INITIAL_ROLES_DATA = [
+  
   {
     "id": "founder",
     "members": [
@@ -85,14 +96,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "offline",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561197966909956",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/e0bc71c8cc0a992273ab3428e40778fe55800218_full.jpg",
-        "responsibilities": [
-          "Proprietar și fondator al comunității",
-          "Viziunea și direcția strategică",
-          "Infrastructura serverelor",
-          "Decizii financiare și parteneri",
-          "Recrutarea echipei de top management"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/e0bc71c8cc0a992273ab3428e40778fe55800218_full.jpg"
       }
     ]
   },
@@ -105,14 +109,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "offline",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561198863614059",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/a340dc57c25c5776e6adb9373e2e8ab5d5821d72_full.jpg",
-        "responsibilities": [
-          "Coordonarea echipei de staff",
-          "Gestionarea comunității Discord",
-          "Planificarea evenimentelor",
-          "Relația cu partenerii externi",
-          "Rapoarte lunare către Founder"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/a340dc57c25c5776e6adb9373e2e8ab5d5821d72_full.jpg"
       },
       {
         "id": "m3",
@@ -120,15 +117,13 @@ export const INITIAL_ROLES_DATA = [
         "status": "offline",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561197965422061",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/c38e612b9cb04ca3c75618b7bd2b9a636a732c26_full.jpg",
-        "responsibilities": [
-          "Managementul rețelelor de socializare",
-          "Campanii de promovare",
-          "Comunicare publică și PR",
-          "Moderarea anunțurilor oficiale"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/c38e612b9cb04ca3c75618b7bd2b9a636a732c26_full.jpg"
       }
     ]
+  },
+  {
+    "id": "adminul-lunii",
+    "members": []
   },
   {
     "id": "community-advisor",
@@ -139,12 +134,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "online",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561198841502450",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/fbfd6af383257e2de1bf4db735a9f21993df1426_full.jpg",
-        "responsibilities": [
-          "Consultanță în decizii strategice",
-          "Mentoriat pentru staff junior",
-          "Feedback și audit intern"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/fbfd6af383257e2de1bf4db735a9f21993df1426_full.jpg"
       },
       {
         "id": "m5",
@@ -152,12 +142,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "online",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199006087203",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/40bf29a0a7d3e4a36e64456677985317e46ff3de_full.jpg",
-        "responsibilities": [
-          "Analiza comportamentului comunității",
-          "Propuneri de reguli și politici",
-          "Suport în rezolvarea conflictelor"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/40bf29a0a7d3e4a36e64456677985317e46ff3de_full.jpg"
       },
       {
         "id": "m6",
@@ -165,12 +150,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "offline",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199202045077",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/523bed88e7ebbe542a5e007f74e5a865a0dc756c_full.jpg",
-        "responsibilities": [
-          "Monitorizarea activității serverelor",
-          "Raportare incidente critice",
-          "Sprijin Community Manager"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/523bed88e7ebbe542a5e007f74e5a865a0dc756c_full.jpg"
       },
       {
         "id": "m7",
@@ -178,12 +158,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "offline",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561198368502127",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/7645c030071b46e0a5e7cac29a9f9f9f035c927e_full.jpg",
-        "responsibilities": [
-          "Coordonare evenimente speciale",
-          "Testare funcționalități noi",
-          "Comunicare cu jucătorii activi"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/7645c030071b46e0a5e7cac29a9f9f9f035c927e_full.jpg"
       }
     ]
   },
@@ -196,14 +171,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "offline",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561198974838451",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/562c921ff1c8b59f1c5f9642c39608af2984128b_full.jpg",
-        "responsibilities": [
-          "Administrarea serverelor de joc",
-          "Instalare și actualizare plugins",
-          "Mentenanță și uptime monitoring",
-          "Configurare maps și rotații",
-          "Backup-uri periodice"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/562c921ff1c8b59f1c5f9642c39608af2984128b_full.jpg"
       }
     ]
   },
@@ -216,14 +184,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "online",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199384249731",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/e2847cb722e1ec8bf9df607659f7f5e3804a0182_full.jpg",
-        "responsibilities": [
-          "Supravegherea echipei de Admin",
-          "Aprobare ban-uri permanente",
-          "Audit rapoarte de activitate",
-          "Intervenție în situații complexe",
-          "Formare continuă a administratorilor"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/e2847cb722e1ec8bf9df607659f7f5e3804a0182_full.jpg"
       }
     ]
   },
@@ -240,13 +201,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "offline",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199044843735",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/095f3bbb014f0efc95665e60bfcceb0b0f16c9ff_full.jpg",
-        "responsibilities": [
-          "Monitorizarea chat-ului in-game",
-          "Sancționarea jucătorilor rule-breakers",
-          "Completarea raportului de activitate",
-          "Răspuns la reclamații"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/095f3bbb014f0efc95665e60bfcceb0b0f16c9ff_full.jpg"
       },
       {
         "id": "m11",
@@ -254,13 +209,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "online",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199496891246",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/83961e4642c3e472cd20da37d1056664844db409_full.jpg",
-        "responsibilities": [
-          "Moderare chat și voice Discord",
-          "Gestionarea ticket-urilor",
-          "Ban temporar pentru abateri",
-          "Raport zilnic de activitate"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/83961e4642c3e472cd20da37d1056664844db409_full.jpg"
       },
       {
         "id": "m12",
@@ -268,13 +217,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "offline",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199439185612",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/1358a6f462ce93511842f9c3d067ec0e7662aab7_full.jpg",
-        "responsibilities": [
-          "Verificare hărți custom",
-          "Monitorizare scoreboard",
-          "Sancționare cheaters",
-          "Completarea raportului"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/1358a6f462ce93511842f9c3d067ec0e7662aab7_full.jpg"
       },
       {
         "id": "m13",
@@ -282,12 +225,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "online",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199226358217",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/d768ab6b9bdd99e15b6ac4ea0b6d7774b7fbf9be_full.jpg",
-        "responsibilities": [
-          "Supraveghere servere active",
-          "Comunicare cu jucătorii noi",
-          "Raport de activitate"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/d768ab6b9bdd99e15b6ac4ea0b6d7774b7fbf9be_full.jpg"
       },
       {
         "id": "m14",
@@ -295,12 +233,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "offline",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199698821208",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/4963bca91b1b3edf88de548e459b2092a35312e7_full.jpg",
-        "responsibilities": [
-          "Moderare generală in-game",
-          "Escaladare cazuri complexe",
-          "Raport de activitate"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/4963bca91b1b3edf88de548e459b2092a35312e7_full.jpg"
       }
     ]
   },
@@ -313,13 +246,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "online",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199070188905",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/59e75dc27ff9c6a73ef242ac14dc4c3fc7001827_full.jpg",
-        "responsibilities": [
-          "Tutore Helper nou",
-          "Mesaj-Bun-Venit jucători",
-          "Completarea Raportului",
-          "Sprijin moderatori"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/59e75dc27ff9c6a73ef242ac14dc4c3fc7001827_full.jpg"
       },
       {
         "id": "m16",
@@ -327,12 +254,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "online",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561198711973791",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/c78e87c68a89fcdd6c895f2b6b13474085a9c5ab_full.jpg",
-        "responsibilities": [
-          "Mesaj-Bun-Venit jucători",
-          "Completarea Raportului",
-          "Suport în reguli de bază"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/c78e87c68a89fcdd6c895f2b6b13474085a9c5ab_full.jpg"
       },
       {
         "id": "m17",
@@ -340,12 +262,7 @@ export const INITIAL_ROLES_DATA = [
         "status": "online",
         "joinDate": "2023-01-15",
         "steamLink": "https://steamcommunity.com/profiles/76561199172444948",
-        "avatarUrl": "https://avatars.fastly.steamstatic.com/53a234baae33c23f1326d23d0699039d7cccfddf_full.jpg",
-        "responsibilities": [
-          "Tutore Helper nou",
-          "Mesaj-Bun-Venit jucători",
-          "Completarea Raportului"
-        ]
+        "avatarUrl": "https://avatars.fastly.steamstatic.com/53a234baae33c23f1326d23d0699039d7cccfddf_full.jpg"
       }
     ]
   }
@@ -378,11 +295,6 @@ export const ORG_TREE = {
               "children": [],
               "avatarUrl": "https://avatars.fastly.steamstatic.com/40bf29a0a7d3e4a36e64456677985317e46ff3de_full.jpg",
               "steamLink": "https://steamcommunity.com/profiles/76561199006087203",
-              "responsibilities": [
-                "Analiza comportamentului comunității",
-                "Propuneri de reguli și politici",
-                "Suport în rezolvarea conflictelor"
-              ],
               "joinDate": "2023-01-15",
               "status": "online",
               "history": [
@@ -396,7 +308,8 @@ export const ORG_TREE = {
                   "action": "Promoted",
                   "toRole": "Community Advisor"
                 }
-              ]
+              ],
+              "responsibilities": []
             },
             {
               "id": "rloner",
@@ -406,13 +319,9 @@ export const ORG_TREE = {
               "children": [],
               "avatarUrl": "https://avatars.fastly.steamstatic.com/523bed88e7ebbe542a5e007f74e5a865a0dc756c_full.jpg",
               "steamLink": "https://steamcommunity.com/profiles/76561199202045077",
-              "responsibilities": [
-                "Monitorizarea activității serverelor",
-                "Raportare incidente critice",
-                "Sprijin Community Manager"
-              ],
               "joinDate": "2023-01-15",
-              "status": "offline"
+              "status": "offline",
+              "responsibilities": []
             },
             {
               "id": "booyeto",
@@ -422,11 +331,6 @@ export const ORG_TREE = {
               "children": [],
               "avatarUrl": "https://avatars.fastly.steamstatic.com/7645c030071b46e0a5e7cac29a9f9f9f035c927e_full.jpg",
               "steamLink": "https://steamcommunity.com/profiles/76561198368502127",
-              "responsibilities": [
-                "Coordonare evenimente speciale",
-                "Testare funcționalități noi",
-                "Comunicare cu jucătorii activi"
-              ],
               "joinDate": "2023-01-15",
               "status": "offline",
               "history": [
@@ -445,17 +349,12 @@ export const ORG_TREE = {
                   "action": "Promoted",
                   "toRole": "Community Advisor"
                 }
-              ]
+              ],
+              "responsibilities": []
             }
           ],
           "avatarUrl": "https://avatars.fastly.steamstatic.com/c38e612b9cb04ca3c75618b7bd2b9a636a732c26_full.jpg",
           "steamLink": "https://steamcommunity.com/profiles/76561197965422061",
-          "responsibilities": [
-            "Managementul rețelelor de socializare",
-            "Campanii de promovare",
-            "Comunicare publică și PR",
-            "Moderarea anunțurilor oficiale"
-          ],
           "joinDate": "2023-01-15",
           "status": "offline",
           "history": [
@@ -474,23 +373,249 @@ export const ORG_TREE = {
               "action": "Promoted",
               "toRole": "Community Manager"
             }
-          ]
+          ],
+          "responsibilities": []
         },
         {
           "id": "umpy",
           "name": "Umpy",
           "role": "Server Manager",
           "roleId": "server-manager",
-          "children": [],
+          "children": [
+            {
+              "id": "yakuza",
+              "name": "Yakuza",
+              "role": "Supervizor",
+              "roleId": "supervizor",
+              "children": [
+                {
+                  "id": "admin-vacant",
+                  "name": "Vacant",
+                  "role": "Administrator",
+                  "roleId": "administrator",
+                  "vacant": true,
+                  "children": [
+                    {
+                      "id": "legale",
+                      "name": "LEGALE",
+                      "role": "Moderator",
+                      "roleId": "moderator",
+                      "children": [
+                        {
+                          "id": "lucian",
+                          "name": "LcNneb",
+                          "role": "Helper",
+                          "roleId": "helper",
+                          "children": [],
+                          "avatarUrl": "https://avatars.fastly.steamstatic.com/c78e87c68a89fcdd6c895f2b6b13474085a9c5ab_full.jpg",
+                          "steamLink": "https://steamcommunity.com/profiles/76561198711973791",
+                          "joinDate": "2023-01-15",
+                          "status": "online",
+                          "history": [
+                            {
+                              "date": "2026-07-06T16:46:00Z",
+                              "action": "Promoted",
+                              "toRole": "Helper"
+                            }
+                          ],
+                          "responsibilities": []
+                        }
+                      ],
+                      "avatarUrl": "https://avatars.fastly.steamstatic.com/83961e4642c3e472cd20da37d1056664844db409_full.jpg",
+                      "steamLink": "https://steamcommunity.com/profiles/76561199496891246",
+                      "joinDate": "2023-01-15",
+                      "status": "online",
+                      "history": [
+                        {
+                          "date": "2026-06-12T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Helper"
+                        },
+                        {
+                          "date": "2026-07-01T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Moderator"
+                        }
+                      ],
+                      "responsibilities": []
+                    },
+                    {
+                      "id": "r3ally",
+                      "name": "r3ally",
+                      "role": "Moderator",
+                      "roleId": "moderator",
+                      "children": [
+                        {
+                          "id": "dropya",
+                          "name": "dropYA-",
+                          "role": "Helper",
+                          "roleId": "helper",
+                          "children": [],
+                          "avatarUrl": "https://avatars.fastly.steamstatic.com/53a234baae33c23f1326d23d0699039d7cccfddf_full.jpg",
+                          "steamLink": "https://steamcommunity.com/profiles/76561199172444948",
+                          "joinDate": "2023-01-15",
+                          "status": "online",
+                          "history": [
+                            {
+                              "date": "2026-07-31T12:00:00Z",
+                              "action": "Promoted",
+                              "toRole": "Helper"
+                            }
+                          ],
+                          "responsibilities": []
+                        }
+                      ],
+                      "avatarUrl": "https://avatars.fastly.steamstatic.com/1358a6f462ce93511842f9c3d067ec0e7662aab7_full.jpg",
+                      "steamLink": "https://steamcommunity.com/profiles/76561199439185612",
+                      "joinDate": "2023-01-15",
+                      "status": "offline",
+                      "history": [
+                        {
+                          "date": "2026-05-26T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Helper"
+                        },
+                        {
+                          "date": "2026-08-01T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Moderator"
+                        }
+                      ],
+                      "responsibilities": []
+                    },
+                    {
+                      "id": "bounty",
+                      "name": "bounty",
+                      "role": "Moderator",
+                      "roleId": "moderator",
+                      "children": [
+                        {
+                          "id": "n3lutzu",
+                          "name": "n3lutzU",
+                          "role": "Helper",
+                          "roleId": "helper",
+                          "children": [],
+                          "avatarUrl": "https://avatars.fastly.steamstatic.com/59e75dc27ff9c6a73ef242ac14dc4c3fc7001827_full.jpg",
+                          "steamLink": "https://steamcommunity.com/profiles/76561199070188905",
+                          "joinDate": "2023-01-15",
+                          "status": "online",
+                          "history": [
+                            {
+                              "date": "2026-06-28T12:00:00Z",
+                              "action": "Promoted",
+                              "toRole": "Helper"
+                            }
+                          ],
+                          "responsibilities": []
+                        }
+                      ],
+                      "avatarUrl": "https://avatars.fastly.steamstatic.com/d768ab6b9bdd99e15b6ac4ea0b6d7774b7fbf9be_full.jpg",
+                      "steamLink": "https://steamcommunity.com/profiles/76561199226358217",
+                      "joinDate": "2023-01-15",
+                      "status": "online",
+                      "history": [
+                        {
+                          "date": "2026-07-01T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Helper"
+                        },
+                        {
+                          "date": "2026-08-01T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Moderator"
+                        }
+                      ],
+                      "responsibilities": []
+                    },
+                    {
+                      "id": "v1ccx",
+                      "name": "V1ccX",
+                      "role": "Moderator",
+                      "roleId": "moderator",
+                      "children": [
+                        {
+                          "id": "dibu",
+                          "name": "Dibu",
+                          "role": "Helper",
+                          "roleId": "helper",
+                          "children": [],
+                          "avatarUrl": "https://avatars.fastly.steamstatic.com/095f3bbb014f0efc95665e60bfcceb0b0f16c9ff_full.jpg",
+                          "steamLink": "https://steamcommunity.com/profiles/76561199044843735",
+                          "joinDate": "2023-01-15",
+                          "status": "offline",
+                          "history": [
+                            {
+                              "date": "2026-03-14T12:00:00Z",
+                              "action": "Promoted",
+                              "toRole": "Moderator"
+                            },
+                            {
+                              "date": "2026-08-02T12:00:00Z",
+                              "action": "Demoted",
+                              "toRole": "Helper"
+                            }
+                          ],
+                          "responsibilities": []
+                        }
+                      ],
+                      "avatarUrl": "https://avatars.fastly.steamstatic.com/4963bca91b1b3edf88de548e459b2092a35312e7_full.jpg",
+                      "steamLink": "https://steamcommunity.com/profiles/76561199698821208",
+                      "joinDate": "2023-01-15",
+                      "status": "offline",
+                      "history": [
+                        {
+                          "date": "2026-06-30T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Helper"
+                        },
+                        {
+                          "date": "2026-08-01T12:00:00Z",
+                          "action": "Promoted",
+                          "toRole": "Moderator"
+                        }
+                      ],
+                      "responsibilities": []
+                    }
+                  ],
+                  "responsibilities": []
+                }
+              ],
+              "avatarUrl": "https://avatars.fastly.steamstatic.com/e2847cb722e1ec8bf9df607659f7f5e3804a0182_full.jpg",
+              "steamLink": "https://steamcommunity.com/profiles/76561199384249731",
+              "joinDate": "2023-01-15",
+              "status": "online",
+              "history": [
+                {
+                  "date": "2024-09-14T12:00:00Z",
+                  "action": "Promoted",
+                  "toRole": "Moderator"
+                },
+                {
+                  "date": "2024-12-24T12:00:00Z",
+                  "action": "Removed",
+                  "toRole": "Moderator"
+                },
+                {
+                  "date": "2026-05-14T12:00:00Z",
+                  "action": "Promoted",
+                  "toRole": "Moderator"
+                },
+                {
+                  "date": "2026-06-01T12:00:00Z",
+                  "action": "Promoted",
+                  "toRole": "Administrator"
+                },
+                {
+                  "date": "2026-08-01T12:00:00Z",
+                  "action": "Promoted",
+                  "toRole": "Supervizor"
+                }
+              ],
+              "responsibilities": []
+            }
+          ],
           "avatarUrl": "https://avatars.fastly.steamstatic.com/562c921ff1c8b59f1c5f9642c39608af2984128b_full.jpg",
           "steamLink": "https://steamcommunity.com/profiles/76561198974838451",
-          "responsibilities": [
-            "Administrarea serverelor de joc",
-            "Instalare și actualizare plugins",
-            "Mentenanță și uptime monitoring",
-            "Configurare maps și rotații",
-            "Backup-uri periodice"
-          ],
           "joinDate": "2023-01-15",
           "status": "offline",
           "history": [
@@ -499,280 +624,8 @@ export const ORG_TREE = {
               "action": "Promoted",
               "toRole": "Server Manager"
             }
-          ]
-        },
-        {
-          "id": "yakuza",
-          "name": "Yakuza",
-          "role": "Supervizor",
-          "roleId": "supervizor",
-          "children": [
-            {
-              "id": "admin-vacant",
-              "name": "Vacant",
-              "role": "Administrator",
-              "roleId": "administrator",
-              "vacant": true,
-              "children": [
-                {
-                  "id": "legale",
-                  "name": "LEGALE",
-                  "role": "Moderator",
-                  "roleId": "moderator",
-                  "children": [
-                    {
-                      "id": "lucian",
-                      "name": "LcNneb",
-                      "role": "Helper",
-                      "roleId": "helper",
-                      "children": [],
-                      "avatarUrl": "https://avatars.fastly.steamstatic.com/c78e87c68a89fcdd6c895f2b6b13474085a9c5ab_full.jpg",
-                      "steamLink": "https://steamcommunity.com/profiles/76561198711973791",
-                      "responsibilities": [
-                        "Mesaj-Bun-Venit jucători",
-                        "Completarea Raportului",
-                        "Suport în reguli de bază"
-                      ],
-                      "joinDate": "2023-01-15",
-                      "status": "online",
-                      "history": [
-                        {
-                          "date": "2026-07-06T16:46:00Z",
-                          "action": "Promoted",
-                          "toRole": "Helper"
-                        }
-                      ]
-                    }
-                  ],
-                  "avatarUrl": "https://avatars.fastly.steamstatic.com/83961e4642c3e472cd20da37d1056664844db409_full.jpg",
-                  "steamLink": "https://steamcommunity.com/profiles/76561199496891246",
-                  "responsibilities": [
-                    "Moderare chat și voice Discord",
-                    "Gestionarea ticket-urilor",
-                    "Ban temporar pentru abateri",
-                    "Raport zilnic de activitate"
-                  ],
-                  "joinDate": "2023-01-15",
-                  "status": "online",
-                  "history": [
-                    {
-                      "date": "2026-06-12T12:00:00Z",
-                      "action": "Promoted",
-                      "toRole": "Helper"
-                    },
-                    {
-                      "date": "2026-07-01T12:00:00Z",
-                      "action": "Promoted",
-                      "toRole": "Moderator"
-                    }
-                  ]
-                },
-                {
-                  "id": "r3ally",
-                  "name": "r3ally",
-                  "role": "Moderator",
-                  "roleId": "moderator",
-                  "children": [
-                    {
-                      "id": "dropya",
-                      "name": "dropYA-",
-                      "role": "Helper",
-                      "roleId": "helper",
-                      "children": [],
-                      "avatarUrl": "https://avatars.fastly.steamstatic.com/53a234baae33c23f1326d23d0699039d7cccfddf_full.jpg",
-                      "steamLink": "https://steamcommunity.com/profiles/76561199172444948",
-                      "responsibilities": [
-                        "Tutore Helper nou",
-                        "Mesaj-Bun-Venit jucători",
-                        "Completarea Raportului"
-                      ],
-                      "joinDate": "2023-01-15",
-                      "status": "online",
-                      "history": [
-                        {
-                          "date": "2026-07-31T12:00:00Z",
-                          "action": "Promoted",
-                          "toRole": "Helper"
-                        }
-                      ]
-                    }
-                  ],
-                  "avatarUrl": "https://avatars.fastly.steamstatic.com/1358a6f462ce93511842f9c3d067ec0e7662aab7_full.jpg",
-                  "steamLink": "https://steamcommunity.com/profiles/76561199439185612",
-                  "responsibilities": [
-                    "Verificare hărți custom",
-                    "Monitorizare scoreboard",
-                    "Sancționare cheaters",
-                    "Completarea raportului"
-                  ],
-                  "joinDate": "2023-01-15",
-                  "status": "offline",
-                  "history": [
-                    {
-                      "date": "2026-05-26T12:00:00Z",
-                      "action": "Promoted",
-                      "toRole": "Helper"
-                    },
-                    {
-                      "date": "2026-08-01T12:00:00Z",
-                      "action": "Promoted",
-                      "toRole": "Moderator"
-                    }
-                  ]
-                },
-                {
-                  "id": "bounty",
-                  "name": "bounty",
-                  "role": "Moderator",
-                  "roleId": "moderator",
-                  "children": [
-                    {
-                      "id": "n3lutzu",
-                      "name": "n3lutzU",
-                      "role": "Helper",
-                      "roleId": "helper",
-                      "children": [],
-                      "avatarUrl": "https://avatars.fastly.steamstatic.com/59e75dc27ff9c6a73ef242ac14dc4c3fc7001827_full.jpg",
-                      "steamLink": "https://steamcommunity.com/profiles/76561199070188905",
-                      "responsibilities": [
-                        "Tutore Helper nou",
-                        "Mesaj-Bun-Venit jucători",
-                        "Completarea Raportului",
-                        "Sprijin moderatori"
-                      ],
-                      "joinDate": "2023-01-15",
-                      "status": "online",
-                      "history": [
-                        {
-                          "date": "2026-06-28T12:00:00Z",
-                          "action": "Promoted",
-                          "toRole": "Helper"
-                        }
-                      ]
-                    }
-                  ],
-                  "avatarUrl": "https://avatars.fastly.steamstatic.com/d768ab6b9bdd99e15b6ac4ea0b6d7774b7fbf9be_full.jpg",
-                  "steamLink": "https://steamcommunity.com/profiles/76561199226358217",
-                  "responsibilities": [
-                    "Supraveghere servere active",
-                    "Comunicare cu jucătorii noi",
-                    "Raport de activitate"
-                  ],
-                  "joinDate": "2023-01-15",
-                  "status": "online",
-                  "history": [
-                    {
-                      "date": "2026-07-01T12:00:00Z",
-                      "action": "Promoted",
-                      "toRole": "Helper"
-                    },
-                    {
-                      "date": "2026-08-01T12:00:00Z",
-                      "action": "Promoted",
-                      "toRole": "Moderator"
-                    }
-                  ]
-                },
-                {
-                  "id": "v1ccx",
-                  "name": "V1ccX",
-                  "role": "Moderator",
-                  "roleId": "moderator",
-                  "children": [
-                    {
-                      "id": "dibu",
-                      "name": "Dibu",
-                      "role": "Helper",
-                      "roleId": "helper",
-                      "children": [],
-                      "avatarUrl": "https://avatars.fastly.steamstatic.com/095f3bbb014f0efc95665e60bfcceb0b0f16c9ff_full.jpg",
-                      "steamLink": "https://steamcommunity.com/profiles/76561199044843735",
-                      "responsibilities": [
-                        "Monitorizarea chat-ului in-game",
-                        "Sancționarea jucătorilor rule-breakers",
-                        "Completarea raportului de activitate",
-                        "Răspuns la reclamații"
-                      ],
-                      "joinDate": "2023-01-15",
-                      "status": "offline",
-                      "history": [
-                        {
-                          "date": "2026-03-14T12:00:00Z",
-                          "action": "Promoted",
-                          "toRole": "Moderator"
-                        },
-                        {
-                          "date": "2026-08-02T12:00:00Z",
-                          "action": "Demoted",
-                          "toRole": "Helper"
-                        }
-                      ]
-                    }
-                  ],
-                  "avatarUrl": "https://avatars.fastly.steamstatic.com/4963bca91b1b3edf88de548e459b2092a35312e7_full.jpg",
-                  "steamLink": "https://steamcommunity.com/profiles/76561199698821208",
-                  "responsibilities": [
-                    "Moderare generală in-game",
-                    "Escaladare cazuri complexe",
-                    "Raport de activitate"
-                  ],
-                  "joinDate": "2023-01-15",
-                  "status": "offline",
-                  "history": [
-                    {
-                      "date": "2026-06-30T12:00:00Z",
-                      "action": "Promoted",
-                      "toRole": "Helper"
-                    },
-                    {
-                      "date": "2026-08-01T12:00:00Z",
-                      "action": "Promoted",
-                      "toRole": "Moderator"
-                    }
-                  ]
-                }
-              ],
-              "responsibilities": []
-            }
           ],
-          "avatarUrl": "https://avatars.fastly.steamstatic.com/e2847cb722e1ec8bf9df607659f7f5e3804a0182_full.jpg",
-          "steamLink": "https://steamcommunity.com/profiles/76561199384249731",
-          "responsibilities": [
-            "Supravegherea echipei de Admin",
-            "Aprobare ban-uri permanente",
-            "Audit rapoarte de activitate",
-            "Intervenție în situații complexe",
-            "Formare continuă a administratorilor"
-          ],
-          "joinDate": "2023-01-15",
-          "status": "online",
-          "history": [
-            {
-              "date": "2024-09-14T12:00:00Z",
-              "action": "Promoted",
-              "toRole": "Moderator"
-            },
-            {
-              "date": "2024-12-24T12:00:00Z",
-              "action": "Removed",
-              "toRole": "Moderator"
-            },
-            {
-              "date": "2026-05-14T12:00:00Z",
-              "action": "Promoted",
-              "toRole": "Moderator"
-            },
-            {
-              "date": "2026-06-01T12:00:00Z",
-              "action": "Promoted",
-              "toRole": "Administrator"
-            },
-            {
-              "date": "2026-08-01T12:00:00Z",
-              "action": "Promoted",
-              "toRole": "Supervizor"
-            }
-          ]
+          "responsibilities": []
         },
         {
           "id": "langw0w",
@@ -782,24 +635,13 @@ export const ORG_TREE = {
           "children": [],
           "avatarUrl": "https://avatars.fastly.steamstatic.com/fbfd6af383257e2de1bf4db735a9f21993df1426_full.jpg",
           "steamLink": "https://steamcommunity.com/profiles/76561198841502450",
-          "responsibilities": [
-            "Consultanță în decizii strategice",
-            "Mentoriat pentru staff junior",
-            "Feedback și audit intern"
-          ],
           "joinDate": "2023-01-15",
-          "status": "online"
+          "status": "online",
+          "responsibilities": []
         }
       ],
       "avatarUrl": "https://avatars.fastly.steamstatic.com/a340dc57c25c5776e6adb9373e2e8ab5d5821d72_full.jpg",
       "steamLink": "https://steamcommunity.com/profiles/76561198863614059",
-      "responsibilities": [
-        "Coordonarea echipei de staff",
-        "Gestionarea comunității Discord",
-        "Planificarea evenimentelor",
-        "Relația cu partenerii externi",
-        "Rapoarte lunare către Founder"
-      ],
       "joinDate": "2023-01-15",
       "status": "offline",
       "collapsed": false,
@@ -809,18 +651,26 @@ export const ORG_TREE = {
           "action": "Promoted",
           "toRole": "Community Manager"
         }
+      ],
+      "responsibilities": [
+        "Organizarea și coordonarea evenimentelor comunității",
+        "Moderarea discuțiilor din comunitate (Discord, etc.)",
+        "La cerere primește acces la docs.wildfire.ro",
+        "În lipsa Owner-ului, poate anunța și susține întâlniri",
+        "Promovarea comunității pe rețelele sociale",
+        "Menținerea unei atmosfere prietenoase și primitoare",
+        "Participarea activă în consiliul de administrare",
+        "Crearea de sondaje și colectarea feedback-ului de la jucători",
+        "Face parte din consiliul de administrație al comunității",
+        "Urmărește evoluția constantă a comunității și colaborează împreună cu Server Manager-ul ori de câte ori este nevoie",
+        "Primește accese mari pe Discord și este responsabil de orice cameră și permisiune făcută",
+        "Verifică aptitudinile fiecărui admin și ajută la formarea acestora",
+        "În lipsa Owner-ului/Developer-ului, acesta poate lua decizii în locul lor pentru tot ce ține de STAFF și COMUNITATE"
       ]
     }
   ],
   "avatarUrl": "https://avatars.fastly.steamstatic.com/e0bc71c8cc0a992273ab3428e40778fe55800218_full.jpg",
   "steamLink": "https://steamcommunity.com/profiles/76561197966909956",
-  "responsibilities": [
-    "Proprietar și fondator al comunității",
-    "Viziunea și direcția strategică",
-    "Infrastructura serverelor",
-    "Decizii financiare și parteneri",
-    "Recrutarea echipei de top management"
-  ],
   "joinDate": "2023-01-15",
   "status": "offline",
   "history": [
@@ -829,7 +679,8 @@ export const ORG_TREE = {
       "action": "Promoted",
       "toRole": "Founder"
     }
-  ]
+  ],
+  "responsibilities": []
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────

@@ -1,0 +1,417 @@
+## FOUNDER
+
+### Decizii finale asupra direcției comunității
+
+Stabilește direcția generală a comunității și are ultimul cuvânt în toate deciziile importante care influențează dezvoltarea serverelor, a staff-ului și a proiectelor Wildfire.
+
+### Dezvoltarea și structurarea sistemelor serverelor
+
+Coordonează organizarea și evoluția sistemelor comunității, aprobând implementarea funcționalităților noi și modificările majore ale structurii serverelor.
+
+### Managementul relațiilor și parteneriatelor
+
+Gestionează colaborările externe, parteneriatele oficiale și relațiile cu alte comunități sau proiecte, asigurând reprezentarea profesională a Wildfire.
+
+### Aprobarea modificărilor majore ale regulamentului
+
+Analizează și validează toate modificările importante ale regulamentului și ale procedurilor administrative pentru a menține coerența și stabilitatea comunității.
+
+### Coordonarea strategică pe termen lung
+
+Planifică obiectivele de dezvoltare ale comunității și stabilește prioritățile necesare pentru creșterea și consolidarea proiectului Wildfire.
+
+### Reprezentarea oficială a comunității Wildfire.ro
+
+Reprezintă oficial comunitatea în comunicările importante, colaborările externe și în orice situație care necesită autoritatea maximă a proiectului Wildfire.
+
+---
+
+## DEVELOPER
+
+### Dezvoltarea și întreținerea tehnică a serverului
+
+Se ocupă de dezvoltarea, optimizarea și întreținerea componentelor tehnice ale serverului pentru a asigura funcționarea corectă și performantă a tuturor sistemelor comunității.
+
+### Asigurarea mentenanței și implementarea de update-uri pentru o funcționare cât mai stabilă
+
+Monitorizează stabilitatea serverului, efectuează mentenanța periodică și implementează actualizări, remedieri și îmbunătățiri tehnice pentru a preveni problemele și a menține serviciile funcționale.
+
+---
+
+## COMMUNITY MANAGER
+
+### În lipsa Owner-ului/Developer-ului, acesta poate lua decizii în locul lor pentru tot ce ține de STAFF și COMUNITATE
+
+Poate coordona activitatea staff-ului și poate lua decizii administrative temporare pentru menținerea bunei funcționări a comunității atunci când gradele superioare nu sunt disponibile.
+
+### Organizarea și coordonarea evenimentelor comunității
+
+Planifică și coordonează evenimentele comunității, asigurând desfășurarea lor într-un mod organizat și atractiv pentru membri.
+
+### Moderarea discuțiilor din comunitate (Discord, etc.)
+
+Supraveghează activitatea comunității pe Discord și pe celelalte platforme oficiale, intervenind pentru menținerea unui mediu civilizat, prietenos și respectuos.
+
+### La cerere primește acces la docs.wildfire.ro
+
+Poate primi acces la platforma de documentație a comunității pentru consultarea, administrarea sau actualizarea informațiilor necesare activității staff-ului.
+
+### În lipsa Owner-ului, poate anunța și susține întâlniri
+
+Poate organiza și coordona întâlniri administrative sau de pregătire atunci când este necesar pentru buna funcționare a comunității.
+
+### Promovarea comunității pe rețelele sociale
+
+Se ocupă de promovarea imaginii Wildfire pe platformele sociale și de atragerea de noi membri în comunitate.
+
+### Menținerea unei atmosfere prietenoase și primitoare
+
+Monitorizează climatul comunității și intervine pentru a menține un mediu pozitiv, respectuos și primitor pentru toți membrii.
+
+### Participarea activă în consiliul de administrare
+
+Participă la discuțiile și deciziile importante ale echipei de conducere, contribuind la dezvoltarea și organizarea comunității.
+
+### Crearea de sondaje și colectarea feedback-ului de la jucători
+
+Inițiază sondaje și colectează opiniile membrilor pentru a identifica problemele și pentru a îmbunătăți experiența jucătorilor.
+
+### Face parte din consiliul de administrație al comunității
+
+Are rol activ în procesul de administrare și în luarea deciziilor strategice care influențează comunitatea Wildfire.
+
+### Urmărește evoluția constantă a comunității și colaborează împreună cu Server Manager-ul ori de câte ori este nevoie
+
+Analizează evoluția comunității și colaborează permanent cu Server Manager-ul pentru rezolvarea problemelor și implementarea îmbunătățirilor necesare.
+
+### Primește accese mari pe Discord și este responsabil de orice cameră și permisiune făcută
+
+Administrează structura și permisiunile Discord și intervine rapid pentru corectarea erorilor sau reorganizarea canalelor atunci când este necesar.
+
+### Verifică aptitudinile fiecărui admin și ajută la formarea acestora
+
+Evaluează activitatea și competențele membrilor staff și contribuie la pregătirea și dezvoltarea acestora pentru responsabilități mai avansate.
+
+---
+
+## ADMINUL LUNII
+
+### Participarea la evaluarea lunară a activității staff-ului
+
+Face parte din procesul prin care sunt analizați membrii staff care s-au remarcat prin activitate, implicare și contribuție în cadrul comunității.
+
+### Reprezentarea performanței și implicării în comunitate
+
+Acest grad reflectă aprecierea activității, a spiritului de echipă și a contribuției constante aduse dezvoltării comunității Wildfire.
+
+---
+
+## SERVER MANAGER
+
+### În lipsa Owner-ului și a Community Manager-ului, poate organiza ședințe staff și de pregătire
+
+Poate coordona ședințe administrative și sesiuni de pregătire pentru a menține organizarea și activitatea echipei de staff.
+
+### Organizarea și coordonarea evenimentelor comunității
+
+Planifică și coordonează evenimentele organizate pe server pentru a menține activitatea și implicarea membrilor comunității.
+
+### Se ocupă cu promovarea adminilor la final de lună
+
+Analizează activitatea membrilor staff și propune promovările lunare pe baza performanței, implicării și responsabilității demonstrate.
+
+### Coordonarea și supervizarea întregii echipe de staff
+
+Supraveghează activitatea întregii echipe de staff și se asigură că fiecare membru își îndeplinește corect responsabilitățile.
+
+### Evaluarea periodică a performanțelor membrilor staff
+
+Monitorizează activitatea staff-ului și realizează evaluări pentru a identifica progresul, problemele și necesitățile de dezvoltare.
+
+### Soluționarea conflictelor interne din staff
+
+Intervine în situațiile tensionate sau în conflictele dintre membrii staff pentru a menține un mediu de lucru profesionist și echilibrat.
+
+### Raportarea directă către Community Manager/Owner
+
+Comunică periodic progresul echipei, problemele importante și situațiile administrative către gradele superioare.
+
+### La cerere primește acces la docs.wildfire.ro
+
+Poate primi acces la platforma de documentație pentru administrarea și actualizarea informațiilor necesare coordonării staff-ului.
+
+### Primește accese mari pe Discord și este responsabil de camere și permisiuni
+
+Gestionează structura Discord-ului și intervine pentru organizarea sau corectarea permisiunilor și canalelor atunci când este necesar.
+
+### Organizarea ședințelor periodice de staff
+
+Planifică și coordonează ședințele regulate ale echipei pentru discutarea activității, a problemelor și a obiectivelor comunității.
+
+### Crearea și implementarea planurilor de dezvoltare pentru membri
+
+Elaborează strategii de dezvoltare pentru membrii staff și urmărește progresul acestora în cadrul echipei administrative.
+
+### Participarea activă în consiliul de administrare
+
+Contribuie la deciziile importante privind organizarea, dezvoltarea și administrarea comunității Wildfire.
+
+### Comunică orice bug sau problemă tehnică developerilor și colaborează cu ei
+
+Raportează problemele tehnice identificate și colaborează cu echipa de dezvoltare pentru rezolvarea și prevenirea acestora.
+
+### Verificarea activității STAFF-ului
+
+Monitorizează prezența și implicarea membrilor staff pentru a se asigura că responsabilitățile sunt îndeplinite corespunzător.
+
+### Face parte din consiliul de administrație al comunității
+
+Participă la procesul decizional și la administrarea generală a comunității Wildfire alături de celelalte grade superioare.
+
+---
+
+## SUPERVIZOR
+
+### Pe lângă sarcinile de la gradul precedent, acesta primește următoarele atribuții
+
+Preia responsabilități suplimentare de coordonare și supraveghere pentru a sprijini activitatea Server Manager-ului și buna funcționare a echipei de staff.
+
+### Este responsabil de monitorizarea activității membrilor și de comunicarea către Server Manager în cazul în care sunt probleme
+
+Supraveghează activitatea membrilor staff și raportează rapid orice problemă, abatere sau situație care necesită intervenția Server Manager-ului.
+
+### Învață să facă Raportul Lunar alături de Server Manager cu tot ce ține de el (statistici, screenshot-uri etc.)
+
+Participă la realizarea rapoartelor lunare și învață procesul de colectare și organizare a statisticilor și a informațiilor administrative.
+
+### În lipsa Server Manager-ului, poate organiza întruniri staff alături de Administrator
+
+Poate coordona întâlniri administrative și sesiuni de organizare împreună cu Administratorul atunci când Server Manager-ul nu este disponibil.
+
+### Citește integral și detaliat o cerere de Helper și comunică la Server Manager
+
+Analizează atent aplicațiile pentru gradul de Helper și transmite observațiile și recomandările către Server Manager pentru evaluarea finală.
+
+### Amintire ședințe
+
+Se asigură că membrii staff sunt informați din timp cu privire la ședințele și întâlnirile programate.
+
+### Amintește adminilor să răspundă la aplicațiile staff
+
+Monitorizează activitatea legată de recrutare și reamintește membrilor responsabili să răspundă la aplicațiile de staff în timp util.
+
+### Trimite mesajul de bun venit atunci când un membru staff intră în echipă
+
+Se ocupă de integrarea noilor membri staff prin transmiterea mesajelor de bun venit și oferirea informațiilor necesare începutului de activitate.
+
+### Supravegherea și asigurarea activității staff-ului în absența Server Manager-ului
+
+Coordonează activitatea staff-ului și urmărește desfășurarea corectă a responsabilităților atunci când Server Manager-ul nu este prezent.
+
+### Intervenția imediată în situații problematice
+
+Acționează rapid pentru gestionarea problemelor administrative sau disciplinare și informează gradele superioare atunci când situația o impune.
+
+### La cerere primește acces la docs.wildfire.ro
+
+Poate primi acces la platforma de documentație pentru consultarea și gestionarea informațiilor necesare activității administrative.
+
+### Oferirea de suport și îndrumare pentru gradele inferioare
+
+Ajută membrii staff cu experiență mai redusă și oferă explicații și recomandări pentru rezolvarea problemelor întâlnite în activitate.
+
+### Raportarea problemelor către Server Manager
+
+Transmite toate problemele importante, situațiile neclare și dificultățile administrative către Server Manager pentru analiză și soluționare.
+
+### Coordonarea echipei de staff
+
+Sprijină organizarea activității echipei și contribuie la distribuirea responsabilităților și la menținerea unei colaborări eficiente între membri.
+
+### Citește integral și detaliat o cerere de Helper și răspunde cât mai bine
+
+Analizează aplicațiile pentru staff cu atenție și formulează răspunsuri clare, obiective și bine argumentate pentru fiecare candidat.
+
+### Verificarea activității STAFF-ului
+
+Monitorizează implicarea și activitatea membrilor staff și semnalează eventualele probleme de prezență sau performanță.
+
+### Respectă aceleași responsabilități de la gradul anterior
+
+Păstrează toate atribuțiile și obligațiile dobândite la gradele anterioare și le îndeplinește în continuare la același standard.
+
+---
+
+## ADMINISTRATOR
+
+### Pe lângă sarcinile de la gradul precedent, acesta primește următoarele atribuții
+
+Primește responsabilități suplimentare de coordonare și administrare și are un rol mai activ în gestionarea activității staff-ului și a situațiilor importante de pe server.
+
+### Gestionarea situațiilor complexe în mod independent
+
+Poate analiza și rezolva probleme administrative sau disciplinare fără a solicita permanent intervenția gradelor superioare.
+
+### Participarea activă la ședințele ocazionale ale staff-ului
+
+Contribuie la ședințele organizate pentru discutarea activității staff-ului și pentru stabilirea măsurilor necesare îmbunătățirii serverului.
+
+### Contribuția cu idei pentru îmbunătățirea serverului
+
+Propune sugestii și soluții pentru optimizarea organizării, a activităților și a experienței jucătorilor pe server.
+
+### Preluarea atribuțiilor speciale date de Server Manager
+
+Poate primi responsabilități suplimentare sau proiecte administrative speciale în funcție de nevoile echipei și ale serverului.
+
+### Ține legătura în permanență cu gradele inferioare și le ajută atunci când este cazul
+
+Menține o comunicare constantă cu membrii staff aflați la grade inferioare și oferă sprijin atunci când aceștia întâmpină dificultăți.
+
+### Acces la mini consiliul server-ului
+
+Participă la discuțiile administrative restrânse și poate contribui la luarea unor decizii importante privind organizarea serverului.
+
+### Colaborează cu gradul de Supervizor și comunică permanent problemele sau neclaritățile întâmpinate
+
+Lucrează îndeaproape cu Supervizorul și transmite rapid orice problemă, neclaritate sau situație care necesită atenția gradelor superioare.
+
+### Amintește adminilor să răspundă la aplicațiile staff
+
+Urmărește activitatea legată de recrutare și se asigură că aplicațiile pentru staff sunt analizate și gestionate în timp util.
+
+### Trimite mesajul de bun venit atunci când un membru staff intră în echipă
+
+Participă la integrarea noilor membri staff prin transmiterea mesajelor de bun venit și oferirea informațiilor necesare începutului de activitate.
+
+### Intervenția atunci când un grad greșește
+
+Poate interveni pentru corectarea greșelilor administrative sau disciplinare și pentru îndrumarea membrilor staff către aplicarea corectă a regulamentului.
+
+### Verifică aptitudinile fiecărui admin și ajută la formarea acestora
+
+Evaluează competențele și activitatea administratorilor și contribuie la dezvoltarea și pregătirea acestora pentru responsabilități mai avansate.
+
+### La cererea Server Manager-ului, poate cere persoanei să aducă subiecte sau întrebări pentru ședințele ocazionale de pregătire
+
+Poate solicita membrilor staff să pregătească teme, întrebări sau subiecte utile pentru ședințele de pregătire și dezvoltare organizate de conducerea serverului.
+
+### Citește integral și detaliat o cerere de Helper și răspunde cât mai bine
+
+Analizează aplicațiile pentru gradul de Helper și formulează răspunsuri clare și argumentate pentru fiecare candidat evaluat.
+
+### În lipsa Supervizor-ului, poate lucra cu Server Manager-ul la statistici, rapoarte și întâlniri
+
+Preia temporar unele responsabilități administrative și colaborează direct cu Server Manager-ul pentru realizarea rapoartelor și organizarea întâlnirilor necesare.
+
+### Respectă aceleași responsabilități de la gradul anterior
+
+Păstrează și aplică în continuare toate atribuțiile și obligațiile dobândite la gradele anterioare, la un nivel de responsabilitate mai ridicat.
+
+---
+
+## MODERATOR
+
+### Pe lângă sarcinile de la gradul precedent, acesta primește următoarele atribuții
+
+Primește responsabilități suplimentare de moderare și supraveghere și are un rol mai activ în menținerea ordinii și în îndrumarea gradelor inferioare.
+
+### Menținerea ordinii și disciplinei pe server
+
+Supraveghează activitatea jucătorilor și intervine pentru a menține un mediu organizat, respectuos și conform regulamentului comunității.
+
+### Aplicarea sancțiunilor conform regulamentului
+
+Aplică sancțiuni doar atunci când regulile sunt încălcate și se asigură că măsurile luate sunt corecte, proporționale și conforme cu regulamentul oficial.
+
+### Observă comportamentul helperilor și intervine atunci când este cazul
+
+Monitorizează activitatea Helperilor și oferă corectări, recomandări sau intervenții atunci când observă greșeli sau situații care necesită îndrumare.
+
+### Citește integral și detaliat o cerere de Helper și răspunde cât mai bine
+
+Analizează cu atenție aplicațiile pentru staff și formulează răspunsuri clare, obiective și argumentate pentru fiecare candidat evaluat.
+
+### Acces la comanda de ban și panel-ul wildfire.ro
+
+Utilizează instrumentele administrative disponibile pentru gestionarea sancțiunilor și pentru administrarea activităților specifice serverului prin intermediul panel-ului Wildfire.
+
+### Trimite mesajul de bun venit atunci când un membru staff intră în echipă
+
+Participă la integrarea noilor membri staff și îi ajută să se familiarizeze cu regulile, procedurile și activitatea echipei administrative.
+
+### Ține legătura în permanență cu gradele inferioare și le ajută atunci când este cazul
+
+Menține o comunicare constantă cu membrii staff aflați la grade inferioare și oferă suport și îndrumare ori de câte ori este necesar.
+
+### Colaborează cu gradul de Administrator și comunică permanent problemele sau neclaritățile întâmpinate
+
+Lucrează împreună cu Administratorul și transmite rapid orice problemă, neclaritate sau situație care necesită atenția gradelor superioare sau a Server Manager-ului.
+
+### Amintește adminilor să răspundă la aplicațiile staff
+
+Urmărește activitatea legată de recrutare și se asigură că aplicațiile pentru staff sunt analizate și gestionate într-un timp rezonabil.
+
+### Intervenția atunci când un Helper greșește
+
+Poate corecta și îndruma Helperii atunci când aceștia comit greșeli administrative sau aplică incorect regulile și procedurile comunității.
+
+### Rol de mentor pentru gradele inferioare
+
+Are responsabilitatea de a sprijini dezvoltarea colegilor aflați la început de drum și de a contribui activ la formarea unui colectiv unit și profesionist.
+
+### Raportarea activității Helperilor către Administrator
+
+Monitorizează implicarea și comportamentul Helperilor și transmite observațiile relevante către Administrator pentru evaluare și coordonare.
+
+### Respectă aceleași responsabilități de la gradul anterior
+
+Continuă să îndeplinească toate atribuțiile și obligațiile dobândite la gradele anterioare, pe lângă noile responsabilități specifice gradului de Moderator.
+
+---
+
+## HELPER
+
+### Citește integral și detaliat o cerere de Helper și răspunde cât mai bine
+
+Analizează cu atenție aplicațiile pentru gradul de Helper și formulează răspunsuri clare, respectuoase și bine argumentate pentru fiecare candidat evaluat.
+
+### Suport jucătorilor noi să se acomodeze pe server
+
+Ajută jucătorii noi să înțeleagă regulile, comenzile și sistemele serverului pentru a se integra cât mai ușor în comunitatea Wildfire.
+
+### Raportarea problemelor către gradele superioare
+
+Informează rapid gradele superioare despre problemele întâlnite pe server, comportamentele necorespunzătoare sau situațiile care necesită intervenție administrativă.
+
+### Învățarea și aprofundarea informațiilor din ghidul începătorului
+
+Studiază și aplică informațiile din ghidul oficial pentru a înțelege corect responsabilitățile și procedurile specifice activității de staff.
+
+### Studierea enciclopediei docs.wildfire.ro
+
+Consultă constant documentația oficială a comunității pentru a învăța sistemele serverului și pentru a rămâne la curent cu procedurile administrative.
+
+### Menținerea unei atitudini prietenoase și profesioniste pe server
+
+Comunică respectuos cu jucătorii și membrii staff și contribuie la menținerea unei atmosfere plăcute și profesioniste în comunitate.
+
+### Sesizarea încălcărilor de reguli și raportarea acestora
+
+Monitorizează activitatea de pe server și semnalează orice încălcare a regulamentului către gradele superioare pentru analiză și intervenție.
+
+### Participarea activă la activitățile comunității
+
+Se implică în evenimente, discuții și activități organizate de comunitate și contribuie la menținerea unei comunități active și unite.
+
+### Colaborarea cu ceilalți membri staff
+
+Lucrează în echipă cu ceilalți membri staff, comunică eficient și oferă sprijin atunci când este nevoie pentru buna funcționare a serverului.
+
+### Prezența activă pe server și voice chat
+
+Menține o prezență constantă pe server și pe canalele de voice pentru a putea răspunde rapid jucătorilor și pentru a participa activ la activitatea comunității.
+
+### Urmărește update-urile de pe #updates și modificările de pe docs.wildfire.ro
+
+Verifică periodic anunțurile oficiale și modificările din documentația comunității pentru a aplica întotdeauna cele mai recente reguli și proceduri administrative.

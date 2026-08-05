@@ -108,6 +108,30 @@
     "requirements": "Acest grad presupune un stagiu de pregătire de cel puțin 1 an."
   },
   {
+    "id": "community-advisor",
+    "title": "Community Advisor",
+    "description": "Este consilierul principal al comunității. Oferă consultanță strategică și sprijin administrativ pentru dezvoltarea proiectului, având un cuvânt important de spus în luarea deciziilor majore.",
+    "requirements": "Vechime, experiență administrativă și încredere totală din partea Owner-ului.",
+    "responsibilities": [
+      {
+        "title": "Consultanță strategică",
+        "detail": "Oferă sfaturi și soluții pentru îmbunătățirea și dezvoltarea pe termen lung a comunității Wildfire."
+      },
+      {
+        "title": "Monitorizarea staff-ului",
+        "detail": "Urmărește activitatea membrilor staff și semnalează orice derapaj grav sau problemă structurală."
+      },
+      {
+        "title": "Sprijin decizional",
+        "detail": "Asistă Founder-ul și Community Manager-ul în luarea deciziilor dificile privind organizarea."
+      },
+      {
+        "title": "Feedback constant",
+        "detail": "Colectează și analizează feedback din comunitate pentru a propune schimbări benefice."
+      }
+    ]
+  },
+  {
     "id": "adminul-lunii",
     "title": "ADMINUL LUNII",
     "description": "În fiecare lună, pe baza contribuției fiecărui membru al staff-ului, are loc o întâlnire în cadrul consiliului, alături de server managerii comunității. În urma discuțiilor și a voturilor, se desemnează adminii care s-au remarcat în luna respectivă.\nObținerea acestui grad reprezintă un privilegiu, nu oricine poate ajunge aici, este nevoie de muncă, răbdare și spirit de echipă.",

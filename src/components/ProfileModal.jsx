@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { X, ExternalLink, Calendar, Users, Plus, ArrowUp, ArrowDown, Clock, Shield } from 'lucide-react'
 import styles from './ProfileModal.module.css'
 import { getInitials } from '../data/staffData'
-import { useStore } from '../store/useStore'
+import { useStore, flattenNodes } from '../store/useStore'
 
 export default function ProfileModal({ node, onClose }) {
   const [expandedResps, setExpandedResps] = useState({})
   const [activeTab, setActiveTab] = useState('atributes')
-  const { roles, roleDetails } = useStore()
+  const { roles, roleDetails, tree } = useStore()
+  
+  const allMembers = tree ? flattenNodes(tree) : []
 
   // Close on Escape key
   useEffect(() => {
@@ -31,7 +33,18 @@ export default function ProfileModal({ node, onClose }) {
 
   // Find detailed responsibilities
   const details = roleDetails.find(r => r.id === node.roleId)
-  const responsibilities = node.responsibilities?.length > 0 ? node.responsibilities : (details?.responsibilities || [])
+  let responsibilities = [];
+  if (node.responsibilities?.length > 0) {
+    responsibilities = node.responsibilities.map(respTitle => {
+      if (typeof respTitle === 'string') {
+        const found = details?.responsibilities?.find(r => r.title === respTitle);
+        return found ? found : respTitle;
+      }
+      return respTitle;
+    });
+  } else {
+    responsibilities = details?.responsibilities || [];
+  }
 
   const getStaffStats = (history, fallbackDate) => {
     if (!history || history.length === 0) {
@@ -198,7 +211,7 @@ export default function ProfileModal({ node, onClose }) {
                       style={{ '--item-color': hColor }}
                     >
                       <div className={styles.historyIconWrapper}>
-                        {h.action === 'Promoted' ? <ArrowUp size={16} /> : h.action === 'Removed' ? <X size={16} /> : <ArrowDown size={16} />}
+                        {h.action === 'Promoted' ? <ArrowUp size={14} /> : h.action === 'Removed' ? <X size={14} /> : <ArrowDown size={14} />}
                       </div>
                       <div className={styles.historyContent}>
                         <div className={styles.historyTopRow}>
@@ -210,7 +223,15 @@ export default function ProfileModal({ node, onClose }) {
                           <span className={styles.historyStatusPill}>{h.action.toUpperCase()}</span>
                         </div>
                         <div className={styles.historyBottomRow}>
-                          System record <Clock size={12} style={{ margin: '0 4px', display: 'inline' }}/> by Console | wildfire.ro
+                          {h.reason || 'Fără motiv'} <Clock size={12} style={{ margin: '0 4px', display: 'inline' }}/> by 
+                          {allMembers.find(m => m.name === h.by)?.avatarUrl ? (
+                            <img 
+                              src={allMembers.find(m => m.name === h.by).avatarUrl} 
+                              alt={h.by} 
+                              style={{ width: '14px', height: '14px', borderRadius: '50%', margin: '0 6px 0 6px', display: 'inline-block', verticalAlign: 'middle' }} 
+                            />
+                          ) : <span style={{ margin: '0 2px' }}> </span>}
+                          <span style={{ fontWeight: 'bold', color: '#fff' }}>{h.by || 'Console'}</span> | wildfire.ro
                         </div>
                       </div>
                     </div>

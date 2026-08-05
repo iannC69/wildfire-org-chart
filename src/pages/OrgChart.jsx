@@ -664,7 +664,7 @@ function SelectedPanel({ node, onClose, roles }) {
 function Legend() {
   const roles = useStore(s => s.roles)
   const tree = useStore(s => s.tree)
-  
+
   const allMembers = useMemo(() => {
     if (!tree) return []
     return flattenNodes(tree)
@@ -773,12 +773,14 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
   }
 
   const mergedRoles = useMemo(() => {
-    return roleDetails.map(detail => {
-      const roleDef = roles.find(r => r.id === detail.id)
+    return roles.map(role => {
+      const detail = roleDetails.find(d => d.id === role.id) || {}
       return {
         ...detail,
-        color: roleDef?.color || '#a855f7',
-        glow: roleDef?.glow || 'rgba(168, 85, 247, 0.55)'
+        ...role, // spread role after detail to keep title and color authoritative
+        color: role.color || '#a855f7',
+        glow: role.glow || 'rgba(168, 85, 247, 0.55)',
+        title: role.title || detail.title || ''
       }
     })
   }, [roles, roleDetails])
@@ -790,8 +792,16 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
           const membersWithRole = allMembers.filter(m => m.roleId === role.id && !m.vacant)
           const combinedResps = [
             ...(role.responsibilities || []).map((r, i) => ({ type: 'role', originalIndex: i, data: r })),
-            ...membersWithRole.flatMap(member => 
-              (member.responsibilities || []).map(r => ({ type: 'member', member, data: r }))
+            ...membersWithRole.flatMap(member =>
+              (member.responsibilities || [])
+                .filter(r => {
+                  const rTitle = typeof r === 'string' ? r : r.title;
+                  return !(role.responsibilities || []).some(defaultResp => {
+                    const defTitle = typeof defaultResp === 'string' ? defaultResp : defaultResp.title;
+                    return defTitle === rTitle;
+                  });
+                })
+                .map(r => ({ type: 'member', member, data: r }))
             )
           ];
           const respsCount = combinedResps.length;
@@ -804,12 +814,18 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
           const handleUpdateResp = (idx, field, val) => {
             if (!updateRoleDetails) return
             const newResps = [...role.responsibilities]
-            // handle string or object
+            const oldTitle = newResps[idx].title || newResps[idx]
+            
             if (typeof newResps[idx] === 'string') {
               newResps[idx] = { title: newResps[idx], detail: '' }
             }
             newResps[idx] = { ...newResps[idx], [field]: val }
-            updateRoleDetails(role.id, { responsibilities: newResps })
+            
+            if (field === 'title') {
+              updateRoleDetails(role.id, { responsibilities: newResps }, oldTitle, val)
+            } else {
+              updateRoleDetails(role.id, { responsibilities: newResps })
+            }
           }
 
           const handleAddResp = () => {
@@ -820,8 +836,9 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
 
           const handleDeleteResp = (idx) => {
             if (!updateRoleDetails) return
+            const oldTitle = role.responsibilities[idx].title || role.responsibilities[idx]
             const newResps = role.responsibilities.filter((_, i) => i !== idx)
-            updateRoleDetails(role.id, { responsibilities: newResps })
+            updateRoleDetails(role.id, { responsibilities: newResps }, oldTitle, null)
           }
 
           const handleCopyRole = () => {
@@ -836,7 +853,7 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
                 if (r.detail) lines.push(`  *${r.detail}*`)
               })
             }
-            
+
             navigator.clipboard.writeText(lines.join('\n')).then(() => {
               // Optional: could show a tiny toast, but native title tooltips work too
             })
@@ -857,8 +874,8 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
                       </div>
                       {role.title.replace('_', ' ')}
                     </div>
-                    <button 
-                      className={styles.copyRoleBtn} 
+                    <button
+                      className={styles.copyRoleBtn}
                       onClick={handleCopyRole}
                       title="Copiază Atribuțiile (Markdown)"
                     >
@@ -866,20 +883,20 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
                     </button>
                   </div>
                   {isEditMode ? (
-                    <textarea 
+                    <textarea
                       className={styles.attrChartRoleDescEdit}
-                      value={role.description} 
+                      value={role.description}
                       onChange={e => handleUpdateStr('description', e.target.value)}
                       placeholder="Descrierea rolului"
                     />
                   ) : (
                     <div className={styles.attrChartRoleDesc}>{role.description}</div>
                   )}
-                  
+
                   {isEditMode ? (
-                    <textarea 
+                    <textarea
                       className={styles.attrChartRoleReqEdit}
-                      value={role.requirements || ''} 
+                      value={role.requirements || ''}
                       onChange={e => handleUpdateStr('requirements', e.target.value)}
                       placeholder="Cerințe"
                     />
@@ -934,9 +951,9 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
                           <div className={styles.attrChartDot} />
 
                           {isEditMode && respItem.type === 'role' ? (
-                            <input 
-                              className={styles.attrChartTextEdit} 
-                              value={resp.title || resp} 
+                            <input
+                              className={styles.attrChartTextEdit}
+                              value={resp.title || resp}
                               onChange={e => handleUpdateResp(respItem.originalIndex, 'title', e.target.value)}
                             />
                           ) : (
@@ -989,7 +1006,7 @@ function AttributionsView({ tree, onAvatarClick, roles, roleDetails, isEditMode,
                       </div>
                     );
                   })}
-                  
+
                   {isEditMode && (
                     <button className={styles.addRespBtn} onClick={handleAddResp}>
                       <PlusCircle size={16} style={{ marginRight: 6 }} />
@@ -1264,17 +1281,17 @@ export default function OrgChart() {
               {isEditMode && (
                 <>
                   <div className={styles.navDivider}></div>
-                  <button 
-                    className={styles.navBtn} 
-                    onClick={undo} 
+                  <button
+                    className={styles.navBtn}
+                    onClick={undo}
                     disabled={historyIndex <= 0}
                     style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}
                   >
                     <Undo2 size={15} />
                   </button>
-                  <button 
-                    className={styles.navBtn} 
-                    onClick={redo} 
+                  <button
+                    className={styles.navBtn}
+                    onClick={redo}
                     disabled={historyIndex >= (historyStack || []).length - 1}
                     style={{ opacity: historyIndex >= (historyStack || []).length - 1 ? 0.5 : 1 }}
                   >
@@ -1419,22 +1436,22 @@ export default function OrgChart() {
 
             {/* Profile Modal (View Mode) */}
             {profileNode && !isEditMode && <ProfileModal node={profileNode} onClose={() => setProfileNode(null)} />}
-            
+
             {/* Settings Modal (Edit Mode) */}
             {showSettings && isEditMode && <SettingsModal onClose={() => setShowSettings(false)} />}
-            
+
             {/* Member Edit Sidebar (Edit Mode) */}
             {selected && isEditMode && <MemberEditSidebar node={selected} onClose={() => setSelected(null)} />}
           </>
         ) : (
-        <AttributionsView 
-          tree={tree} 
-          onAvatarClick={setProfileNode} 
-          roles={roles} 
-          roleDetails={roleDetails} 
-          isEditMode={isEditMode}
-          updateRoleDetails={updateRoleDetails}
-        />
+          <AttributionsView
+            tree={tree}
+            onAvatarClick={setProfileNode}
+            roles={roles}
+            roleDetails={roleDetails}
+            isEditMode={isEditMode}
+            updateRoleDetails={updateRoleDetails}
+          />
         )}
       </div>
     </div>

@@ -99,6 +99,8 @@ export const useStore = create((set, get) => {
         roles: INITIAL_ROLES,
         roleDetails: INITIAL_ROLE_DETAILS,
         isEditMode: false,
+        adminName: 'Console',
+        setAdminName: (name) => set({ adminName: name }),
         historyStack: [],
         historyIndex: -1,
 
@@ -128,9 +130,33 @@ export const useStore = create((set, get) => {
 
         toggleEditMode: () => set(state => ({ isEditMode: !state.isEditMode })),
 
-        updateRoleDetails: (roleId, updates) => set(state => {
+        updateRoleDetails: (roleId, updates, oldTitle = null, newTitle = null) => set(state => {
           const historyUpdate = pushHistory(state);
+          
+          let newTree = state.tree;
+          if (oldTitle) {
+            // Helper to recursively update or delete responsibilities in the tree
+            const updateTreeResps = (node) => {
+              let updatedNode = { ...node };
+              if (updatedNode.roleId === roleId && updatedNode.responsibilities) {
+                if (newTitle === null) {
+                  // Delete it
+                  updatedNode.responsibilities = updatedNode.responsibilities.filter(r => r !== oldTitle);
+                } else if (oldTitle !== newTitle) {
+                  // Rename it
+                  updatedNode.responsibilities = updatedNode.responsibilities.map(r => r === oldTitle ? newTitle : r);
+                }
+              }
+              if (updatedNode.children) {
+                updatedNode.children = updatedNode.children.map(child => updateTreeResps(child));
+              }
+              return updatedNode;
+            };
+            newTree = updateTreeResps(newTree);
+          }
+
           return {
+            tree: newTree,
             roleDetails: state.roleDetails.map(r => r.id === roleId ? { ...r, ...updates } : r),
             ...historyUpdate
           };
@@ -140,6 +166,26 @@ export const useStore = create((set, get) => {
           const historyUpdate = pushHistory(state);
           return {
             roles: state.roles.map(r => r.id === roleId ? { ...r, ...updates } : r),
+            ...historyUpdate
+          };
+        }),
+
+        addRole: (newRole) => set(state => {
+          const historyUpdate = pushHistory(state);
+          const roleId = `role-${Date.now()}`;
+          const role = { id: roleId, title: 'New Role', color: '#888888', glow: 'rgba(136,136,136,0.5)', rank: 10, maxSlots: null, ...newRole };
+          return {
+            roles: [...state.roles, role],
+            roleDetails: [...state.roleDetails, { id: roleId, responsibilities: [] }],
+            ...historyUpdate
+          };
+        }),
+
+        deleteRole: (roleId) => set(state => {
+          const historyUpdate = pushHistory(state);
+          return {
+            roles: state.roles.filter(r => r.id !== roleId),
+            roleDetails: state.roleDetails.filter(r => r.id !== roleId),
             ...historyUpdate
           };
         }),
@@ -187,7 +233,8 @@ export const useStore = create((set, get) => {
             date: new Date().toISOString(),
             action: 'Promoted',
             fromRole: currentRole.title,
-            toRole: newRole.title
+            toRole: newRole.title,
+            by: state.adminName || 'Console'
           };
           newTree = updateNodeField(newTree, nodeId, 'history', [...(node.history || []), historyEntry]);
     
@@ -211,7 +258,7 @@ export const useStore = create((set, get) => {
       newTree = insertNode(newTree, bestParent.id, updatedNode);
     }
 
-    return { tree: newTree };
+    return { tree: newTree, ...historyUpdate };
   }),
 
   demoteNode: (nodeId) => set(state => {
@@ -233,7 +280,8 @@ export const useStore = create((set, get) => {
             date: new Date().toISOString(),
             action: 'Demoted',
             fromRole: currentRole.title,
-            toRole: newRole.title
+            toRole: newRole.title,
+            by: state.adminName || 'Console'
           };
           newTree = updateNodeField(newTree, nodeId, 'history', [...(node.history || []), historyEntry]);
           
@@ -309,6 +357,29 @@ export const useStore = create((set, get) => {
         updateNodeDetails: (id, updates) => set(state => {
           const historyUpdate = pushHistory(state);
           let newTree = state.tree;
+          
+          const node = findNode(newTree, id);
+          if (node && updates.roleId && updates.roleId !== node.roleId) {
+            const oldRole = state.roles.find(r => r.id === node.roleId)?.title || 'Unknown';
+            const newRoleObj = state.roles.find(r => r.id === updates.roleId);
+            const newRole = newRoleObj?.title || 'Unknown';
+            
+            const oldRank = state.roles.find(r => r.id === node.roleId)?.rank || 999;
+            const newRank = newRoleObj?.rank || 999;
+            const action = newRank < oldRank ? 'Promoted' : 'Demoted';
+            
+            const historyEntry = {
+              date: new Date().toISOString(),
+              action: action,
+              fromRole: oldRole,
+              toRole: newRole,
+              by: state.adminName || 'Console'
+            };
+            
+            // If they didn't manually pass a history array in updates, create one
+            updates.history = [...(node.history || []), historyEntry];
+          }
+
           for (const [key, value] of Object.entries(updates)) {
             newTree = updateNodeField(newTree, id, key, value);
           }

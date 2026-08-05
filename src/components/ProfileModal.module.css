@@ -31,7 +31,7 @@
   border-radius: 16px;
   width: 100%;
   max-width: 800px;
-  max-height: 85vh;
+  height: 580px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
   display: flex;
   overflow: hidden;
@@ -472,17 +472,17 @@ a.infoItem:hover {
 .historyList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .historyItem {
   background: #09090b;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 16px 20px;
+  border-radius: 10px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   transition: transform 0.2s, background 0.2s;
 }
 
@@ -492,8 +492,8 @@ a.infoItem:hover {
 }
 
 .historyIconWrapper {
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--item-color) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--item-color) 30%, transparent);
@@ -507,7 +507,7 @@ a.infoItem:hover {
 .historyContent {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
 }
 
@@ -515,7 +515,7 @@ a.infoItem:hover {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
 }
 
 .historyDatePill {
@@ -546,7 +546,7 @@ a.infoItem:hover {
 }
 
 .historyAction {
-  font-size: 14px;
+  font-size: 12.5px;
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.2px;

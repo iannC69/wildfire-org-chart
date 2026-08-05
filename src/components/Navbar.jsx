@@ -1,96 +1,50 @@
-import React, { useState, useEffect } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import React from 'react'
+import { Bell, Moon, User, LogOut, ChevronDown } from 'lucide-react'
 import styles from './Navbar.module.css'
 
-const NAV_LINKS = [
-  { to: '/',           label: 'Home',       icon: '🏠' },
-  { to: '/dashboard',  label: 'Dashboard',  icon: '📋' },
-  { to: '/org-chart',  label: 'Org Chart',  icon: '🗂️' },
-]
-
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const location = useLocation()
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', handler)
-    return () => window.removeEventListener('scroll', handler)
-  }, [])
-
-  useEffect(() => {
-    setMobileOpen(false)
-  }, [location])
-
   return (
-    <nav className={`${styles.nav} ${scrolled ? styles.scrolled : ''}`}>
-      <div className={styles.inner}>
-        {/* Logo */}
-        <NavLink to="/" className={styles.logo}>
-          <div className={styles.logoIcon}>🔥</div>
-          <div>
-            <div className={styles.logoText}>WILDFIRE.RO</div>
-            <div className={styles.logoSub}>cs2 community</div>
-          </div>
-        </NavLink>
-
-        {/* Desktop links */}
-        <div className={styles.links}>
-          {NAV_LINKS.map(({ to, label, icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
-              className={({ isActive }) =>
-                `${styles.link} ${isActive ? styles.active : ''}`
-              }
-            >
-              <span className={styles.linkIcon}>{icon}</span>
-              {label}
-            </NavLink>
-          ))}
+    <nav className={styles.nav}>
+      <div className={styles.left}>
+        <div className={styles.logo}>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+             <path d="M2 14L8 26L14 14L20 26L26 14" stroke="url(#paint0_linear)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+             <defs>
+               <linearGradient id="paint0_linear" x1="2" y1="14" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+                 <stop stopColor="#FFC107"/>
+                 <stop offset="0.5" stopColor="#FF6B00"/>
+                 <stop offset="1" stopColor="#E53935"/>
+               </linearGradient>
+             </defs>
+          </svg>
         </div>
-
-        {/* CTA */}
-        <a
-          href="https://cs2.wildfire.ro"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.cta}
-        >
-          Joacă acum →
-        </a>
-
-        {/* Mobile hamburger */}
-        <button
-          className={styles.hamburger}
-          onClick={() => setMobileOpen(v => !v)}
-          aria-label="Toggle menu"
-        >
-          <span className={`${styles.bar} ${mobileOpen ? styles.barOpen1 : ''}`} />
-          <span className={`${styles.bar} ${mobileOpen ? styles.barOpen2 : ''}`} />
-          <span className={`${styles.bar} ${mobileOpen ? styles.barOpen3 : ''}`} />
-        </button>
+      </div>
+      
+      <div className={styles.center}>
+        <a href="#" className={styles.navLink}>FEATURES</a>
+        <a href="#" className={styles.navLink}>ABOUT</a>
+        <a href="#" className={styles.navLink}>SERVERS</a>
+        <a href="#" className={styles.navLink}>PANEL</a>
+        <a href="#" className={styles.navLink}>SKINS MARKET</a>
+        <a href="#" className={styles.navLink}>WIKI</a>
       </div>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className={styles.mobileMenu}>
-          {NAV_LINKS.map(({ to, label, icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
-              className={({ isActive }) =>
-                `${styles.mobileLink} ${isActive ? styles.mobileLinkActive : ''}`
-              }
-            >
-              <span>{icon}</span> {label}
-            </NavLink>
-          ))}
+      <div className={styles.right}>
+        <button className={styles.iconBtn}><Bell size={16} /></button>
+        <button className={styles.moonBtn}><Moon size={16} color="#FF6B00" /></button>
+        
+        <div className={styles.langSelector}>
+          <img src="https://flagcdn.com/w20/gb.png" alt="English" className={styles.flag} />
+          <ChevronDown size={14} color="#9ca3af" />
         </div>
-      )}
+
+        <button className={styles.userBadge}>
+          <User size={14} /> IANNC.실루엣 | _
+        </button>
+
+        <button className={styles.squareBtn}><User size={16} /></button>
+        <button className={styles.squareBtn}><LogOut size={16} /></button>
+      </div>
     </nav>
   )
 }
