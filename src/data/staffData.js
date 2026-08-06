@@ -591,7 +591,7 @@ export const ORG_TREE = {
               "immunity": 90
             }
           ],
-          "avatarUrl": "https://avatars.fastly.steamstatic.com/c41386971a8f05a08d9c5ada6a4cdc28766af535_full.jpg",
+          "avatarUrl": "https://avatars.fastly.steamstatic.com/09b38e357e4630fb9a48986b6cf4cae57a5a5bca_full.jpg",
           "steamLink": "https://steamcommunity.com/profiles/76561197965422061",
           "joinDate": "2023-01-15",
           "status": "offline",
@@ -635,7 +635,7 @@ export const ORG_TREE = {
           "history": []
         }
       ],
-      "avatarUrl": "https://avatars.fastly.steamstatic.com/5aae7060c5118b7da78bd6498e3e4bed4afa1fa2_full.jpg",
+      "avatarUrl": "https://avatars.fastly.steamstatic.com/681c8f4da73563c4a16239ee99708fab55c0d5d4_full.jpg",
       "steamLink": "https://steamcommunity.com/profiles/76561198863614059",
       "joinDate": "2023-01-15",
       "status": "offline",
